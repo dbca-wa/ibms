@@ -1,0 +1,97 @@
+{% extends "ibms/form.html" %}
+
+{% block extra_js %}
+<script type="text/javascript">
+    // Utility function to update region/branch select field when financial year changes.
+    function updateRegionBranch(finYear) {
+        $("select#id_region")[0].disabled = true;
+        $.ajax({
+            type: "GET",
+            url: "{% url 'ajax_glpivdownload_regionbranch' %}",
+            data: {"financialYear": finYear},
+            success: function(data) {
+                select = $("select#id_region")[0];
+                select.options.length = 0;
+                select.options.add(new Option('--------', ''));
+                for (i in data.choices) {
+                    select.options.add(new Option(data.choices[i][0], data.choices[i][1]));
+                }
+            }
+        });
+        $("select#id_region")[0].disabled = false;
+    };
+
+    // Utility function to update service field when FY, CC or Region/Branch changes.
+    function updateService(finYear, costCentre, regionBranch) {
+        $("select#id_service")[0].disabled = true;
+        if (regionBranch) {
+            $.ajax({
+                type: "GET",
+                url: "{% url 'ajax_glpivdownload_service' %}",
+                data: {"financialYear": finYear, "regionBranch": regionBranch},
+                success: function(data) {
+                    select = $("select#id_service")[0];
+                    select.options.length = 0;
+                    select.options.add(new Option('--------', ''));
+                    for (i in data.choices) {
+                        select.options.add(new Option(data.choices[i][0], data.choices[i][1]));
+                    }
+                }
+            });
+        }
+        $("select#id_service")[0].disabled = false;
+    };
+
+    function enableAllWidgets() {
+        $("select.select").each(function() {
+            this.disabled = false;
+        });
+        $("input.checkboxselectmultiple").each(function() {
+            this.disabled = false;
+        });
+    };
+
+    function disableSomeSelects() {
+        // Deselect and disable the Service, Budget and Project Sponsor selects.
+        var widget = $("select#id_service")[0];
+        widget.disabled = true;
+        widget.selectedIndex = 0;
+        widget.options.length = 0;
+   };
+    // ------------------------------------
+    $(function() {
+        var finYear = $("select#id_financial_year").val();
+        // Check the Financial year select. If it has a value (if form fails validation, etc),
+        // then ensure that the other selects are enabled.
+        if (finYear) {
+            enableAllWidgets();
+        };
+
+        // If the Financial Year select list changes: enable CC and region/branch,
+        // deselect the disable the others.
+        // Also update the options for cost centre and region/branch.
+        $("select#id_financial_year").change(function() {
+            finYear = $("select#id_financial_year").val();
+            enableAllWidgets();
+            updateRegionBranch(finYear);
+            disableSomeSelects();
+        });
+
+        // If the Region/Branch select list changes, update the Service, Budget Area and Project sponsor select lists.
+        $("#id_region").change(function() {
+            if ($("#id_region")[0].selectedIndex != 0) {
+                var finYear = $("select#id_financial_year").val();
+                var regionBranch = $("select#id_region").val();
+                // Update the fields.
+                updateService(finYear, false, regionBranch);
+            }
+            // User selected "null" value for region/branch.
+            else {
+                disableSomeSelects();
+            }
+            // Zero the selected value of the region/branch field.
+            $("#id_cost_centre")[0].selectedIndex = 0;
+        });
+    });
+</script>
+{% endblock %}

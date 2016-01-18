@@ -1,0 +1,56 @@
+{% extends "ibms/form.html" %}
+
+{% block extra_js %}
+<script type="text/javascript">
+    // Utility function to update Cost Centre select field when financial year changes.
+    function updateCostCentre(finYear) {
+        $("select#id_cost_centre")[0].disabled = true;
+        $.ajax({
+            type: "GET",
+            url: "{% url 'ajax_glpivdownload_costcentre' %}",
+            data: {"financialYear": finYear},
+            success: function(data) {
+                select = $("select#id_cost_centre")[0];
+                select.options.length = 0;
+                select.options.add(new Option('--------', ''));
+                for (i in data.choices) {
+                    select.options.add(new Option(data.choices[i][0], data.choices[i][1]));
+                }
+            }
+        });
+        $("select#id_cost_centre")[0].disabled = false;
+    };
+    // ------------------------------------
+    $(function() {
+        var finYear = $("select#id_financial_year").val();
+
+        // Check the Financial year select. If it has a value (if form fails validation, etc),
+        // then ensure that the other selects are enabled.
+        if (finYear) {
+            $("select.select").each(function() {
+                enableAllWidgets()
+                this.disabled = false;
+            });
+        };
+
+        // If the Financial Year select list changes, update the options for
+        // cost centre, region/branch and division.
+        $("select#id_financial_year").change(function() {
+            finYear = $("select#id_financial_year").val();
+            enableAllWidgets();
+            updateCostCentre(finYear);
+        });
+    });
+
+    function enableAllWidgets() {
+        $("select.select").each(function() {
+            this.disabled = false;
+        });
+        $("input.checkboxselectmultiple").each(function() {
+            this.disabled = false;
+        });
+    };
+
+
+</script>
+{% endblock %}

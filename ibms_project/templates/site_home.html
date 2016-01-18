@@ -1,0 +1,37 @@
+{% extends "base_ibms.html" %}
+
+{% block page_content_inner %}
+    <div class="row">
+        <div class="col-sm-12 col-lg-10">
+            <h1>ABOUT THIS APPLICATION</h1>
+            <p>The Integrated Business Management System (IBMS) is designed to improve the integration of the Department’s strategic planning and budget management functions.</p>
+            <p>This is achieved by creating a link between financial and strategic business information; establishing a cohesive structure for strategic planning, priority setting and operational work plans; and developing an effective knowledge management framework that provides a single source of information.</p>
+            <p>A key objective of the IBMS is to improve the end-to-end accountability to the Department’s Services, in terms of assessing work programs and the alignment of work to service priorities, reporting on financial expenditure against this information and reviewing actions and achievements.</p>
+            <hr>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-6 col-lg-5">
+            <h4>IBMS WORK INSTRUCTIONS</h4>
+            <ul>
+                <li><a href="{{ confluence_url }}/download/attachments/16646472/IBMS_WorkIns_General.doc">Useful links</a></li>
+                <li><a href="{{ confluence_url }}/download/attachments/16646472/IBMS_WorkIns_Reload_Regions.doc">Reload - regions</a></li>
+                <li><a href="{{ confluence_url }}/download/attachments/16646472/IBMS_WorkIns_Reload_OtherDivisions.doc">Reload - other divisions</a></li>
+                <li><a href="{{ confluence_url }}/download/attachments/16646472/IBMS_WorkIns_CodeUpdate.doc">Code update</a></li>
+                <li><a href="{{ confluence_url }}/download/attachments/16646472/IBMS_WorkIns_SerPriData.doc">Service priority data</a></li>
+                <li><a href="{{ confluence_url }}/download/attachments/16646472/IBMS_WorkIns_DataAmend.doc">Data amendments</a></li>
+                <li><a href="{{ confluence_url }}/download/attachments/16646472/IBMS_WorkIns_Combo_Report.doc">Combo Report</a></li>
+                <li><a href="{{ confluence_url }}/download/attachments/16646472/IBMS_WorkIns_SFM_Outcome.doc">FM - outputs</a></li>
+            </ul>
+        </div>
+        <div class="col-sm-12 col-md-6 col-lg-5">
+            <h4>CONTACTS</h4>
+            <p>For more information about this application, please contact:
+            <ul>
+            {% for manager in managers %}
+                <li><a href="mailto:{{ manager.1 }}">{{ manager.0 }}</a> ({{ manager.2 }})</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}

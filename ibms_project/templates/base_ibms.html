@@ -1,0 +1,84 @@
+{% extends "webtemplate_dpaw/base.html" %}
+{% load static from staticfiles %}
+
+{% block extra_style %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/ibms-custom.css' %}">
+{% endblock %}
+
+{% block navbar_site_title %}
+<a class="navbar-brand visible-xs visible-sm" href="{% url 'site_home' %}">{{ site_acronym }}</a>
+<a class="navbar-brand hidden-xs hidden-sm" href="{% url 'site_home' %}">{{ site_title }}</a>
+{% endblock %}
+
+{% block navbar_links %}
+{% block navbar_auth %}
+{% if user.is_authenticated %}
+<li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ user.email }} <span class="caret"></span></a>
+    <ul class="dropdown-menu" role="menu">
+        {% if user.is_staff %}
+        <li><a href="{% url 'admin:index' %}">Admin</a></li>
+        <li class="divider"></li>
+        {% endif %}
+        <li><a href="{% url 'logout' %}">Log out</a></li>
+    </ul>
+</li>
+{% else %}
+<li><a href="{% url 'login' %}">Log in</a></li>
+{% endif %}
+{% endblock %}
+{% endblock %}
+
+{% block page_content %}
+<div class="container-fluid">
+    <!-- Breadcrumbs -->
+    {% if breadcrumb_trail %}
+    <div class="row">
+        <div class="hidden-xs col-sm-12">
+            <ol class="breadcrumb">
+                {{ breadcrumb_trail|safe }}
+            </ol>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Messages  -->
+    {% if messages %}
+    <div class="row">
+        <div class="col-xs-12">
+            {% for message in messages %}
+            <div class="alert{% if message.tags %} alert-{{ message.tags }}{% endif %}">
+                {{ message|safe }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-4 col-md-3 col-lg-2" id="sidebar">
+            {% include "sidebar.html" %}
+        </div>
+        <div class="col-xs-12 col-sm-8 col-md-9 col-lg-10">
+            {% block page_content_inner %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_footer %}
+<div class="container-fluid">
+    <div class="row">
+        <hr>
+        <div class="col-xs-6">
+            <p>Version: {{ application_version_no }}</p>
+        </div>
+        <div class="col-xs-6">
+            <p class="pull-right">&copy; 2015 Department of Parks and Wildlife</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block bootflat_js %}{% endblock %}

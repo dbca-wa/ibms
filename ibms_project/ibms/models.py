@@ -1,0 +1,221 @@
+from __future__ import print_function, unicode_literals, absolute_import
+from django.db import models
+
+
+FINYEAR_CHOICES = (
+    ('2010/11', '2010/11'),
+    ('2011/12', '2011/12'),
+    ('2012/13', '2012/13'),
+    ('2013/14', '2013/14'),
+    ('2014/15', '2014/15'),
+    ('2015/16', '2015/16'),
+    ('2016/17', '2016/17'),
+    ('2017/18', '2017/18'),
+    ('2018/19', '2018/19'),
+    ('2019/20', '2019/20')
+)
+
+
+class IBMData(models.Model):
+    financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100)
+    ibmIdentifier = models.CharField(
+        max_length=100,
+        verbose_name='IBMId',
+        help_text='IBM Identifier')
+    budgetArea = models.CharField(max_length=100)
+    projectSponsor = models.CharField(max_length=100)
+    corporatePlanNo = models.CharField(max_length=100)
+    strategicPlanNo = models.CharField(max_length=100)
+    regionalSpecificInfo = models.TextField()
+    servicePriorityID = models.CharField(max_length=100)
+    annualWPInfo = models.TextField()
+    costCentre = models.CharField(max_length=4, null=True, blank=True)
+    account = models.IntegerField(null=True, blank=True)
+    service = models.IntegerField(null=True, blank=True)
+    activity = models.CharField(max_length=4, null=True, blank=True)
+    project = models.CharField(max_length=6, null=True, blank=True)
+    job = models.CharField(max_length=6, null=True, blank=True)
+
+    def __unicode__(self):
+        return self.ibmIdentifier
+
+    class Meta:
+        unique_together = [('ibmIdentifier', 'financialYear')]
+        verbose_name = 'IBM data'
+        verbose_name_plural = 'IBM data'
+
+
+class GLPivDownload(models.Model):
+    financialYear = models.CharField(max_length=7)
+    downloadPeriod = models.CharField(max_length=10)
+    costCentre = models.CharField(max_length=4)
+    account = models.IntegerField()
+    service = models.IntegerField()
+    activity = models.CharField(max_length=4)
+    resource = models.IntegerField()
+    project = models.CharField(max_length=6)
+    job = models.CharField(max_length=6)
+    shortCode = models.CharField(max_length=20)
+    shortCodeName = models.CharField(max_length=200)
+    gLCode = models.CharField(max_length=30)
+    ptdActual = models.DecimalField(max_digits=10, decimal_places=2)
+    ptdBudget = models.DecimalField(max_digits=10, decimal_places=2)
+    ytdActual = models.DecimalField(max_digits=10, decimal_places=2)
+    ytdBudget = models.DecimalField(max_digits=10, decimal_places=2)
+    fybudget = models.DecimalField(max_digits=12, decimal_places=2)
+    ytdVariance = models.DecimalField(max_digits=10, decimal_places=2)
+    ccName = models.CharField(max_length=100)
+    serviceName = models.CharField(max_length=100)
+    activityName = models.CharField(max_length=100)
+    resourceName = models.CharField(max_length=100)
+    projectName = models.CharField(max_length=100)
+    jobName = models.CharField(max_length=100)
+    codeID = models.CharField(
+        max_length=30,
+        help_text="This should match an IBMData object's IBMIdentifier field.")
+    resNameNo = models.CharField(max_length=100)
+    actNameNo = models.CharField(max_length=100)
+    projNameNo = models.CharField(max_length=100)
+    regionBranch = models.CharField(max_length=100)
+    division = models.CharField(max_length=100)
+    resourceCategory = models.CharField(max_length=100)
+    wildfire = models.CharField(max_length=30)
+    expenseRevenue = models.CharField(max_length=7)
+    fireActivities = models.CharField(max_length=50)
+    mPRACategory = models.CharField(max_length=100)
+
+    def __unicode__(self):
+        return unicode(self.pk)
+
+    class Meta:
+        unique_together = [('gLCode', 'financialYear')]
+        verbose_name = 'GL pivot download'
+        verbose_name_plural = 'GL pivot downloads'
+
+
+class CorporateStrategy(models.Model):
+    financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100)
+    corporateStrategyNo = models.CharField(max_length=100)
+    description1 = models.TextField(null=True)
+    description2 = models.TextField(null=True)
+
+    def __unicode__(self):
+        # Truncate description text longer than 100 characters.
+        if len(self.description1) <= 100:
+            return unicode(self.description1)
+        else:
+            desc_trunc = ' '.join(self.description1[:101].split(' ')[0:-1])
+            return unicode('{0} (...more...)'.format(desc_trunc))
+
+    class Meta:
+        unique_together = [('corporateStrategyNo', 'financialYear')]
+        verbose_name_plural = 'corporate strategies'
+
+
+class ServicePriority(models.Model):
+    """
+    Abstract base class.
+    """
+    financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100)
+    categoryID = models.CharField(max_length=100, null=True, blank=True)
+    servicePriorityNo = models.CharField(
+        max_length=100,
+        null=False,
+        default='-1')
+    strategicPlanNo = models.CharField(max_length=100, null=True, blank=True)
+    corporateStrategyNo = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True)
+    description = models.TextField(null=True)
+    pvsExampleAnnWP = models.TextField()
+    pvsExampleActNo = models.TextField()
+
+    def __unicode__(self):
+        return unicode('{0}: {1}'.format(self.pk, self.servicePriorityNo))
+
+    class Meta:
+        abstract = True
+        unique_together = [('servicePriorityNo', 'financialYear')]
+
+
+class GeneralServicePriority(ServicePriority):
+    description2 = models.TextField(null=True)
+
+    class Meta:
+        verbose_name_plural = 'general service priorities'
+
+
+class NCServicePriority(ServicePriority):
+    assetNo = models.CharField(max_length=5)
+    asset = models.TextField()
+    targetNo = models.CharField(max_length=30)
+    target = models.TextField()
+    actionNo = models.CharField(max_length=30)
+    action = models.TextField()
+    mileNo = models.CharField(max_length=30)
+    milestone = models.TextField()
+
+    class Meta:
+        unique_together = [('servicePriorityNo', 'financialYear')]
+        verbose_name = 'NC service priority'
+        verbose_name_plural = 'NC service priorities'
+
+    def __unicode__(self):
+        return unicode(self.pk)
+
+
+class PVSServicePriority(ServicePriority):
+    servicePriority1 = models.TextField()
+
+    class Meta:
+        verbose_name = 'PVS service priority'
+        verbose_name_plural = 'PVS service priorities'
+
+
+class SFMServicePriority(ServicePriority):
+    regionBranch = models.CharField(max_length=20)
+    description2 = models.TextField()
+
+    class Meta:
+        verbose_name = 'SFM service priority'
+        verbose_name_plural = 'SFM service priorities'
+
+
+class ERServicePriority(ServicePriority):
+    classification = models.TextField()
+
+    class Meta:
+        verbose_name = 'ER service priority'
+        verbose_name_plural = 'ER service priorities'
+
+
+class NCStrategicPlan(models.Model):
+    financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100)
+    strategicPlanNo = models.CharField(max_length=100)
+    directionNo = models.CharField(max_length=100)
+    direction = models.TextField()
+    AimNo = models.CharField(max_length=100)
+    Aim1 = models.TextField()
+    Aim2 = models.TextField()
+    ActionNo = models.TextField()
+    Action = models.TextField()
+
+    class Meta:
+        unique_together = [('strategicPlanNo', 'financialYear')]
+        verbose_name = 'NC strategic plan'
+        verbose_name_plural = 'NC strategic plans'
+
+    def __unicode__(self):
+        return unicode(self.pk)
+
+
+class Outcomes(models.Model):
+    financialYear = models.CharField(max_length=7)
+    q1Input = models.TextField()
+    q2Input = models.TextField(blank=True)
+    q3Input = models.TextField(blank=True)
+    q4Input = models.TextField(blank=True)
+
+    def __unicode__(self):
+        return self.financialYear

@@ -1,0 +1,42 @@
+{% extends "ibms/form.html" %}
+
+{% block extra_js %}
+<script type="text/javascript">
+    // Utility function to update Quarter select field when financial year changes.
+    function updateQuarter(finYear) {
+        $("select#id_quarter")[0].disabled = true;
+        $.ajax({
+            type: "GET",
+            url: "{% url 'ajax_quarter' %}",
+            data: {"financialYear": finYear},
+            success: function(data) {
+                select = $("select#id_quarter")[0];
+                select.options.length = 0;
+                select.options.add(new Option('--------', ''));
+                for (i in data.choices) {
+                    select.options.add(new Option(data.choices[i][1], data.choices[i][0]));
+                }
+            }
+        });
+        $("select#id_quarter")[0].disabled = false;
+    };
+    // ------------------------------------
+    $(function() {
+        $("select#id_quarter")[0].disabled = true;
+        var finYear = $("select#id_financial_year").val();
+
+        // Check the Financial year select. If it has a value (if form fails validation, etc),
+        // then ensure that the other selects are enabled.
+        if (finYear) {
+            $("select#id_quarter")[0].disabled = false;
+        };
+
+        // If the Financial Year select list changes, update the options for
+        // cost centre, region/branch and division.
+        $("select#id_financial_year").change(function() {
+            finYear = $("select#id_financial_year").val();
+            updateQuarter(finYear);
+        });
+    });
+</script>
+{% endblock %}
