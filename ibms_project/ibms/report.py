@@ -144,7 +144,8 @@ def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_
     sheet_ro = workbook_ro.get_sheet(0)
 
     # Download hyperlink:
-    sheet.write(1, 0, Formula('HYPERLINK("{}")'.format(settings.IBM_CODE_UPDATER_URI)))
+    sheet.write(1, 0, settings.IBM_CODE_UPDATER_URI)
+    #sheet.write(1, 0, Formula('HYPERLINK("{}")'.format(settings.IBM_CODE_UPDATER_URI)))
 
     # Padded zeroes number format
     pad2, pad3, pad4 = XFStyle(), XFStyle(), XFStyle()
