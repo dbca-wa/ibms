@@ -141,8 +141,9 @@ DEBUG_INSTALLED_APPS = ('debug_toolbar',)
 CONFLUENCE_URL = os.environ.get('CONFLUENCE_URL')
 # URLs to the IBM Code Updater spreadsheets on Confluence, so that the Custodian
 # can update them without a code change.
+IBM_CODE_UPDATER_URI = r'\\corporateict\dfs\shareddata\476-Regional Services\IBM Regions_Divisions\Code Update Template\IBMS_CodeUpdate.xls'
 #IBM_CODE_UPDATER_URI = 'https://static.dpaw.wa.gov.au/static/excel/IBMS_CodeUpdate.xls'
-IBM_CODE_UPDATER_URI = '{}/login.action?os_destination={}/download/attachments/16646472/IBMS_CodeUpdate.xls'.format(CONFLUENCE_URL, CONFLUENCE_URL)
+#IBM_CODE_UPDATER_URI = '{}/login.action?os_destination={}/download/attachments/16646472/IBMS_CodeUpdate.xls'.format(CONFLUENCE_URL, CONFLUENCE_URL)
 #IBM_SERVICE_PRIORITY_URI = 'https://static.dpaw.wa.gov.au/static/excel/IBMS_Service_Priorities_Update.xls'
 IBM_SERVICE_PRIORITY_URI = '{}/login.action?os_destination={}/download/attachments/16646472/IBMS_Service_Priorities_Update.xls'.format(CONFLUENCE_URL, CONFLUENCE_URL)
 #IBM_RELOAD_URI = 'https://static.dpaw.wa.gov.au/static/excel/IBMS_BudgetTemplate.xls'
