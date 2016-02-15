@@ -1,5 +1,11 @@
 {% extends "ibms/form.html" %}
 
+{% block page_content_inner %}
+{{ block.super }}
+<hr>
+<p><strong>NOTE:</strong> <a href="{{ data_amend_template_url }}">Download the data amendment spreadsheet here</a><p>
+{% endblock page_content_inner %}
+
 {% block extra_js %}
 <script type="text/javascript">
     // Utility function to update Cost Centre select field when financial year changes.

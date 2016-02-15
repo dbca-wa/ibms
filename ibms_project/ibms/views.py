@@ -165,6 +165,7 @@ class ReloadView(IbmsFormView):
             (reverse('site_home'), 'Home'),
             (None, 'Reload')]
         context['breadcrumb_trail'] = breadcrumb_trail(links)
+        context['reload_template_url'] = settings.IBM_RELOAD_URI
         return context
 
     def get_success_url(self):
@@ -224,6 +225,7 @@ class CodeUpdateView(IbmsFormView):
             (reverse('site_home'), 'Home'),
             (None, 'Code update')]
         context['breadcrumb_trail'] = breadcrumb_trail(links)
+        context['code_update_template_url'] = settings.IBM_CODE_UPDATER_URI
         return context
 
     def get_success_url(self):
@@ -294,6 +296,7 @@ class DataAmendmentView(IbmsFormView):
             (reverse('site_home'), 'Home'),
             (None, 'Data amendment')]
         context['breadcrumb_trail'] = breadcrumb_trail(links)
+        context['data_amend_template_url'] = settings.IBM_DATA_AMEND_URI
         return context
 
     def get_success_url(self):
@@ -355,6 +358,7 @@ class ServicePriorityDataView(IbmsFormView):
             (reverse('site_home'), 'Home'),
             (None, 'Service priority data')]
         context['breadcrumb_trail'] = breadcrumb_trail(links)
+        context['service_priority_template_url'] = settings.IBM_SERVICE_PRIORITY_URI
         return context
 
     def get_form_kwargs(self):
