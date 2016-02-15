@@ -13,3 +13,4 @@ webtemplate-dpaw==0.4.2
 openpyxl==2.2.5
 coverage==3.7.1
 mixer==5.1.8
+django-dynamic-fixture==1.8.5
