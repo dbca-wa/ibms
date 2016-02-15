@@ -1,7 +1,7 @@
 '''
 Django settings for the DPaW IBMS application.
 '''
-from confy import database
+from confy import database, env
 import os
 import sys
 from unipath import Path
@@ -14,14 +14,10 @@ sys.path.insert(0, PROJECT_DIR)
 
 
 # Settings defined in environment variables.
-SECRET_KEY = os.environ['SECRET_KEY'] if os.environ.get('SECRET_KEY', False) else 'foo'
-DEBUG = True if os.environ.get('DEBUG', False) == 'True' else False
-CSRF_COOKIE_SECURE = True if os.environ.get('CSRF_COOKIE_SECURE', False) == 'True' else False
-CSRF_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SECURE = True if os.environ.get('SESSION_COOKIE_SECURE', False) == 'True' else False
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'DENY'
+DEBUG = env('DEBUG', False)
+SECRET_KEY = env('SECRET_KEY')
+CSRF_COOKIE_SECURE = env('CSRF_COOKIE_SECURE', False)
+SESSION_COOKIE_SECURE = env('SESSION_COOKIE_SECURE', False)
 INTERNAL_IPS = ['127.0.0.1', '::1']
 if not DEBUG:
     # Localhost, UAT and Production hosts
@@ -138,18 +134,13 @@ TEMPLATES = [
     }
 ]
 DEBUG_INSTALLED_APPS = ('debug_toolbar',)
-CONFLUENCE_URL = os.environ.get('CONFLUENCE_URL')
+CONFLUENCE_URL = env('CONFLUENCE_URL', '')
 # URLs to the IBM Code Updater spreadsheets on Confluence, so that the Custodian
 # can update them without a code change.
-IBM_CODE_UPDATER_URI = r'\\corporateict\dfs\shareddata\476-Regional Services\IBM Regions_Divisions\Code Update Template\IBMS_CodeUpdate.xls'
-#IBM_CODE_UPDATER_URI = 'https://static.dpaw.wa.gov.au/static/excel/IBMS_CodeUpdate.xls'
-#IBM_CODE_UPDATER_URI = '{}/login.action?os_destination={}/download/attachments/16646472/IBMS_CodeUpdate.xls'.format(CONFLUENCE_URL, CONFLUENCE_URL)
-#IBM_SERVICE_PRIORITY_URI = 'https://static.dpaw.wa.gov.au/static/excel/IBMS_Service_Priorities_Update.xls'
-IBM_SERVICE_PRIORITY_URI = '{}/login.action?os_destination={}/download/attachments/16646472/IBMS_Service_Priorities_Update.xls'.format(CONFLUENCE_URL, CONFLUENCE_URL)
-#IBM_RELOAD_URI = 'https://static.dpaw.wa.gov.au/static/excel/IBMS_BudgetTemplate.xls'
-IBM_RELOAD_URI = '{}/login.action?os_destination={}/download/attachments/16646472/IBMS_BudgetTemplate.xls'.format(CONFLUENCE_URL, CONFLUENCE_URL)
-#IBM_DATA_AMEND_URI = 'https://static.dpaw.wa.gov.au/static/excel/IBMS_Amendments.xls'
-IBM_DATA_AMEND_URI = '{}/login.action?os_destination={}/download/attachments/16646472/IBMS_Amendments.xls'.format(CONFLUENCE_URL, CONFLUENCE_URL)
+IBM_CODE_UPDATER_URI = env('IBM_CODE_UPDATER_URI', '{}/{}').format(CONFLUENCE_URL, CONFLUENCE_URL)
+IBM_SERVICE_PRIORITY_URI = env('IBM_SERVICE_PRIORITY_URI', '{}/{}').format(CONFLUENCE_URL, CONFLUENCE_URL)
+IBM_RELOAD_URI = env('IBM_RELOAD_URI', '{}/{}').format(CONFLUENCE_URL, CONFLUENCE_URL)
+IBM_DATA_AMEND_URI = env('IBM_DATA_AMEND_URI', '{}/{}').format(CONFLUENCE_URL, CONFLUENCE_URL)
 HELP_URL = '{}'.format(CONFLUENCE_URL)
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
@@ -217,8 +208,8 @@ DEBUG_LOGGING = {
 # Supplement some settings when DEBUG is True.
 if DEBUG:
     LOGGING = DEBUG_LOGGING
-    if os.environ.get('INTERNAL_IP', False):  # Optionally add developer local IP
-        INTERNAL_IPS.append(os.environ['INTERNAL_IP'])
+    if env('INTERNAL_IP', False):  # Optionally add developer local IP
+        INTERNAL_IPS.append(env('INTERNAL_IP'))
     INSTALLED_APPS += (
         'debug_toolbar',
     )
