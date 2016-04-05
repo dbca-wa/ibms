@@ -6,12 +6,12 @@ from ibms.models import (
     GeneralServicePriority, PVSServicePriority, SFMServicePriority)
 
 
-def getGenericChoices(classmodel=None, key='', allowNull=False):
+def getGenericChoices(classmodel, key, allowNull=False):
     """Generates a list of choices for a drop down from a model and key.
     """
     CHOICES = [('', '--------')] if allowNull else []
-    for i in classmodel.objects.all().values(key).distinct(key):
-        CHOICES.append((i[key], i[key]))
+    for i in classmodel.objects.all().values_list(key, flat=True).distinct():
+        CHOICES.append((i, i))
     CHOICES.sort()
     return CHOICES
 
