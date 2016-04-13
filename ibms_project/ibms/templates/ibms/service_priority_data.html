@@ -1,11 +1,5 @@
 {% extends "ibms/form.html" %}
 
-{% block page_content_inner %}
-{{ block.super }}
-<hr>
-<p><strong>NOTE:</strong> <a href="{{ service_priority_template_url }}">Download the service priorities update spreadsheet here</a><p>
-{% endblock page_content_inner %}
-
 {% block extra_js %}
 <script type="text/javascript">
     // Utility function to update region/branch select field when financial year changes.
