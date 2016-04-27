@@ -73,7 +73,7 @@ DATETIME_INPUT_FORMATS = (
 # Project settings.
 SITE_TITLE = 'Integrated Business Management System'
 SITE_ACRONYM = 'IBMS'
-APPLICATION_VERSION_NO = '2.0.3'
+APPLICATION_VERSION_NO = '16.04.1'
 ADMINS = ('asi@dpaw.wa.gov.au',)
 MANAGERS = (
     ('Zen Wee', 'zen.wee@dpaw.wa.gov.au', '9219 9928'),
@@ -137,10 +137,10 @@ DEBUG_INSTALLED_APPS = ('debug_toolbar',)
 CONFLUENCE_URL = env('CONFLUENCE_URL', '')
 # URLs to the IBM Code Updater spreadsheets on Confluence, so that the Custodian
 # can update them without a code change.
-IBM_CODE_UPDATER_URI = env('IBM_CODE_UPDATER_URI', '{}/{}').format(CONFLUENCE_URL, CONFLUENCE_URL)
-IBM_SERVICE_PRIORITY_URI = env('IBM_SERVICE_PRIORITY_URI', '{}/{}').format(CONFLUENCE_URL, CONFLUENCE_URL)
-IBM_RELOAD_URI = env('IBM_RELOAD_URI', '{}/{}').format(CONFLUENCE_URL, CONFLUENCE_URL)
-IBM_DATA_AMEND_URI = env('IBM_DATA_AMEND_URI', '{}/{}').format(CONFLUENCE_URL, CONFLUENCE_URL)
+IBM_CODE_UPDATER_URI = env('IBM_CODE_UPDATER_URI')
+IBM_SERVICE_PRIORITY_URI = env('IBM_SERVICE_PRIORITY_URI')
+IBM_RELOAD_URI = env('IBM_RELOAD_URI')
+IBM_DATA_AMEND_URI = env('IBM_DATA_AMEND_URI')
 HELP_URL = '{}'.format(CONFLUENCE_URL)
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 

@@ -1,11 +1,5 @@
 {% extends "ibms/form.html" %}
 
-{% block page_content_inner %}
-{{ block.super }}
-<hr>
-<p><strong>NOTE:</strong> <a href="{{ reload_template_url }}">Download the master reload template spreadsheet here</a><p>
-{% endblock page_content_inner %}
-
 {% block extra_js %}
 <script type="text/javascript">
     // Utility function to update Cost Centre select field when financial year changes.
