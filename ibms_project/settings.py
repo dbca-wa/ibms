@@ -133,7 +133,6 @@ TEMPLATES = [
         },
     }
 ]
-DEBUG_INSTALLED_APPS = ('debug_toolbar',)
 CONFLUENCE_URL = env('CONFLUENCE_URL', '')
 # URLs to the IBM Code Updater spreadsheets on Confluence, so that the Custodian
 # can update them without a code change.

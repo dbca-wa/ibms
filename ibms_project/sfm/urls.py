@@ -1,12 +1,11 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from ibms.views import IbmsModelFieldJSON
 from sfm.models import Quarter, SFMMetric
 from sfm.views import (FMUploadView, FMOutputReport, FMOutputsView,
-                    MeasurementValueJSON)
+                       MeasurementValueJSON)
 
-urlpatterns = patterns(
-    'fm.views',
+urlpatterns = [
     url(r'fm/$', FMOutputsView.as_view(), name='sfmoutcome'),
     url(r'^fm-upload/$', FMUploadView.as_view(), name='sfmupload'),
     url(r'^fm-download/$', FMOutputReport.as_view(), name='sfmdownload'),
@@ -22,4 +21,4 @@ urlpatterns = patterns(
         name='ajax_sfmmetric_metricid'),
     url(r'^ajax/measurementvalue/$', MeasurementValueJSON.as_view(),
         name='ajax_measurementvalue'),
-)
+]
