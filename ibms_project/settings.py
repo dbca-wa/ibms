@@ -73,7 +73,7 @@ DATETIME_INPUT_FORMATS = (
 # Project settings.
 SITE_TITLE = 'Integrated Business Management System'
 SITE_ACRONYM = 'IBMS'
-APPLICATION_VERSION_NO = '16.04.1'
+APPLICATION_VERSION_NO = '16.05.1'
 ADMINS = ('asi@dpaw.wa.gov.au',)
 MANAGERS = (
     ('Zen Wee', 'zen.wee@dpaw.wa.gov.au', '9219 9928'),
