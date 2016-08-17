@@ -433,7 +433,7 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
         # Sanity check: if the model hasn't got that field, return a
         # HTTPResponseBadRequest response.
         try:
-            self.model._meta.get_field_by_name(self.fieldname)
+            self.model._meta.get_field(self.fieldname)
         except:
             return HttpResponseBadRequest(
                 'Invalid field name: {0}'.format(self.fieldname))
@@ -444,13 +444,13 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
             r = r.filter(costCentre=request.GET['costCentre'])
         # Check for fields that may not exist on the model.
         try:
-            if request.GET.get('regionBranch', None) and self.model._meta.get_field_by_name(
+            if request.GET.get('regionBranch', None) and self.model._meta.get_field(
                     'regionBranch'):
                 r = r.filter(regionBranch=request.GET['regionBranch'])
         except:
             pass
         try:
-            if request.GET.get('service', None) and self.model._meta.get_field_by_name(
+            if request.GET.get('service', None) and self.model._meta.get_field(
                     'service'):
                 r = r.filter(costCentre=request.GET['service'])
         except:
