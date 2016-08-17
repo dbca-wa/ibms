@@ -73,7 +73,7 @@ DATETIME_INPUT_FORMATS = (
 # Project settings.
 SITE_TITLE = 'Integrated Business Management System'
 SITE_ACRONYM = 'IBMS'
-APPLICATION_VERSION_NO = '16.05.1'
+APPLICATION_VERSION_NO = '2.1'
 ADMINS = ('asi@dpaw.wa.gov.au',)
 MANAGERS = (
     ('Zen Wee', 'zen.wee@dpaw.wa.gov.au', '9219 9928'),
@@ -120,14 +120,15 @@ TEMPLATES = [
         'OPTIONS': {
             'debug': DEBUG,
             'context_processors': [
-                "django.contrib.auth.context_processors.auth",
-                "django.core.context_processors.debug",
-                "django.core.context_processors.i18n",
-                "django.core.context_processors.media",
-                "django.core.context_processors.static",
-                "django.core.context_processors.tz",
-                "django.contrib.messages.context_processors.messages",
-                "django.core.context_processors.request",
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.template.context_processors.request',
+                'django.template.context_processors.csrf',
+                'django.contrib.messages.context_processors.messages',
                 "ibms_project.context_processors.standard",
             ],
         },
@@ -212,5 +213,4 @@ if DEBUG:
     INSTALLED_APPS += (
         'debug_toolbar',
     )
-    DEBUG_TOOLBAR_PATCH_SETTINGS = True
     MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE_CLASSES

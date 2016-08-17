@@ -1,11 +1,11 @@
-Django==1.9.5
-django-extensions==1.6.1
-https://static.dpaw.wa.gov.au/static/py/dpaw-utils/dist/dpaw-utils-0.3a9.tar.gz
+Django==1.10
+django-extensions==1.6.7
+https://static.dpaw.wa.gov.au/static/py/dpaw-utils/dist/dpaw-utils-0.3a11.tar.gz
 Unipath==1.1
 Fabric==1.10.2
 jinja2==2.8
 dj-static==0.0.6
-django-debug-toolbar==1.4
+django-debug-toolbar==1.5
 django-crispy-forms==1.6.0
 xlrd==0.9.3
 xlutils==1.7.1
