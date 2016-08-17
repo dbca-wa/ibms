@@ -1,11 +1,10 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from ibms.models import GLPivDownload, IBMData
 from ibms.views import (DownloadView, UploadView, ReloadView, CodeUpdateView,
                         ServicePriorityDataView, DataAmendmentView,
                         IbmsModelFieldJSON)
 
-urlpatterns = patterns(
-    'ibms.views',
+urlpatterns = [
     url(r'^upload/$', UploadView.as_view(), name='upload'),
     url(r'^download/$', DownloadView.as_view(), name='download'),
     url(r'^reload/$', ReloadView.as_view(), name='reload'),
@@ -49,4 +48,4 @@ urlpatterns = patterns(
     url(r'^ajax/glpivdownload/division/$',
         IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='division'),
         name='ajax_glpivdownload_division'),
-)
+]
