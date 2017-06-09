@@ -137,6 +137,7 @@ IBM_RELOAD_URI = env('IBM_RELOAD_URI')
 IBM_DATA_AMEND_URI = env('IBM_DATA_AMEND_URI')
 HELP_URL = '{}'.format(CONFLUENCE_URL)
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+DATA_UPLOAD_MAX_NUMBER_FIELDS = None  # Required to allow end-of-month GLPivot bulk deletes.
 
 
 # Logging settings
