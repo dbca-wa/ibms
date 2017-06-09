@@ -196,7 +196,7 @@ def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_
             resource_idx = 21  # Column V, '0000'
             match_resource_code = False
             for i in range(resource_idx, max_col_idx + 1):
-                if int(sheet_ro.cell_value(3, i)) == gl_piv.resource:
+                if sheet_ro.cell_value(3, i) and int(sheet_ro.cell_value(3, i)) == gl_piv.resource:
                     match_resource_code = True
                     break
                 resource_idx += 1
