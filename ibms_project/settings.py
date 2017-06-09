@@ -18,17 +18,11 @@ DEBUG = env('DEBUG', False)
 SECRET_KEY = env('SECRET_KEY')
 CSRF_COOKIE_SECURE = env('CSRF_COOKIE_SECURE', False)
 SESSION_COOKIE_SECURE = env('SESSION_COOKIE_SECURE', False)
-INTERNAL_IPS = ['127.0.0.1', '::1']
 if not DEBUG:
-    # Localhost, UAT and Production hosts
-    ALLOWED_HOSTS = [
-        'localhost',
-        '127.0.0.1',
-        'ibms.dpaw.wa.gov.au',
-        'ibms.dpaw.wa.gov.au.',
-        'ibms-uat.dpaw.wa.gov.au',
-        'ibms-uat.dpaw.wa.gov.au.',
-    ]
+    ALLOWED_HOSTS = [env('ALLOWED_DOMAIN'),]
+else:
+    ALLOWED_HOSTS = ['*']
+INTERNAL_IPS = ['127.0.0.1', '::1']
 
 
 # Database configuration
