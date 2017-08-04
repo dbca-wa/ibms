@@ -1,5 +1,5 @@
 '''
-Django settings for the DPaW IBMS application.
+Django settings for the IBMS application.
 '''
 from confy import database, env
 import os
@@ -12,17 +12,87 @@ PROJECT_DIR = os.path.join(BASE_DIR, 'ibms_project')
 # Add PROJECT_DIR to the system path.
 sys.path.insert(0, PROJECT_DIR)
 
-
 # Settings defined in environment variables.
 DEBUG = env('DEBUG', False)
 SECRET_KEY = env('SECRET_KEY')
 CSRF_COOKIE_SECURE = env('CSRF_COOKIE_SECURE', False)
 SESSION_COOKIE_SECURE = env('SESSION_COOKIE_SECURE', False)
 if not DEBUG:
-    ALLOWED_HOSTS = [env('ALLOWED_DOMAIN'),]
+    ALLOWED_HOSTS = env('ALLOWED_DOMAINS', '').split(',')
 else:
     ALLOWED_HOSTS = ['*']
 INTERNAL_IPS = ['127.0.0.1', '::1']
+ROOT_URLCONF = 'ibms_project.urls'
+WSGI_APPLICATION = 'ibms_project.wsgi.application'
+INSTALLED_APPS = (
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.messages',
+    'django.contrib.sessions',
+    'django.contrib.staticfiles',
+    'django_extensions',
+    'crispy_forms',
+    'webtemplate_dpaw',
+    'ibms',
+    'sfm',
+)
+MIDDLEWARE_CLASSES = (
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'dpaw_utils.middleware.SSOLoginMiddleware',
+)
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': (os.path.join(BASE_DIR, 'ibms_project', 'templates'),),
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'debug': DEBUG,
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.template.context_processors.request',
+                'django.template.context_processors.csrf',
+                'django.contrib.messages.context_processors.messages',
+                "ibms_project.context_processors.standard",
+            ],
+        },
+    }
+]
+SITE_TITLE = 'Integrated Business Management System'
+SITE_ACRONYM = 'IBMS'
+APPLICATION_VERSION_NO = '2.2'
+ADMINS = ('asi@dbca.wa.gov.au',)
+MANAGERS = (
+    ('Zen Wee', 'zen.wee@dbca.wa.gov.au', '9219 9928'),
+    ('Neil Clancy', 'neil.clancy@dbca.wa.gov.au', '9219 9926'),
+)
+SITE_ID = 1
+ANONYMOUS_USER_ID = 1
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
+CONFLUENCE_URL = env('CONFLUENCE_URL', '')
+# URLs to the IBM Code Updater spreadsheets on Confluence, so that the Custodian
+# can update them without a code change.
+IBM_CODE_UPDATER_URI = env('IBM_CODE_UPDATER_URI')
+IBM_SERVICE_PRIORITY_URI = env('IBM_SERVICE_PRIORITY_URI')
+IBM_RELOAD_URI = env('IBM_RELOAD_URI')
+IBM_DATA_AMEND_URI = env('IBM_DATA_AMEND_URI')
+HELP_URL = '{}'.format(CONFLUENCE_URL)
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+DATA_UPLOAD_MAX_NUMBER_FIELDS = None  # Required to allow end-of-month GLPivot bulk deletes.
 
 
 # Database configuration
@@ -64,80 +134,9 @@ DATETIME_INPUT_FORMATS = (
     '%d-%m-%Y %H:%M',)
 
 
-# Project settings.
-SITE_TITLE = 'Integrated Business Management System'
-SITE_ACRONYM = 'IBMS'
-APPLICATION_VERSION_NO = '2.2'
-ADMINS = ('asi@dpaw.wa.gov.au',)
-MANAGERS = (
-    ('Zen Wee', 'zen.wee@dpaw.wa.gov.au', '9219 9928'),
-    ('Neil Clancy', 'neil.clancy@dpaw.wa.gov.au', '9219 9926'),
-)
-ROOT_URLCONF = 'ibms_project.urls'
-WSGI_APPLICATION = 'ibms_project.wsgi.application'
-SITE_ID = 1
-ANONYMOUS_USER_ID = 1
-EMAIL_HOST = 'alerts.corporateict.domain'
-EMAIL_PORT = 25
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/'
-INSTALLED_APPS = (
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.messages',
-    'django.contrib.sessions',
-    'django.contrib.staticfiles',
-    'django_extensions',
-    'crispy_forms',
-    'webtemplate_dpaw',
-    'ibms',
-    'sfm',
-)
-MIDDLEWARE_CLASSES = (
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'dpaw_utils.middleware.SSOLoginMiddleware',
-)
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-)
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': (os.path.join(BASE_DIR, 'ibms_project', 'templates'),),
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'debug': DEBUG,
-            'context_processors': [
-                'django.contrib.auth.context_processors.auth',
-                'django.template.context_processors.debug',
-                'django.template.context_processors.i18n',
-                'django.template.context_processors.media',
-                'django.template.context_processors.static',
-                'django.template.context_processors.tz',
-                'django.template.context_processors.request',
-                'django.template.context_processors.csrf',
-                'django.contrib.messages.context_processors.messages',
-                "ibms_project.context_processors.standard",
-            ],
-        },
-    }
-]
-CONFLUENCE_URL = env('CONFLUENCE_URL', '')
-# URLs to the IBM Code Updater spreadsheets on Confluence, so that the Custodian
-# can update them without a code change.
-IBM_CODE_UPDATER_URI = env('IBM_CODE_UPDATER_URI')
-IBM_SERVICE_PRIORITY_URI = env('IBM_SERVICE_PRIORITY_URI')
-IBM_RELOAD_URI = env('IBM_RELOAD_URI')
-IBM_DATA_AMEND_URI = env('IBM_DATA_AMEND_URI')
-HELP_URL = '{}'.format(CONFLUENCE_URL)
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
-DATA_UPLOAD_MAX_NUMBER_FIELDS = None  # Required to allow end-of-month GLPivot bulk deletes.
+# Email settings.
+EMAIL_HOST = env('EMAIL_HOST', 'email.host')
+EMAIL_PORT = env('EMAIL_PORT', 25)
 
 
 # Logging settings
