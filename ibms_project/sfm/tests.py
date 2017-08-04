@@ -1,10 +1,9 @@
 from django.core.urlresolvers import reverse
 from django.test.client import Client
-from django_dynamic_fixture import G
+from mixer.backend.django import mixer
 
 from ibms.tests import IbmsTestCase
-from sfm.models import (Quarter, SFMMetric, MeasurementType, CostCentre,
-                     MeasurementValue)
+from sfm.models import Quarter, SFMMetric, MeasurementType, CostCentre, MeasurementValue
 
 
 class SfmViewsTest(IbmsTestCase):
@@ -48,12 +47,11 @@ class SfmViewsTest(IbmsTestCase):
         """Test sfm JSON endpoints for AJAX requests.
         """
         # For this, we need some dummy records.
-        for i in range(10):
-            G(Quarter)
-            G(SFMMetric)
-            G(MeasurementType)
-            G(CostCentre)
-            G(MeasurementValue)
+        mixer.cycle(10).blend(Quarter)
+        mixer.cycle(10).blend(SFMMetric)
+        mixer.cycle(10).blend(MeasurementType)
+        mixer.cycle(10).blend(CostCentre)
+        mixer.cycle(10).blend(MeasurementValue)
 
         self.client.login(username='admin', password='test')
         for endpoint in [
