@@ -221,9 +221,11 @@ def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_
     write_service_priorities(sheet, nc_sp, pvs_sp, fm_sp)
 
     # Sheet 3: Budget area & project sponsor lookup data.
-    # This is a list of unique (budgetArea, projectSponsor) pairs.
+    # This is a list of unique budgetArea and projectSponsor values, written in
+    # as reference data for macros.
     sheet = workbook.get_sheet(2)
     write_budget_areas(sheet, ibm)
+    write_project_sponsors(sheet, ibm)
 
 
 def reload_report(workbook, ibm, nc_sp, pvs_sp, fm_sp, gl):
@@ -282,14 +284,26 @@ def reload_report(workbook, ibm, nc_sp, pvs_sp, fm_sp, gl):
 
 
 def write_budget_areas(sheet, ibm):
-    """From a queryset of IBMData objects, write unique (budgetArea, projectSponsor) pairs
+    """From a queryset of IBMData objects, write unique budgetArea values
     to the passed-in worksheet.
     """
     row = 1  # Skip the header row
-    budget_areas = set(ibm.values_list('budgetArea', 'projectSponsor'))
-    for i in budget_areas:
-        sheet.write(row, 0, i[0])
-        sheet.write(row, 1, i[1])
+    budget_areas = ibm.values_list('budgetArea', flat=True)
+    budget_areas = sorted(set([i.strip() for i in budget_areas]))
+    for i in [i for i in budget_areas if i]:  # Non-blank values only.
+        sheet.write(row, 0, i)
+        row += 1
+
+
+def write_project_sponsors(sheet, ibm):
+    """From a queryset of IBMData objects, write unique projectSponsor values
+    to the passed-in worksheet.
+    """
+    row = 1  # Skip the header row
+    sponsors = ibm.values_list('projectSponsor', flat=True)
+    sponsors = sorted(set([i.strip() for i in sponsors]))
+    for i in [i for i in sponsors if i]:  # Non-blank values only.
+        sheet.write(row, 1, i)
         row += 1
 
 
