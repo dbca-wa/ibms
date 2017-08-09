@@ -268,11 +268,11 @@ class CodeUpdateView(IbmsFormView):
         excel_template = open_workbook(
             fpath, formatting_info=True, on_demand=True)
         book = copy(excel_template)
-        code_update_report(excel_template, book, gl, gl_codeids, nc_sp, pvs_sp, fm_sp)
+        code_update_report(excel_template, book, gl, gl_codeids, nc_sp, pvs_sp, fm_sp, ibm)
 
         response = HttpResponse(content_type='application/vnd.ms-excel')
         response['Content-Disposition'] = 'attachment; filename=ibms_exceptions.xls'
-        book.save(response)  # Save the worksheet contents to the response.
+        book.save(response)  # Save the Excel workbook contents to the response.
         return response
 
 

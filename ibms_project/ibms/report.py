@@ -135,7 +135,7 @@ def data_amend_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp):
     write_service_priorities(sheet, nc_sp, pvs_sp, fm_sp)
 
 
-def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_sp):
+def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_sp, ibm):
     """This report reads from the readonly workbook in order to perform some
     cell processing.
     """
@@ -216,9 +216,14 @@ def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_
         # For cell V:<end> in the footer row, insert a SUM formula.
         sheet.write(row, i, Formula('ROUND(SUM({}:{}), 0)'.format(cellname(4, i), cellname(row-1, i))))
 
-    # Sheet 2 - Service priority checkboxes.
+    # Sheet 2: Service priority checkboxes.
     sheet = workbook.get_sheet(1)
     write_service_priorities(sheet, nc_sp, pvs_sp, fm_sp)
+
+    # Sheet 3: Budget area & project sponsor lookup data.
+    # This is a list of unique (budgetArea, projectSponsor) pairs.
+    sheet = workbook.get_sheet(2)
+    write_budget_areas(sheet, ibm)
 
 
 def reload_report(workbook, ibm, nc_sp, pvs_sp, fm_sp, gl):
@@ -274,6 +279,18 @@ def reload_report(workbook, ibm, nc_sp, pvs_sp, fm_sp, gl):
 
     sheet.col(0).width = 7500
     sheet.col(2).width = 12500
+
+
+def write_budget_areas(sheet, ibm):
+    """From a queryset of IBMData objects, write unique (budgetArea, projectSponsor) pairs
+    to the passed-in worksheet.
+    """
+    row = 1  # Skip the header row
+    budget_areas = set(ibm.values_list('budgetArea', 'projectSponsor'))
+    for i in budget_areas:
+        sheet.write(row, 0, i[0])
+        sheet.write(row, 1, i[1])
+        row += 1
 
 
 def write_service_priorities(sheet, nc_sp, pvs_sp, fm_sp):
