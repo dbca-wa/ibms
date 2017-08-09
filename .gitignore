@@ -9,6 +9,11 @@ logs/
 *.pyc
 *.swp
 *.swo
-*.sqlite3
 .env
 .coverage
+
+# Database/fixture dumps
+*.pgdump
+*.dump
+*.db
+*.sqlite3
