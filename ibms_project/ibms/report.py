@@ -134,6 +134,16 @@ def data_amend_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp):
     sheet = workbook.get_sheet(1)
     write_service_priorities(sheet, nc_sp, pvs_sp, fm_sp)
 
+    # Sheet 3: Budget area & project sponsor lookup data.
+    # This is a list of unique budgetArea and projectSponsor values, written in
+    # as reference data for macros.
+    sheet = workbook.get_sheet(2)
+    write_budget_areas(sheet, ibm)
+    write_project_sponsors(sheet, ibm)
+
+    # Select the first sheet.
+    sheet = workbook.get_sheet(0)
+
 
 def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_sp, ibm):
     """This report reads from the readonly workbook in order to perform some
@@ -226,6 +236,9 @@ def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_
     sheet = workbook.get_sheet(2)
     write_budget_areas(sheet, ibm)
     write_project_sponsors(sheet, ibm)
+
+    # Select the first sheet.
+    sheet = workbook.get_sheet(0)
 
 
 def reload_report(workbook, ibm, nc_sp, pvs_sp, fm_sp, gl):
