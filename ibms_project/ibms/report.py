@@ -16,7 +16,8 @@ def service_priority_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp):
     sheet = workbook.get_sheet(0)
 
     # Download hyperlink:
-    sheet.write(1, 0, Formula('HYPERLINK("{}")'.format(settings.IBM_SERVICE_PRIORITY_URI)))
+    bigfont = easyxf('font: bold 1,height 360;')  # Font height is in "twips" (1/20 of a point)
+    sheet.write(1, 0, Formula('HYPERLINK("{}")'.format(settings.IBM_SERVICE_PRIORITY_URI)), bigfont)
 
     # Padded zeroes number format
     pad2, pad3, pad4 = XFStyle(), XFStyle(), XFStyle()
@@ -73,12 +74,13 @@ def service_priority_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp):
     write_service_priorities(sheet, nc_sp, pvs_sp, fm_sp)
 
 
-def data_amend_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp):
+def data_amend_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp, ibm_filtered):
     # Sheet 1
     sheet = workbook.get_sheet(0)
 
     # Download hyperlink:
-    sheet.write(1, 0, Formula('HYPERLINK("{}")'.format(settings.IBM_DATA_AMEND_URI)))
+    bigfont = easyxf('font: bold 1,height 360;')  # Font height is in "twips" (1/20 of a point)
+    sheet.write(1, 0, Formula('HYPERLINK("{}")'.format(settings.IBM_DATA_AMEND_URI)), bigfont)
 
     # Padded zeroes number format
     pad2, pad3, pad4 = XFStyle(), XFStyle(), XFStyle()
@@ -138,8 +140,8 @@ def data_amend_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp):
     # This is a list of unique budgetArea and projectSponsor values, written in
     # as reference data for macros.
     sheet = workbook.get_sheet(2)
-    write_budget_areas(sheet, ibm)
-    write_project_sponsors(sheet, ibm)
+    write_budget_areas(sheet, ibm_filtered)
+    write_project_sponsors(sheet, ibm_filtered)
 
     # Select the first sheet.
     sheet = workbook.get_sheet(0)
@@ -154,7 +156,8 @@ def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_
     sheet_ro = workbook_ro.get_sheet(0)
 
     # Download hyperlink:
-    sheet.write(1, 0, Formula('HYPERLINK("{}")'.format(settings.IBM_CODE_UPDATER_URI)))
+    bigfont = easyxf('font: bold 1,height 360;')  # Font height is in "twips" (1/20 of a point)
+    sheet.write(1, 0, Formula('HYPERLINK("{}")'.format(settings.IBM_CODE_UPDATER_URI)), bigfont)
 
     # Padded zeroes number format
     pad2, pad3, pad4 = XFStyle(), XFStyle(), XFStyle()

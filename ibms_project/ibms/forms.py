@@ -165,7 +165,7 @@ class ReloadForm(FinancialYearFilterForm):
             'cost_centre',
             HTML('''<div class="row">
                 <div class="col-sm-12 col-md-9 col-lg-6 alert alert-info">
-                You must select relavant Service Priorities for your cost centre
+                You must select relevant Service Priorities for your cost centre
                 </div></div>'''),
             HTML('<div class="checkbox">'),
             'ncChoice',

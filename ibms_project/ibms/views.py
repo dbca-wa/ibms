@@ -304,14 +304,16 @@ class DataAmendmentView(IbmsFormView):
         gl = GLPivDownload.objects.filter(financialYear=fy, account__in=[1, 2], resource__lt=4000)
         gl = gl.exclude(activity='DJ0', job='777', service='11')
         gl = gl.order_by('codeID')
+        ibm = IBMData.objects.filter(financialYear=fy)
+        # NOTE: we need a second queryset of IBMData objects to insert budget areas and sponsors to the workbook.
+        ibm_filtered = IBMData.objects.filter(financialYear=fy)
         if form.cleaned_data['cost_centre']:
             gl = gl.filter(costCentre=form.cleaned_data['cost_centre'])
+            ibm_filtered = ibm_filtered.filter(costCentre=form.cleaned_data['cost_centre'])
         if form.cleaned_data['region']:
             gl = gl.filter(regionBranch=form.cleaned_data['region'])
         if form.cleaned_data['service']:
             gl = gl.filter(service=form.cleaned_data['service'])
-
-        ibm = IBMData.objects.filter(financialYear=fy)
         if form.cleaned_data['budget_area']:
             ibm = ibm.filter(budgetArea=form.cleaned_data['budget_area'])
         if form.cleaned_data['project_sponsor']:
@@ -332,7 +334,7 @@ class DataAmendmentView(IbmsFormView):
         book = copy(excel_template)
 
         # Style & populate the worksheet.
-        data_amend_report(book, gl, ibm, nc_sp, pvs_sp, fm_sp)
+        data_amend_report(book, gl, ibm, nc_sp, pvs_sp, fm_sp, ibm_filtered)
 
         response = HttpResponse(content_type='application/vnd.ms-excel')
         response['Content-Disposition'] = 'attachment; filename=ibms_dataamendment.xls'
