@@ -304,11 +304,12 @@ def write_budget_areas(sheet, ibm):
     to the passed-in worksheet.
     """
     row = 1  # Skip the header row
-    budget_areas = ibm.values_list('budgetArea', flat=True)
-    budget_areas = sorted(set([i.strip() for i in budget_areas]))
-    for i in [i for i in budget_areas if i]:  # Non-blank values only.
-        sheet.write(row, 0, i)
-        row += 1
+    budget_areas = sorted(set(ibm.values_list('budgetArea', 'costCentre')))
+    for i in budget_areas:
+        if i[0]:  # Non-blank only.
+            sheet.write(row, 0, i[0])
+            sheet.write(row, 1, i[1])
+            row += 1
 
 
 def write_project_sponsors(sheet, ibm):
@@ -316,11 +317,12 @@ def write_project_sponsors(sheet, ibm):
     to the passed-in worksheet.
     """
     row = 1  # Skip the header row
-    sponsors = ibm.values_list('projectSponsor', flat=True)
-    sponsors = sorted(set([i.strip() for i in sponsors]))
-    for i in [i for i in sponsors if i]:  # Non-blank values only.
-        sheet.write(row, 1, i)
-        row += 1
+    sponsors = sorted(set(ibm.values_list('projectSponsor', 'costCentre')))
+    for i in sponsors:
+        if i[0]:  # Non-blank only.
+            sheet.write(row, 2, i[0])
+            sheet.write(row, 3, i[1])
+            row += 1
 
 
 def write_service_priorities(sheet, nc_sp, pvs_sp, fm_sp):
