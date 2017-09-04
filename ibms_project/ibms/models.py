@@ -17,7 +17,7 @@ FINYEAR_CHOICES = (
 
 
 class IBMData(models.Model):
-    financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100)
+    financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100, db_index=True)
     ibmIdentifier = models.CharField(
         max_length=100,
         verbose_name='IBMId',
@@ -46,7 +46,7 @@ class IBMData(models.Model):
 
 
 class GLPivDownload(models.Model):
-    financialYear = models.CharField(max_length=7)
+    financialYear = models.CharField(max_length=7, db_index=True)
     downloadPeriod = models.CharField(max_length=10)
     costCentre = models.CharField(max_length=4)
     account = models.IntegerField()
@@ -94,7 +94,7 @@ class GLPivDownload(models.Model):
 
 
 class CorporateStrategy(models.Model):
-    financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100)
+    financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100, db_index=True)
     corporateStrategyNo = models.CharField(max_length=100)
     description1 = models.TextField(null=True)
     description2 = models.TextField(null=True)
@@ -116,7 +116,7 @@ class ServicePriority(models.Model):
     """
     Abstract base class.
     """
-    financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100)
+    financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100, db_index=True)
     categoryID = models.CharField(max_length=100, null=True, blank=True)
     servicePriorityNo = models.CharField(
         max_length=100,
@@ -191,7 +191,7 @@ class ERServicePriority(ServicePriority):
 
 
 class NCStrategicPlan(models.Model):
-    financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100)
+    financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100, db_index=True)
     strategicPlanNo = models.CharField(max_length=100)
     directionNo = models.CharField(max_length=100)
     direction = models.TextField()
@@ -211,7 +211,7 @@ class NCStrategicPlan(models.Model):
 
 
 class Outcomes(models.Model):
-    financialYear = models.CharField(max_length=7)
+    financialYear = models.CharField(max_length=7, db_index=True)
     q1Input = models.TextField()
     q2Input = models.TextField(blank=True)
     q3Input = models.TextField(blank=True)
