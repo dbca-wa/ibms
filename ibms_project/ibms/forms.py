@@ -33,9 +33,9 @@ FILE_CHOICES = (
                             ('SFMServicePriorityData', 'State Forest Management')))
 )
 REPORT_CHOICES = (
-    ('', '--Please Select--'),
-    ('0', 'Non DJ0 Activities'),
-    ('1', 'DJ0 Activities Only'),
+    (None, '--Please Select--'),
+    ('dj0', 'DJ0 activities only'),
+    ('no-dj0', 'Exclude DJ0 activities'),
 )
 
 

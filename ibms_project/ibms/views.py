@@ -241,17 +241,29 @@ class CodeUpdateView(IbmsFormView):
         if cc:
             gl = gl.filter(costCentre=cc)
             ibm = ibm.filter(costCentre=cc)
-        # If the form post contains cost_centre, assume that a non-superuser
-        # has run the report and return non-DJ0 activities only.
-        # Superuser may also specify non-DJ0 activities only.
-        if cc or form.cleaned_data['report_type'] == '0':
-            gl = gl.exclude(activity='DJ0')  # Non-DJ0 only
-        else:
-            gl = gl.filter(activity='DJ0')  # DJ0 only
+
+        # Superuser must specify DJ0 or non-DJ0 activities only.
+        if 'report_type' in form.cleaned_data:
+            if form.cleaned_data['report_type'] == 'no-dj0':
+                gl = gl.exclude(activity='DJ0')  # Non-DJ0 only
+            else:
+                gl = gl.filter(activity='DJ0')  # DJ0 only
+
         # Filter by codeID: EXCLUDE objects with a codeID that matches any
         # IBMData object's ibmIdentifier for the same FY.
         code_ids = set(ibm.values_list('ibmIdentifier', flat=True))
         gl = gl.exclude(codeID__in=code_ids).order_by('codeID')
+
+        # Business rule: for normal users, include any line items that are
+        # activity 'DJ0', EXCEPT where service is 42, 43 or 75.
+        # For superusers, do the opposite (include activity DJ0 items ONLY if
+        # service is 42, 43 or 75).
+        if self.request.user.is_superuser:
+            if 'report_type' in form.cleaned_data and form.cleaned_data['report_type'] == 'dj0':
+                gl = gl.filter(service__in=[42, 43, 75])
+        else:
+            gl = gl.exclude(activity='DJ0', service__in=[42, 43, 75])
+
         gl_codeids = sorted(set(gl.values_list('codeID', flat=True)))
 
         # Service priority checkboxes.
