@@ -239,6 +239,7 @@ def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_
     sheet = workbook.get_sheet(2)
     write_budget_areas(sheet, ibm)
     write_project_sponsors(sheet, ibm)
+    write_regional_spec_info(sheet, ibm)
 
     # Select the first sheet.
     sheet = workbook.get_sheet(0)
@@ -322,6 +323,19 @@ def write_project_sponsors(sheet, ibm):
         if i[0]:  # Non-blank only.
             sheet.write(row, 2, i[0])
             sheet.write(row, 3, i[1])
+            row += 1
+
+
+def write_regional_spec_info(sheet, ibm):
+    """From a queryset of IBMData objects, write unique regionalSpecificInfo values
+    to the passed-in worksheet.
+    """
+    row = 1  # Skip the header row
+    reg_info = sorted(set(ibm.values_list('regionalSpecificInfo', 'costCentre')))
+    for i in reg_info:
+        if i[0]:  # Non-blank only.
+            sheet.write(row, 4, i[0])
+            sheet.write(row, 5, i[1])
             row += 1
 
 

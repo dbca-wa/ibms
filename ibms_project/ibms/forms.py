@@ -33,9 +33,9 @@ FILE_CHOICES = (
                             ('SFMServicePriorityData', 'State Forest Management')))
 )
 REPORT_CHOICES = (
-    ('', '--Please Select--'),
-    ('0', 'Non DJ0 Activities'),
-    ('1', 'DJ0 Activities Only'),
+    (None, '--Please Select--'),
+    ('dj0', 'DJ0 activities only'),
+    ('no-dj0', 'Exclude DJ0 activities'),
 )
 
 
@@ -198,10 +198,6 @@ class DataAmendmentForm(FinancialYearFilterForm):
         self.fields['project_sponsor'] = forms.ChoiceField(
             choices=getGenericChoices(IBMData, 'projectSponsor', allowNull=True),
             required=False, label='Project Sponsor')
-        #self.fields['genChoice'] = forms.MultipleChoiceField(
-        #    widget=forms.HiddenInput(),
-        #    choices=getGenericChoices(GeneralServicePriority, 'categoryID'),
-        #    required=False)
         self.fields['ncChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
             choices=getGenericChoices(NCServicePriority, 'categoryID'),
@@ -292,13 +288,6 @@ class ServicePriorityDataForm(FinancialYearFilterForm):
                 allowNull=True),
             required=False,
             label='Service')
-        #self.fields['genChoice'] = forms.MultipleChoiceField(
-        #    widget=forms.HiddenInput(),
-        #    choices=getGenericChoices(
-        #        GeneralServicePriority,
-        #        'categoryID'),
-        #    required=False,
-        #    label='General Service Priorities')
         self.fields['ncChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
             choices=getGenericChoices(
@@ -417,10 +406,6 @@ class ManagerCodeUpdateForm(FinancialYearFilterForm):
         super(ManagerCodeUpdateForm, self).__init__(*args, **kwargs)
         self.fields['report_type'] = forms.ChoiceField(
             choices=REPORT_CHOICES, label='Report Type?', required=True)
-        #self.fields['genChoice'] = forms.MultipleChoiceField(
-        #    widget=forms.HiddenInput(),
-        #    choices=getGenericChoices(GeneralServicePriority, 'categoryID'),
-        #    required=False, label='General Service Priorities')
         self.fields['ncChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
             choices=getGenericChoices(NCServicePriority, 'categoryID'),
@@ -434,7 +419,6 @@ class ManagerCodeUpdateForm(FinancialYearFilterForm):
             choices=getGenericChoices(SFMServicePriority, 'categoryID'),
             required=False, label='Forest Management')
 
-        # crispy_forms layout
         self.helper.layout = Layout(
             'report_type',
             'financial_year',
