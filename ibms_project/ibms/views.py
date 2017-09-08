@@ -230,17 +230,27 @@ class CodeUpdateView(IbmsFormView):
         return reverse('code_update')
 
     def form_valid(self, form):
-        cc = self.request.POST.get('cost_centre')  # May be None.
         fy = form.cleaned_data['financial_year']
-        gl = GLPivDownload.objects.filter(
-            financialYear=fy, account__in=[1, 2], resource__lt=4000)
-        # Exclude service 11 from GLPivDownload query:
-        gl = gl.exclude(service=11)
         ibm = IBMData.objects.filter(financialYear=fy)
-        # costCentre filter is optional.
+        gl = GLPivDownload.objects.filter(financialYear=fy)
+
+        # CC limits both the querysets.
+        cc = self.request.POST.get('cost_centre')
         if cc:
             gl = gl.filter(costCentre=cc)
             ibm = ibm.filter(costCentre=cc)
+
+        # Business rule: for CC 531 only, include accounts 1, 2 & 6.
+        if cc and cc == '531':
+            gl = gl.filter(account__in=[1, 2, 6])
+        else:  # All others, accounts 1 & 2 only.
+            gl = gl.filter(account__in=[1, 2])
+
+        # Filter GLPivot to resource < 4000
+        gl = gl.filter(resource__lt=4000)
+
+        # Exclude service 11 from GLPivDownload queryset.
+        gl = gl.exclude(service=11)
 
         # Superuser must specify DJ0 or non-DJ0 activities only.
         if 'report_type' in form.cleaned_data:
