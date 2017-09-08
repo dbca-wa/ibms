@@ -22,16 +22,16 @@ class IBMData(models.Model):
         max_length=100,
         verbose_name='IBMId',
         help_text='IBM Identifier')
-    budgetArea = models.CharField(max_length=100)
-    projectSponsor = models.CharField(max_length=100)
-    corporatePlanNo = models.CharField(max_length=100)
-    strategicPlanNo = models.CharField(max_length=100)
+    budgetArea = models.CharField(max_length=100, db_index=True)
+    projectSponsor = models.CharField(max_length=100, db_index=True)
+    corporatePlanNo = models.CharField(max_length=100, db_index=True)
+    strategicPlanNo = models.CharField(max_length=100, db_index=True)
     regionalSpecificInfo = models.TextField()
     servicePriorityID = models.CharField(max_length=100)
     annualWPInfo = models.TextField()
-    costCentre = models.CharField(max_length=4, null=True, blank=True)
+    costCentre = models.CharField(max_length=4, null=True, blank=True, db_index=True)
     account = models.IntegerField(null=True, blank=True)
-    service = models.IntegerField(null=True, blank=True)
+    service = models.IntegerField(null=True, blank=True, db_index=True)
     activity = models.CharField(max_length=4, null=True, blank=True)
     project = models.CharField(max_length=6, null=True, blank=True)
     job = models.CharField(max_length=6, null=True, blank=True)
@@ -48,11 +48,11 @@ class IBMData(models.Model):
 class GLPivDownload(models.Model):
     financialYear = models.CharField(max_length=7, db_index=True)
     downloadPeriod = models.CharField(max_length=10)
-    costCentre = models.CharField(max_length=4)
-    account = models.IntegerField()
-    service = models.IntegerField()
-    activity = models.CharField(max_length=4)
-    resource = models.IntegerField()
+    costCentre = models.CharField(max_length=4, db_index=True)
+    account = models.IntegerField(db_index=True)
+    service = models.IntegerField(db_index=True)
+    activity = models.CharField(max_length=4, db_index=True)
+    resource = models.IntegerField(db_index=True)
     project = models.CharField(max_length=6)
     job = models.CharField(max_length=6)
     shortCode = models.CharField(max_length=20)
@@ -76,8 +76,8 @@ class GLPivDownload(models.Model):
     resNameNo = models.CharField(max_length=100)
     actNameNo = models.CharField(max_length=100)
     projNameNo = models.CharField(max_length=100)
-    regionBranch = models.CharField(max_length=100)
-    division = models.CharField(max_length=100)
+    regionBranch = models.CharField(max_length=100, db_index=True)
+    division = models.CharField(max_length=100, db_index=True)
     resourceCategory = models.CharField(max_length=100)
     wildfire = models.CharField(max_length=30)
     expenseRevenue = models.CharField(max_length=7)
@@ -117,11 +117,8 @@ class ServicePriority(models.Model):
     Abstract base class.
     """
     financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100, db_index=True)
-    categoryID = models.CharField(max_length=100, null=True, blank=True)
-    servicePriorityNo = models.CharField(
-        max_length=100,
-        null=False,
-        default='-1')
+    categoryID = models.CharField(max_length=100, null=True, blank=True, db_index=True)
+    servicePriorityNo = models.CharField(max_length=100, null=False, default='-1', db_index=True)
     strategicPlanNo = models.CharField(max_length=100, null=True, blank=True)
     corporateStrategyNo = models.CharField(
         max_length=100,
