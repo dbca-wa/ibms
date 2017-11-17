@@ -108,10 +108,18 @@ class IbmsViewsTest(IbmsTestCase):
 
         self.client.login(username='admin', password='test')
         for endpoint in [
-            'ajax_ibmdata_budgetarea', 'ajax_ibmdata_projectsponsor',
-            'ajax_ibmdata_service', 'ajax_glpivdownload_financialyear',
-            'ajax_glpivdownload_service', 'ajax_glpivdownload_costcentre',
-            'ajax_glpivdownload_regionbranch', 'ajax_glpivdownload_division']:
+                'ajax_ibmdata_budgetarea', 'ajax_ibmdata_projectsponsor',
+                'ajax_ibmdata_service', 'ajax_glpivdownload_financialyear',
+                'ajax_glpivdownload_service', 'ajax_glpivdownload_costcentre',
+                'ajax_glpivdownload_regionbranch', 'ajax_glpivdownload_division']:
             url = reverse(endpoint)
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
+
+    def test_healthcheck(self):
+        """Test the healthcheck view works without auth
+        """
+        self.client.logout()
+        url = reverse('health_check')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
