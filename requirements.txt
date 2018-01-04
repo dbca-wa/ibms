@@ -1,6 +1,7 @@
 Django==1.11.7
 django-extensions==1.9.8
 git+https://github.com/parksandwildlife/dpaw-utils.git@0.3a16#egg=dpaw-utils
+uWSGI==2.0.15
 Unipath==1.1
 jinja2==2.9.6
 dj-static==0.0.6
