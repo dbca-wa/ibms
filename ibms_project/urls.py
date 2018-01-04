@@ -15,7 +15,3 @@ urlpatterns = [
     url(r'', include('sfm.urls')),
     url(r'^$', SiteHomeView.as_view(), name='site_home'),
 ]
-
-if settings.DEBUG:
-    import debug_toolbar
-    urlpatterns += [url(r'^__debug__/', include(debug_toolbar.urls))]
