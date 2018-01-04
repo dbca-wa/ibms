@@ -146,6 +146,9 @@ if not os.path.exists(os.path.join(BASE_DIR, 'logs')):
 LOGGING = {
     'version': 1,
     'formatters': {
+        'simple': {
+            'format': '%(levelname)s %(asctime)s %(message)s'
+        },
         'verbose': {
             'format': '%(levelname)s %(asctime)s %(module)s %(message)s'
         },
@@ -155,8 +158,9 @@ LOGGING = {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(BASE_DIR, 'logs', 'ibms.log'),
-            'formatter': 'verbose',
-            'maxBytes': '16777216'
+            'formatter': 'simple',
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 5,
         },
     },
     'loggers': {
@@ -170,41 +174,3 @@ LOGGING = {
         },
     }
 }
-DEBUG_LOGGING = {
-    'version': 1,
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-        },
-    },
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'debug-ibms.log'),
-            'formatter': 'verbose',
-            'maxBytes': '16777216'
-        },
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['file'],
-            'level': 'DEBUG'
-        },
-        'log': {
-            'handlers': ['file'],
-            'level': 'DEBUG'
-        },
-    }
-}
-
-
-# Supplement some settings when DEBUG is True.
-if DEBUG:
-    LOGGING = DEBUG_LOGGING
-    if env('INTERNAL_IP', False):  # Optionally add developer local IP
-        INTERNAL_IPS.append(env('INTERNAL_IP'))
-    INSTALLED_APPS += (
-        'debug_toolbar',
-    )
-    MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE_CLASSES
