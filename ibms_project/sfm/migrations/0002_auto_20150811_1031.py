@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='sfmmetric',
             name='financialYear',
-            field=models.ForeignKey(to='sfm.FinancialYear'),
+            field=models.ForeignKey(to='sfm.FinancialYear', on_delete=models.PROTECT),
         ),
     ]
