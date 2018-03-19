@@ -46,8 +46,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('value', models.FloatField(null=True, blank=True)),
                 ('comment', models.TextField(null=True)),
-                ('costCentre', models.ForeignKey(verbose_name='Related Cost Centre', to='sfm.CostCentre')),
-                ('measurementType', models.ForeignKey(verbose_name='Related MeasurementType', blank=True, to='sfm.MeasurementType', null=True)),
+                ('costCentre', models.ForeignKey(verbose_name='Related Cost Centre', to='sfm.CostCentre', on_delete=models.PROTECT)),
+                ('measurementType', models.ForeignKey(verbose_name='Related MeasurementType', blank=True, to='sfm.MeasurementType', null=True, on_delete=models.PROTECT)),
             ],
             options={
             },
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('comment', models.TextField()),
-                ('costCentre', models.ForeignKey(to='sfm.CostCentre')),
+                ('costCentre', models.ForeignKey(to='sfm.CostCentre', on_delete=models.PROTECT)),
             ],
             options={
                 'verbose_name_plural': 'outcomes',
@@ -71,7 +71,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('quarter', models.IntegerField()),
                 ('description', models.TextField(null=True)),
-                ('financialYear', models.ForeignKey(to='sfm.FinancialYear')),
+                ('financialYear', models.ForeignKey(to='sfm.FinancialYear', on_delete=models.PROTECT)),
             ],
             options={
             },
@@ -100,13 +100,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='measurementvalue',
             name='quarter',
-            field=models.ForeignKey(verbose_name='Related Quarter', to='sfm.Quarter'),
+            field=models.ForeignKey(verbose_name='Related Quarter', to='sfm.Quarter', on_delete=models.PROTECT),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='measurementvalue',
             name='sfmMetric',
-            field=models.ForeignKey(verbose_name='Related SFMMetric', to='sfm.SFMMetric'),
+            field=models.ForeignKey(verbose_name='Related SFMMetric', to='sfm.SFMMetric', on_delete=models.PROTECT),
             preserve_default=True,
         ),
     ]

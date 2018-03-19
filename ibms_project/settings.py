@@ -14,7 +14,7 @@ sys.path.insert(0, PROJECT_DIR)
 
 # Settings defined in environment variables.
 DEBUG = env('DEBUG', False)
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = env('SECRET_KEY', 'PlaceholderSecretKey')
 CSRF_COOKIE_SECURE = env('CSRF_COOKIE_SECURE', False)
 SESSION_COOKIE_SECURE = env('SESSION_COOKIE_SECURE', False)
 if not DEBUG:
@@ -37,15 +37,15 @@ INSTALLED_APPS = (
     'ibms',
     'sfm',
 )
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'dpaw_utils.middleware.SSOLoginMiddleware',
-)
+    #'dpaw_utils.middleware.SSOLoginMiddleware',
+]
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
