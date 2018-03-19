@@ -6,7 +6,7 @@ from django.views.generic import RedirectView
 from ibms.views import SiteHomeView, HealthCheckView
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
     url(r'^login/$', LoginView.as_view(template_name='login.html'), name='login'),
     url(r'^logout/$', LogoutView.as_view(template_name='logged_out.html'), name='logout'),
     url(r'^confluence', RedirectView.as_view(url=settings.HELP_URL), name='help_page'),

@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
