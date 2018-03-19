@@ -23,7 +23,7 @@ class FinancialYear(models.Model):
 
 
 class SFMMetric(models.Model):
-    financialYear = models.ForeignKey(FinancialYear)
+    financialYear = models.ForeignKey(FinancialYear, on_delete=models.PROTECT)
     servicePriorityNo = models.CharField(
         max_length=100,
         null=False,
@@ -49,7 +49,7 @@ class MeasurementType(models.Model):
 
 
 class Quarter(models.Model):
-    financialYear = models.ForeignKey(FinancialYear)
+    financialYear = models.ForeignKey(FinancialYear, on_delete=models.PROTECT)
     quarter = models.IntegerField()
     description = models.TextField(null=True)
 
@@ -58,13 +58,13 @@ class Quarter(models.Model):
 
 
 class MeasurementValue(models.Model):
-    quarter = models.ForeignKey(Quarter, verbose_name="Related Quarter")
-    sfmMetric = models.ForeignKey(SFMMetric, verbose_name="Related SFMMetric")
+    quarter = models.ForeignKey(Quarter, verbose_name="Related Quarter", on_delete=models.PROTECT)
+    sfmMetric = models.ForeignKey(SFMMetric, verbose_name="Related SFMMetric", on_delete=models.PROTECT)
     measurementType = models.ForeignKey(MeasurementType,
                                         verbose_name="Related MeasurementType",
-                                        null=True, blank=True)
+                                        null=True, blank=True, on_delete=models.PROTECT)
     costCentre = models.ForeignKey(CostCentre,
-                                   verbose_name="Related Cost Centre")
+                                   verbose_name="Related Cost Centre", on_delete=models.PROTECT)
     value = models.FloatField(null=True, blank=True)
     comment = models.TextField(null=True)
 
@@ -73,7 +73,7 @@ class MeasurementValue(models.Model):
 
 
 class Outcomes(models.Model):
-    costCentre = models.ForeignKey(CostCentre)
+    costCentre = models.ForeignKey(CostCentre, on_delete=models.PROTECT)
     comment = models.TextField(null=False)
 
     class Meta:
