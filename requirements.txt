@@ -1,4 +1,4 @@
-git+https://github.com/ropable/dpaw-utils.git
+git+git://github.com/ropable/dpaw-utils@minimal#egg=dpaw-utils
 #git+https://github.com/parksandwildlife/dpaw-utils.git@0.4#egg=dpaw-utils
 psycopg2==2.7.4
 Django==2.0.3
