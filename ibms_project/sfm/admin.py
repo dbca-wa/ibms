@@ -1,4 +1,3 @@
-from __future__ import division, print_function, unicode_literals, absolute_import
 from django.contrib import admin
 from ibms.admin import export_as_csv_action
 from sfm import models
@@ -6,7 +5,7 @@ from sfm import models
 
 class CostCentreAdmin(admin.ModelAdmin):
     search_fields = ['costCentre', 'name']
-    list_display = ['__unicode__']
+    list_display = ['__str__']
     list_filter = ['costCentre', 'name']
     actions = [export_as_csv_action(translations=['costCentre'], fields=['costCentre'])]
 

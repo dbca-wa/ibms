@@ -157,7 +157,7 @@ def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_
 
     # Download hyperlink:
     bigfont = easyxf('font: bold 1,height 360;')  # Font height is in "twips" (1/20 of a point)
-    sheet.write(1, 0, Formula('HYPERLINK("{}")'.format(settings.IBM_CODE_UPDATER_URI)), bigfont)
+    sheet.write(1, 0, Formula('HYPERLINK({})'.format(settings.IBM_CODE_UPDATER_URI)), bigfont)
 
     # Padded zeroes number format
     pad2, pad3, pad4 = XFStyle(), XFStyle(), XFStyle()

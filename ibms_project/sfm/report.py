@@ -81,7 +81,7 @@ def outputs_report(workbook, sfm, spn, dp, fy, qtr, cc):
                 cell = sheet.cell(column=quarter_col[m.quarter.description], row=row, value=m.comment)
                 cell.alignment = wrapped
             # Write the YTD measurements (columns 7-10):
-            for k, v in ytd_measure.iteritems():
+            for k, v in ytd_measure.items():
                 if v > 0:
                     cell = sheet.cell(column=measure_type_col[k], row=row, value=v)
                     cell.alignment = wrapped

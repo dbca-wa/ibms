@@ -1,7 +1,6 @@
-from __future__ import print_function, unicode_literals, absolute_import
 import csv
-
 from ibms import db_funcs
+
 
 COLS_IBMDATA = 14
 COLS_GLPIVOT = 34
@@ -63,12 +62,7 @@ def validate_file(file, fileType):
     elif fileType == 'NCServicePriorityData':
         return validate_nc_servicepriority_hdr(rdr)
     else:
-        raise Exception(
-            "Attempting to validate and unknown file type of " +
-            fileType)
-    # except:
-
-    # return False
+        raise Exception("Attempting to validate and unknown file type of " + fileType)
 
 
 def validate_corporatestrategydata_hdr(rdr):
