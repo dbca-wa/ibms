@@ -13,7 +13,7 @@ def getGenericChoices(classmodel, key, allowNull=False):
     CHOICES = [('', '--------')] if allowNull else []
     try:
         for i in classmodel.objects.all().values_list(key, flat=True).distinct():
-            CHOICES.append((i, i))
+            CHOICES.append((str(i), str(i)))
         CHOICES.sort()
     except ProgrammingError:  # This should only except with an empty database (no relations).
         pass

@@ -1,4 +1,3 @@
-from __future__ import print_function, unicode_literals, absolute_import
 from django.db import models
 
 
@@ -36,7 +35,7 @@ class IBMData(models.Model):
     project = models.CharField(max_length=6, null=True, blank=True)
     job = models.CharField(max_length=6, null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.ibmIdentifier
 
     class Meta:
@@ -84,9 +83,6 @@ class GLPivDownload(models.Model):
     fireActivities = models.CharField(max_length=50)
     mPRACategory = models.CharField(max_length=100)
 
-    def __unicode__(self):
-        return unicode(self.pk)
-
     class Meta:
         unique_together = [('gLCode', 'financialYear')]
         verbose_name = 'GL pivot download'
@@ -99,13 +95,13 @@ class CorporateStrategy(models.Model):
     description1 = models.TextField(null=True)
     description2 = models.TextField(null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         # Truncate description text longer than 100 characters.
         if len(self.description1) <= 100:
-            return unicode(self.description1)
+            return self.description1
         else:
             desc_trunc = ' '.join(self.description1[:101].split(' ')[0:-1])
-            return unicode('{0} (...more...)'.format(desc_trunc))
+            return '{0} (...more...)'.format(desc_trunc)
 
     class Meta:
         unique_together = [('corporateStrategyNo', 'financialYear')]
@@ -128,8 +124,8 @@ class ServicePriority(models.Model):
     pvsExampleAnnWP = models.TextField()
     pvsExampleActNo = models.TextField()
 
-    def __unicode__(self):
-        return unicode('{0}: {1}'.format(self.pk, self.servicePriorityNo))
+    def __str__(self):
+        return '{0}: {1}'.format(self.pk, self.servicePriorityNo)
 
     class Meta:
         abstract = True
@@ -157,9 +153,6 @@ class NCServicePriority(ServicePriority):
         unique_together = [('servicePriorityNo', 'financialYear')]
         verbose_name = 'NC service priority'
         verbose_name_plural = 'NC service priorities'
-
-    def __unicode__(self):
-        return unicode(self.pk)
 
 
 class PVSServicePriority(ServicePriority):
@@ -203,9 +196,6 @@ class NCStrategicPlan(models.Model):
         verbose_name = 'NC strategic plan'
         verbose_name_plural = 'NC strategic plans'
 
-    def __unicode__(self):
-        return unicode(self.pk)
-
 
 class Outcomes(models.Model):
     financialYear = models.CharField(max_length=7, db_index=True)
@@ -214,5 +204,8 @@ class Outcomes(models.Model):
     q3Input = models.TextField(blank=True)
     q4Input = models.TextField(blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.financialYear
+
+    class Meta:
+        verbose_name_plural = 'outcomes'
