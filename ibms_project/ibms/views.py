@@ -202,7 +202,6 @@ class ReloadView(IbmsFormView):
 
 class CodeUpdateView(IbmsFormView):
     template_name = 'ibms/code_update.html'
-    form_alternative = None
 
     def get_form_class(self):
         if self.request.user.is_superuser:
@@ -299,7 +298,6 @@ class CodeUpdateView(IbmsFormView):
 
 class DataAmendmentView(IbmsFormView):
     form_class = forms.DataAmendmentForm
-    form_alternative = None
     template_name = 'ibms/data_amendment.html'
 
     def get_form_kwargs(self):

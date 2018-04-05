@@ -1,18 +1,16 @@
-from django.conf.urls import url
+from django.urls import path
 from ibms.models import GLPivDownload, IBMData
 from ibms.views import (DownloadView, UploadView, ReloadView, CodeUpdateView,
                         ServicePriorityDataView, DataAmendmentView,
                         IbmsModelFieldJSON)
 
 urlpatterns = [
-    url(r'^upload/$', UploadView.as_view(), name='upload'),
-    url(r'^download/$', DownloadView.as_view(), name='download'),
-    url(r'^reload/$', ReloadView.as_view(), name='reload'),
-    url(r'^code-update/$', CodeUpdateView.as_view(), name='code_update'),
-    url(r'^alternative-form/$', CodeUpdateView.as_view(form_alternative=True)),
-    url(r'^service-priority-data/$', ServicePriorityDataView.as_view(),
-        name='serviceprioritydata'),
-    url(r'^data-amendment/$', DataAmendmentView.as_view(), name='dataamendment'),
+    path('upload/', UploadView.as_view(), name='upload'),
+    path('download/', DownloadView.as_view(), name='download'),
+    path('reload/', ReloadView.as_view(), name='reload'),
+    path('code-update/', CodeUpdateView.as_view(), name='code_update'),
+    path('service-priority-data/', ServicePriorityDataView.as_view(), name='serviceprioritydata'),
+    path('data-amendment/', DataAmendmentView.as_view(), name='dataamendment'),
     # AJAX model field endpoints.
     # Note to future self: these views return JSON data suitable for insert
     # into form select lists. In some cases, the background query requires text
@@ -24,28 +22,12 @@ urlpatterns = [
     # Review the IbmsModelFieldJSON view for further details.
     # 2nd note to future self: you have already considered refactoring this
     # using django-rest-framework, etc. Do not bother - this works fine.
-    url(r'^ajax/ibmdata/budget-area/$',
-        IbmsModelFieldJSON.as_view(model=IBMData, fieldname='budgetArea'),
-        name='ajax_ibmdata_budgetarea'),
-    url(r'^ajax/ibmdata/project-sponsor/$',
-        IbmsModelFieldJSON.as_view(model=IBMData, fieldname='projectSponsor'),
-        name='ajax_ibmdata_projectsponsor'),
-    url(r'^ajax/ibmdata/service/$',
-        IbmsModelFieldJSON.as_view(model=IBMData, fieldname='service'),
-        name='ajax_ibmdata_service'),
-    url(r'^ajax/glpivdownload/financial-year/$',
-        IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='financialYear'),
-        name='ajax_glpivdownload_financialyear'),
-    url(r'^ajax/glpivdownload/service/$',
-        IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='service'),
-        name='ajax_glpivdownload_service'),
-    url(r'^ajax/glpivdownload/cost-centre/$',
-        IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='costCentre'),
-        name='ajax_glpivdownload_costcentre'),
-    url(r'^ajax/glpivdownload/region-branch/$',
-        IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='regionBranch'),
-        name='ajax_glpivdownload_regionbranch'),
-    url(r'^ajax/glpivdownload/division/$',
-        IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='division'),
-        name='ajax_glpivdownload_division'),
+    path('ajax/ibmdata/budget-area/', IbmsModelFieldJSON.as_view(model=IBMData, fieldname='budgetArea'), name='ajax_ibmdata_budgetarea'),
+    path('ajax/ibmdata/project-sponsor/', IbmsModelFieldJSON.as_view(model=IBMData, fieldname='projectSponsor'), name='ajax_ibmdata_projectsponsor'),
+    path('ajax/ibmdata/service/', IbmsModelFieldJSON.as_view(model=IBMData, fieldname='service'), name='ajax_ibmdata_service'),
+    path('ajax/glpivdownload/financial-year/', IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='financialYear'), name='ajax_glpivdownload_financialyear'),
+    path('ajax/glpivdownload/service/', IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='service'), name='ajax_glpivdownload_service'),
+    path('ajax/glpivdownload/cost-centre/', IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='costCentre'), name='ajax_glpivdownload_costcentre'),
+    path('ajax/glpivdownload/region-branch/', IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='regionBranch'), name='ajax_glpivdownload_regionbranch'),
+    path('ajax/glpivdownload/division/', IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='division'), name='ajax_glpivdownload_division'),
 ]
