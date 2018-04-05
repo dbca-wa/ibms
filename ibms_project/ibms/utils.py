@@ -1,17 +1,5 @@
 from datetime import datetime
-import functools
-import re
-import warnings
-
 from ibms.models import GLPivDownload
-
-
-def unique_list_items(li):
-    checked = []
-    for i in li:
-        if i not in checked:
-            checked.append(i)
-    return checked
 
 
 def get_download_period():
@@ -23,30 +11,6 @@ def get_download_period():
                  "downloadPeriod")]
     dates.sort()
     return dates[-1].date()
-
-
-def getdict(d, pref):
-    """Parse brackets into dicts in POST queries.
-    """
-    r = re.compile(r'^%s\[(.*)\]$' % pref)
-    return dict((r.sub(r'\1', k), v) for (k, v) in d.iteritems() if r.match(k))
-
-
-def deprecated(func):
-    '''This is a decorator which can be used to mark functions
-    as deprecated. It will result in a warning being emitted
-    when the function is used.'''
-
-    @functools.wraps(func)
-    def new_func(*args, **kwargs):
-        warnings.warn_explicit(
-            "Call to deprecated function {}.".format(func.__name__),
-            category=DeprecationWarning,
-            filename=func.func_code.co_filename,
-            lineno=func.func_code.co_firstlineno + 1
-        )
-        return func(*args, **kwargs)
-    return new_func
 
 
 def breadcrumb_trail(links, sep=' > '):
