@@ -1,27 +1,21 @@
 import csv
-from ibms import models
-from django.contrib import admin
+from django.contrib.admin import register, ModelAdmin
 from django.http import HttpResponse
+
+from .models import (
+    IBMData, GLPivDownload, CorporateStrategy, GeneralServicePriority, NCServicePriority,
+    PVSServicePriority, SFMServicePriority, ERServicePriority, NCStrategicPlan, Outcomes)
 
 
 def export_as_csv_action(fields=None, translations=None, exclude=None,
                          header=True, description='Export selected objects to CSV'):
     '''
-    This function add an "Export as CSV" action to a model in the Django admin site.
+    This function adds an "Export as CSV" action to a model in the Django admin site.
     Register the action using the ModelAdmin ``action`` option.
     ``fields`` and ``exclude`` work the same as those Django ModelForm options (use one or the other).
     ``header`` defines whether or not the column names are output as the first row.
 
-    Example usage::
-        class ReferralAdmin(admin.ModelAdmin):
-            list_display = ('id', 'region', 'type', 'reference')
-            date_hierarchy = 'created'
-            actions = [export_as_csv_action(fields=['id','reference'], header=False),]
-
-        admin.site.register(Referral, ReferralAdmin)
-
-    Adapted from::
-        http://djangosnippets.org/snippets/2020/
+    Ref: http://djangosnippets.org/snippets/2020/
     '''
     def export_as_csv(modeladmin, request, queryset):
         '''
@@ -46,32 +40,17 @@ def export_as_csv_action(fields=None, translations=None, exclude=None,
         else:
             writer.writerow(list(field_names))
         for obj in queryset:
-            writer.writerow([unicode(getattr(obj, field))
-                             for field in field_names])
+            writer.writerow([getattr(obj, field) for field in field_names])
         return response
     export_as_csv.short_description = description
     return export_as_csv
 
 
-class IBMDataAdmin(admin.ModelAdmin):
-    search_fields = (
-        'financialYear',
-        'ibmIdentifier',
-        'budgetArea',
-        'corporatePlanNo',
-        'strategicPlanNo')
-    list_display = (
-        'financialYear',
-        'ibmIdentifier',
-        'budgetArea',
-        'corporatePlanNo',
-        'strategicPlanNo')
-    list_filter = (
-        'financialYear',
-        'costCentre',
-        'budgetArea',
-        'service',
-        'corporatePlanNo')
+@register(IBMData)
+class IBMDataAdmin(ModelAdmin):
+    search_fields = ('financialYear', 'ibmIdentifier', 'budgetArea', 'corporatePlanNo', 'strategicPlanNo')
+    list_display = ('financialYear', 'ibmIdentifier', 'budgetArea', 'corporatePlanNo', 'strategicPlanNo')
+    list_filter = ('financialYear', 'costCentre', 'budgetArea', 'service', 'corporatePlanNo')
     actions = [
         export_as_csv_action(
             translations=[
@@ -84,17 +63,12 @@ class IBMDataAdmin(admin.ModelAdmin):
                 'regionalSpecificInfo', 'servicePriorityID', 'annualWPInfo'])]
 
 
-class GLPivDownloadAdmin(admin.ModelAdmin):
+@register(GLPivDownload)
+class GLPivDownloadAdmin(ModelAdmin):
     search_fields = (
         'financialYear', 'costCentre', 'account', 'service', 'activity', 'ccName', 'shortCode',
         'shortCodeName', 'gLCode', 'codeID')
-    list_display = (
-        'financialYear',
-        'costCentre',
-        'account',
-        'service',
-        'activity',
-        'ccName')
+    list_display = ('financialYear', 'costCentre', 'account', 'service', 'activity', 'ccName')
     list_filter = ('financialYear', 'division', 'regionBranch', 'costCentre')
     actions = [
         export_as_csv_action(
@@ -114,7 +88,8 @@ class GLPivDownloadAdmin(admin.ModelAdmin):
                 'resourceCategory', 'wildfire', 'expenseRevenue', 'fireActivities', 'mPRACategory'])]
 
 
-class CorporateStrategyAdmin(admin.ModelAdmin):
+@register(CorporateStrategy)
+class CorporateStrategyAdmin(ModelAdmin):
     list_display = ['financialYear', 'corporateStrategyNo', 'description1']
     list_filter = ['financialYear']
     actions = [
@@ -128,7 +103,8 @@ class CorporateStrategyAdmin(admin.ModelAdmin):
             translations=['id', 'financialYear', 'IBMSCSNo', 'IBMSCSDesc1', 'IBMSCSDesc2'])]
 
 
-class GeneralServicePriorityAdmin(admin.ModelAdmin):
+@register(GeneralServicePriority)
+class GeneralServicePriorityAdmin(ModelAdmin):
     list_display = [
         'financialYear', 'categoryID', 'servicePriorityNo', 'strategicPlanNo', 'corporateStrategyNo']
     list_filter = ['financialYear']
@@ -143,7 +119,8 @@ class GeneralServicePriorityAdmin(admin.ModelAdmin):
                 'corporateStrategyNo', 'description', 'description2'])]
 
 
-class NCServicePriorityAdmin(admin.ModelAdmin):
+@register(NCServicePriority)
+class NCServicePriorityAdmin(ModelAdmin):
     list_display = [
         'financialYear', 'categoryID', 'servicePriorityNo', 'strategicPlanNo', 'corporateStrategyNo']
     list_filter = ['financialYear', 'categoryID']
@@ -162,7 +139,8 @@ class NCServicePriorityAdmin(admin.ModelAdmin):
                 'asset', 'targetNo', 'target', 'actionNo', 'action', 'mileNo', 'milestone'])]
 
 
-class PVSServicePriorityAdmin(admin.ModelAdmin):
+@register(PVSServicePriority)
+class PVSServicePriorityAdmin(ModelAdmin):
     list_display = [
         'financialYear', 'categoryID', 'servicePriorityNo', 'strategicPlanNo', 'corporateStrategyNo']
     list_filter = ['financialYear']
@@ -180,7 +158,8 @@ class PVSServicePriorityAdmin(admin.ModelAdmin):
                 'servicePriority1'])]
 
 
-class SFMServicePriorityAdmin(admin.ModelAdmin):
+@register(SFMServicePriority)
+class SFMServicePriorityAdmin(ModelAdmin):
     list_display = [
         'financialYear', 'categoryID', 'servicePriorityNo', 'strategicPlanNo', 'corporateStrategyNo']
     list_filter = ['financialYear']
@@ -194,7 +173,8 @@ class SFMServicePriorityAdmin(admin.ModelAdmin):
                 'corporateStrategyNo', 'description', 'description2'])]
 
 
-class ERServicePriorityAdmin(admin.ModelAdmin):
+@register(ERServicePriority)
+class ERServicePriorityAdmin(ModelAdmin):
     list_display = [
         'financialYear', 'categoryID', 'servicePriorityNo', 'strategicPlanNo', 'corporateStrategyNo']
     list_filter = ['financialYear']
@@ -210,7 +190,8 @@ class ERServicePriorityAdmin(admin.ModelAdmin):
                 'classification'])]
 
 
-class NCStrategicPlanAdmin(admin.ModelAdmin):
+@register(NCStrategicPlan)
+class NCStrategicPlanAdmin(ModelAdmin):
     list_filter = ['financialYear']
     list_display = [
         'financialYear',
@@ -227,7 +208,8 @@ class NCStrategicPlanAdmin(admin.ModelAdmin):
                 'Aim2', 'ActionNo', 'Action'])]
 
 
-class OutcomesAdmin(admin.ModelAdmin):
+@register(Outcomes)
+class OutcomesAdmin(ModelAdmin):
     list_display = ('financialYear', 'q1Input')
     list_filter = ('financialYear',)
     actions = [
@@ -240,15 +222,3 @@ class OutcomesAdmin(admin.ModelAdmin):
                 'q3Input',
                 'q4Input'],
             fields=['id', 'financialYear', 'q1Input', 'q2Input', 'q3Input', 'q4Input'])]
-
-
-admin.site.register(models.IBMData, IBMDataAdmin)
-admin.site.register(models.GLPivDownload, GLPivDownloadAdmin)
-admin.site.register(models.CorporateStrategy, CorporateStrategyAdmin)
-admin.site.register(models.GeneralServicePriority, GeneralServicePriorityAdmin)
-admin.site.register(models.NCServicePriority, NCServicePriorityAdmin)
-admin.site.register(models.PVSServicePriority, PVSServicePriorityAdmin)
-admin.site.register(models.SFMServicePriority, SFMServicePriorityAdmin)
-admin.site.register(models.ERServicePriority, ERServicePriorityAdmin)
-admin.site.register(models.NCStrategicPlan, NCStrategicPlanAdmin)
-admin.site.register(models.Outcomes, OutcomesAdmin)

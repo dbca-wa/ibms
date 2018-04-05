@@ -1,9 +1,9 @@
-from django.shortcuts import redirect
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.urls import reverse
-from django.conf import settings
+from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 from django.views.generic.detail import BaseDetailView

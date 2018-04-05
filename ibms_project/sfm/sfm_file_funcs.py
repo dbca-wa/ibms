@@ -21,7 +21,7 @@ def validate_file(file, fileType):
     if fileType == 'costcentres':
         return validate_costcentre_hdr(rdr)
     else:
-        raise Exception("Attempting to validate and unknown file type of " + fileType )
+        raise Exception("Attempting to validate and unknown file type of " + fileType)
 
 
 def validate_sfmmetrics_hdr(rdr):
