@@ -65,6 +65,43 @@ class IbmsFormView(FormView):
         return context
 
 
+class ClearGLPivotView(IbmsFormView):
+    form_class = forms.ClearGLPivotForm
+
+    def get_context_data(self, **kwargs):
+        context = super(ClearGLPivotView, self).get_context_data(**kwargs)
+        context['page_title'] = ' | '.join([T, 'Clear GL Pivot entries'])
+        context['title'] = 'CLEAR GL PIVOT ENTRIES'
+        links = [
+            (reverse('site_home'), 'Home'),
+            (None, 'Clear GL Pivot entries')]
+        context['breadcrumb_trail'] = breadcrumb_trail(links)
+        return context
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            messages.error(self.request, 'You are not authorised to carry out this operation')
+            return redirect('site_home')
+        return super(ClearGLPivotView, self).get(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('site_home')
+
+    def form_valid(self, form):
+        if not self.request.user.is_superuser:
+            messages.error(self.request, 'You are not authorised to carry out this operation.')
+            return redirect('site_home')
+        if self.request.POST.get('cancel'):
+            return redirect('site_home')
+        # Do the bulk delete. We can use the private method _raw_delete because we don't
+        # have any signals or cascade deletes to worry about.
+        glpiv = GLPivDownload.objects.all()
+        if glpiv.exists():
+            glpiv._raw_delete(glpiv.db)
+            messages.success(self.request, 'GL Pivot entries have been cleared.')
+        return super(ClearGLPivotView, self).form_valid(form)
+
+
 class UploadView(IbmsFormView):
     """Upload view for superusers only.
     """

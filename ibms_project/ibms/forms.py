@@ -3,8 +3,7 @@ from django.db.utils import ProgrammingError
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, HTML, Div
 from ibms.models import (
-    GLPivDownload, FINYEAR_CHOICES, NCServicePriority, IBMData,
-    GeneralServicePriority, PVSServicePriority, SFMServicePriority)
+    GLPivDownload, FINYEAR_CHOICES, NCServicePriority, IBMData, PVSServicePriority, SFMServicePriority)
 
 
 def getGenericChoices(classmodel, key, allowNull=False):
@@ -48,6 +47,21 @@ class HelperForm(forms.Form):
         self.helper.form_class = 'form-horizontal'
         self.helper.label_class = 'col-xs-12 col-sm-4 col-md-3 col-lg-2'
         self.helper.field_class = 'col-xs-12 col-sm-8 col-md-6 col-lg-4'
+
+
+class ClearGLPivotForm(HelperForm):
+
+    def __init__(self, *args, **kwargs):
+        super(ClearGLPivotForm, self).__init__(*args, **kwargs)
+        self.helper.layout = Layout(
+            Div(
+                HTML('''<div class="row">
+                    <div class="col-sm-12 col-md-9 col-lg-6 alert alert-warning">
+                    Please confirm that you want to clear all current GL Pivot entries from the database.</div></div>'''),
+                Submit('confirm', 'Confirm', css_class='btn-danger'),
+                Submit('cancel', 'Cancel'),
+            )
+        )
 
 
 class FinancialYearFilterForm(HelperForm):
@@ -341,13 +355,6 @@ class CodeUpdateForm(FinancialYearFilterForm):
                 'costCentre',
                 allowNull=True),
             required=True)
-        #self.fields['genChoice'] = forms.MultipleChoiceField(
-        #    widget=forms.HiddenInput(),
-        #    choices=getGenericChoices(
-        #        GeneralServicePriority,
-        #        'categoryID'),
-        #    required=False,
-        #    label='General Service Priorities')
         self.fields['ncChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
             choices=getGenericChoices(
