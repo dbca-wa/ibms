@@ -1,7 +1,7 @@
 from django.urls import path
 from ibms.models import GLPivDownload, IBMData
 from ibms.views import (DownloadView, UploadView, ReloadView, CodeUpdateView,
-                        ServicePriorityDataView, DataAmendmentView,
+                        ServicePriorityDataView, DataAmendmentView, ClearGLPivotView,
                         IbmsModelFieldJSON)
 
 urlpatterns = [
@@ -11,6 +11,7 @@ urlpatterns = [
     path('code-update/', CodeUpdateView.as_view(), name='code_update'),
     path('service-priority-data/', ServicePriorityDataView.as_view(), name='serviceprioritydata'),
     path('data-amendment/', DataAmendmentView.as_view(), name='dataamendment'),
+    path('clear-gl-pivot/', ClearGLPivotView.as_view(), name='clearglpivot'),
     # AJAX model field endpoints.
     # Note to future self: these views return JSON data suitable for insert
     # into form select lists. In some cases, the background query requires text

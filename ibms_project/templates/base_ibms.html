@@ -19,6 +19,9 @@
     <ul class="dropdown-menu" role="menu">
         {% if user.is_staff %}
         <li><a href="{% url 'admin:index' %}">Admin</a></li>
+        {% if superuser %}
+        <li><a href="{% url 'clearglpivot' %}">Clear GL Pivot entries</a></li>
+        {% endif %}
         <li class="divider"></li>
         {% endif %}
         <li><a href="{% url 'logout' %}">Log out</a></li>
