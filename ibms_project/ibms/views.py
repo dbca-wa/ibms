@@ -66,6 +66,8 @@ class IbmsFormView(FormView):
 
 
 class ClearGLPivotView(IbmsFormView):
+    """A basic function for admins to clear all GL Pivot entries for a financial year.
+    """
     form_class = forms.ClearGLPivotForm
 
     def get_context_data(self, **kwargs):
@@ -95,10 +97,11 @@ class ClearGLPivotView(IbmsFormView):
             return redirect('site_home')
         # Do the bulk delete. We can use the private method _raw_delete because we don't
         # have any signals or cascade deletes to worry about.
-        glpiv = GLPivDownload.objects.all()
+        fy = form.cleaned_data['financial_year']
+        glpiv = GLPivDownload.objects.filter(financialYear=fy)
         if glpiv.exists():
             glpiv._raw_delete(glpiv.db)
-            messages.success(self.request, 'GL Pivot entries have been cleared.')
+            messages.success(self.request, 'GL Pivot entries for {} have been cleared.'.format(fy))
         return super(ClearGLPivotView, self).form_valid(form)
 
 
