@@ -92,13 +92,14 @@ class FMUploadView(ProtectedFormView):
         return reverse('sfmupload')
 
     def form_valid(self, form):
+        file = open(form.cleaned_data['upload_file'].temporary_file_path(), 'r')
         file_type = form.cleaned_data['upload_file_type']
-        fy = form.cleaned_data['financial_year']
-        if validate_file(form.cleaned_data['upload_file'], file_type):
+        if validate_file(file, file_type):
             temp = tempfile.NamedTemporaryFile(delete=True)
             for chunk in form.cleaned_data['upload_file'].chunks():
                 temp.write(chunk)
             temp.flush()
+            fy = form.cleaned_data['financial_year']
             process_upload_file(temp.name, file_type, fy)
             messages.success(self.request, 'FM upload values updated successfully.')
         else:

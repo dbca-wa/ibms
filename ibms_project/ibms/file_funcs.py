@@ -67,7 +67,7 @@ def validate_file(file, fileType):
 
 def validate_corporatestrategydata_hdr(rdr):
     retval = False
-    row = rdr.next()
+    row = next(rdr)
     if len(row) == COLS_CORPORATE_PLAN_DATA:
         sBad = ''
         if row[0].strip() != 'IBMSCSNo':
@@ -95,7 +95,7 @@ def validate_corporatestrategydata_hdr(rdr):
 
 def validate_ibmdata_hdr(rdr):
     retVal = False
-    row = rdr.next()
+    row = next(rdr)
     if len(row) == COLS_IBMDATA:
         sBad = ''
 
@@ -147,8 +147,7 @@ def validate_ibmdata_hdr(rdr):
 
 def validate_glpivotdownload_hdr(rdr):
     retVal = False
-    row = rdr.next()
-
+    row = next(rdr)
     if len(row) == COLS_GLPIVOT:
         sBad = ''
         if row[0].strip() != 'Download Period':
@@ -239,7 +238,7 @@ def validate_glpivotdownload_hdr(rdr):
 
 def validate_general_servicepriority_hdr(rdr):
     retval = False
-    row = rdr.next()
+    row = next(rdr)
     if len(row) == COLS_GENERAL_SERVICE_PRIORITY:
         sBad = ''
         if row[0].strip() != 'CategoryID':
@@ -273,7 +272,7 @@ def validate_general_servicepriority_hdr(rdr):
 
 def validate_er_servicepriority_hdr(rdr):
     retval = False
-    row = rdr.next()
+    row = next(rdr)
     if len(row) == COLS_ER_SERVICE_PRIORITY:
         sBad = ''
         if row[0].strip() != 'CategoryID':
@@ -308,7 +307,7 @@ def validate_er_servicepriority_hdr(rdr):
 
 def validate_sfm_servicepriority_hdr(rdr):
     retval = False
-    row = rdr.next()
+    row = next(rdr)
     if len(row) == COLS_SFM_SERVICE_PRIORITY:
         sBad = ''
         if row[0].strip() != 'CategoryID':
@@ -345,7 +344,7 @@ def validate_sfm_servicepriority_hdr(rdr):
 
 def validate_pvs_servicepriority_hdr(rdr):
     retval = False
-    row = rdr.next()
+    row = next(rdr)
     if len(row) == COLS_PVS_SERVICE_PRIORITY:
         sBad = ''
         if row[0].strip() != 'CategoryID':
@@ -384,7 +383,7 @@ def validate_pvs_servicepriority_hdr(rdr):
 
 def validate_nc_servicepriority_hdr(rdr):
     retval = False
-    row = rdr.next()
+    row = next(rdr)
     if len(row) == COLS_NC_SERVICE_PRIORITY:
         sBad = ''
         if row[0].strip() != 'CategoryID':
@@ -429,10 +428,8 @@ def validate_nc_servicepriority_hdr(rdr):
 
 
 def validate_nc_strategicplan_hdr(rdr):
-
     retVal = False
-
-    row = rdr.next()
+    row = next(rdr)
     if len(row) == COLS_NC_STRATEGIC_PLAN:
         sBad = ''
         if row[0].strip() != 'StratPlanNo':

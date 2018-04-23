@@ -25,7 +25,7 @@ def validate_file(file, fileType):
 
 
 def validate_sfmmetrics_hdr(rdr):
-    row = rdr.next()
+    row = next(rdr)
     if len(row) == COLS_SFM_METRICS:
         sBad = ''
         if row[0].strip() != 'servicePriorityNo':
@@ -45,7 +45,7 @@ def validate_sfmmetrics_hdr(rdr):
 
 
 def validate_costcentre_hdr(rdr):
-    row = rdr.next()
+    row = next(rdr)
     if len(row) == COLS_COSTCENTRES:
         sBad = ''
         if row[0].strip() != 'costCentre':

@@ -190,7 +190,7 @@ def export_ibms_data(response, fy):
 
 
 def csvload(fileName):
-    csvfile = open(fileName, "rb")
+    csvfile = open(fileName, 'r')
     csv.field_size_limit(CSV_FILE_LIMIT)
     rdr = csv.reader(csvfile, dialect='excel', quotechar=str('"'))
     if not csv.Sniffer().has_header(csvfile.readline()):

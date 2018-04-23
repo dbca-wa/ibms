@@ -129,21 +129,22 @@ class UploadView(IbmsFormView):
         return reverse('upload')
 
     def form_valid(self, form):
+        # We have to open the uploaded file in text mode to parse it.
+        file = open(form.cleaned_data['upload_file'].temporary_file_path(), 'r')
         file_type = form.cleaned_data['upload_file_type']
-        fy = form.cleaned_data['financial_year']
-        if validate_file(form.cleaned_data['upload_file'], file_type):
+        if validate_file(file, file_type):
             t = tempfile.NamedTemporaryFile()
             for chunk in form.cleaned_data['upload_file'].chunks():
                 t.write(chunk)
             t.flush()
+            fy = form.cleaned_data['financial_year']
             process_upload_file(t.name, file_type, fy)
             messages.success(self.request, 'Data imported successfully.')
             t.close()
             return redirect('upload')
         else:
             messages.error(
-                self.request, '''This file appears to be of an incorrect type.
-                Please choose a {0} file.'''.format(file_type))
+                self.request, '''This file appears to be of an incorrect type. Please choose a {} file.'''.format(file_type))
             return redirect('upload')
         return super(UploadView, self).form_valid(form)
 
