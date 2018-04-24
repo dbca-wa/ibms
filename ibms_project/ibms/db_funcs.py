@@ -2,10 +2,9 @@ import csv
 from django.db import transaction
 import xlwt
 
-from ibms.models import (IBMData, GLPivDownload, CorporateStrategy,
-                     NCStrategicPlan, NCServicePriority, ERServicePriority,
-                     GeneralServicePriority, PVSServicePriority,
-                     SFMServicePriority)
+from ibms.models import (
+    IBMData, GLPivDownload, CorporateStrategy, NCStrategicPlan, NCServicePriority,
+    ERServicePriority, GeneralServicePriority, PVSServicePriority, SFMServicePriority)
 
 CSV_FILE_LIMIT = 100000000
 
@@ -227,12 +226,12 @@ def import_to_ibmdata(fileName, finyear):
                 "project": validateCharField('project', 6, row[5]),
                 "job": validateCharField('job', 6, row[6]),
                 "budgetArea": validateCharField('budgetArea', 50, row[7]),
-                "projectSponsor": validateCharField('projectSponsor', 50, unicode(str(row[8]), errors='ignore')),
+                "projectSponsor": validateCharField('projectSponsor', 50, str(row[8])),
                 "corporatePlanNo": validateCharField('corporatePlanNo', 20, row[9]),
                 "strategicPlanNo": validateCharField('strategicPlanNo', 20, row[10]),
                 "regionalSpecificInfo": row[11],
                 "servicePriorityID": validateCharField('servicePriorityID', 100, row[12]),
-                "annualWPInfo": unicode(str(row[13]), errors='ignore')
+                "annualWPInfo": str(row[13])
             }
             query = {
                 "financialYear": finyear,
@@ -244,11 +243,30 @@ def import_to_ibmdata(fileName, finyear):
     except Exception as e:
         csvfile.close()
         raise Exception(e)
-        #raise Exception('Row {0} has ill formed data. please remedy and retry'.format(i))
 
 
 @transaction.atomic
 def import_to_glpivotdownload(fileName, finyear):
+    rdr, file, fileName = csvload(fileName)
+    glpiv = []
+    for row in rdr:
+        glpiv.append(GLPivDownload(
+            financialYear=finyear, downloadPeriod=row[0], costCentre=row[1],
+            account=row[2], service=row[3], activity=row[4], resource=row[5],
+            project=row[6], job=row[7], shortCode=row[8], shortCodeName=row[9],
+            gLCode=row[10], ptdActual=row[11], ptdBudget=row[12], ytdActual=row[13],
+            ytdBudget=row[14], fybudget=row[15], ytdVariance=row[16], ccName=row[17],
+            serviceName=row[18], activityName=row[19], resourceName=row[20],
+            projectName=row[21], jobName=row[22], codeID=row[23], resNameNo=row[24],
+            actNameNo=row[25], projNameNo=row[26], regionBranch=row[27],
+            division=row[28], resourceCategory=row[29], wildfire=row[30],
+            expenseRevenue=row[31], fireActivities=row[32], mPRACategory=row[33])
+        )
+    GLPivDownload.objects.bulk_create(glpiv)
+
+
+@transaction.atomic
+def OLD_import_to_glpivotdownload(fileName, finyear):
     rdr, file, fileName = csvload(fileName)
     i = 0
     try:
@@ -310,8 +328,8 @@ def import_to_corporate_strategy(fileName, finyear):
             data = {
                 "financialYear": finyear,
                 "corporateStrategyNo": validateCharField('corporateStrategyNo', 10, row[0]),
-                "description1": unicode(str(row[1]), errors='ignore'),
-                "description2": unicode(str(row[2]), errors='ignore')
+                "description1": str(row[1]),
+                "description2": str(row[2])
             }
             query = {
                 "financialYear": finyear,
@@ -333,12 +351,12 @@ def import_to_nc_strategic_plan(fileName, finyear):
                 "financialYear": finyear,
                 "strategicPlanNo": validateCharField('strategicPlanNo', 20, row[0]),
                 "directionNo": validateCharField('directionNo', 20, row[1]),
-                "direction": unicode(str(row[2]), errors='ignore'),
+                "direction": str(row[2]),
                 "AimNo": validateCharField('directionNo', 20, row[3]),
-                "Aim1": unicode(str(row[4]), errors='ignore'),
-                "Aim2": unicode(str(row[5]), errors='ignore'),
+                "Aim1": str(row[4]),
+                "Aim2": str(row[5]),
                 "ActionNo": validateCharField('directionNo', 20, row[6]),
-                "Action": unicode(str(row[7]), errors='ignore')
+                "Action": str(row[7])
             }
             query = {
                 "financialYear": finyear,
@@ -367,10 +385,10 @@ def import_to_pvs_service_priority(fileName, finyear):
                 "servicePriorityNo": validateCharField('servicePriorityNo', 100, row[1]),
                 "strategicPlanNo": validateCharField('strategicPlanNo', 100, row[2]),
                 "corporateStrategyNo": row[3],
-                "servicePriority1": unicode(str(row[4]), errors='ignore'),
-                "description": unicode(str(row[5]), errors='ignore'),
-                "pvsExampleAnnWP": unicode(str(row[6]), errors='ignore'),
-                "pvsExampleActNo": unicode(str(row[7]))
+                "servicePriority1": str(row[4]),
+                "description": str(row[5]),
+                "pvsExampleAnnWP": str(row[6]),
+                "pvsExampleActNo": str(row[7])
             }
 
             query = {
@@ -396,8 +414,8 @@ def import_to_sfm_service_priority(fileName, finyear):
                 "servicePriorityNo": validateCharField('servicePriorityNo', 20, row[2]),
                 "strategicPlanNo": validateCharField('strategicPlanNo', 20, row[3]),
                 "corporateStrategyNo": row[4],
-                "description": unicode(str(row[5]), errors='ignore'),
-                "description2": unicode(str(row[6]), errors='ignore')
+                "description": str(row[5]),
+                "description2": str(row[6])
             }
             query = {
                 "financialYear": finyear,
@@ -424,8 +442,8 @@ def import_to_er_service_priority(fileName, finyear):
                 "servicePriorityNo": validateCharField('servicePriorityNo', 10, row[1]),
                 "strategicPlanNo": validateCharField('strategicPlanNo', 10, row[2]),
                 "corporateStrategyNo": row[3],
-                "classification": unicode(str(row[4]), errors='ignore'),
-                "description": unicode(str(row[5]), errors='ignore')
+                "classification": str(row[4]),
+                "description": str(row[5])
             }
             query = {
                 "financialYear": finyear,
@@ -451,8 +469,8 @@ def import_to_general_service_priority(fileName, finyear):
                     "servicePriorityNo": validateCharField('servicePriorityNo', 20, row[1]),
                     "strategicPlanNo": validateCharField('strategicPlanNo', 20, row[2]),
                     "corporateStrategyNo": row[3],
-                    "description": unicode(str(row[4]), errors='ignore'),
-                    "description2": unicode(str(row[5]), errors='ignore')
+                    "description": str(row[4]),
+                    "description2": str(row[5])
                 }
                 query = {
                     "financialYear": finyear,
@@ -481,13 +499,13 @@ def import_to_nc_service_priority(fileName, finyear):
                 "strategicPlanNo": validateCharField('strategicPlanNo', 100, row[2]),
                 "corporateStrategyNo": validateCharField('corporateStrategyNo', 100, row[3]),
                 "assetNo": validateCharField('AssetNo', 5, row[4]),
-                "asset": unicode(str(row[5]), errors='ignore'),
+                "asset": str(row[5]),
                 "targetNo": validateCharField('Asset', 30, row[6]),
-                "target": unicode(str(row[7]), errors='ignore'),
-                "actionNo": unicode(str(row[8]), errors='ignore'),
-                "action": unicode(str(row[9]), errors='ignore'),
+                "target": str(row[7]),
+                "actionNo": str(row[8]),
+                "action": str(row[9]),
                 "mileNo": validateCharField('MileNo', 30, row[10]),
-                "milestone": unicode(str(row[11]), errors='ignore')
+                "milestone": str(row[11])
             }
             query = {
                 "financialYear": finyear,

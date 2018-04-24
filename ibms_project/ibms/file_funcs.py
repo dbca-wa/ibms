@@ -14,9 +14,7 @@ COLS_NC_STRATEGIC_PLAN = 8
 
 
 def process_upload_file(fileName, fileType, fy):
-    if fileType == "Staging":
-        db_funcs.import_to_staging(fileName)
-    elif fileType == "GLPivotDownload":
+    if fileType == 'GLPivotDownload':
         db_funcs.import_to_glpivotdownload(fileName, fy)
     elif fileType == 'IBMData':
         db_funcs.import_to_ibmdata(fileName, fy)
@@ -35,10 +33,7 @@ def process_upload_file(fileName, fileType, fy):
     elif fileType == 'NCServicePriorityData':
         db_funcs.import_to_nc_service_priority(fileName, fy)
     else:
-        raise Exception(
-            'func: process_upload_file : file type ' +
-            fileType +
-            ' unknown')
+        raise Exception('process_upload_file : file type {} unknown'.format(fileType))
 
 
 def validate_file(file, fileType):
@@ -62,7 +57,7 @@ def validate_file(file, fileType):
     elif fileType == 'NCServicePriorityData':
         return validate_nc_servicepriority_hdr(rdr)
     else:
-        raise Exception("Attempting to validate and unknown file type of " + fileType)
+        raise Exception('validate_file: unknown file type {}'.format(fileType))
 
 
 def validate_corporatestrategydata_hdr(rdr):

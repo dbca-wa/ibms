@@ -133,14 +133,9 @@ class UploadView(IbmsFormView):
         file = open(form.cleaned_data['upload_file'].temporary_file_path(), 'r')
         file_type = form.cleaned_data['upload_file_type']
         if validate_file(file, file_type):
-            t = tempfile.NamedTemporaryFile()
-            for chunk in form.cleaned_data['upload_file'].chunks():
-                t.write(chunk)
-            t.flush()
             fy = form.cleaned_data['financial_year']
-            process_upload_file(t.name, file_type, fy)
-            messages.success(self.request, 'Data imported successfully.')
-            t.close()
+            process_upload_file(file.name, file_type, fy)
+            messages.success(self.request, '{} data imported successfully'.format(file_type))
             return redirect('upload')
         else:
             messages.error(
