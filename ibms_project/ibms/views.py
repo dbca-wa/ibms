@@ -129,8 +129,16 @@ class UploadView(IbmsFormView):
         return reverse('upload')
 
     def form_valid(self, form):
+        # Uploaded CSVs may contain characters with oddball encodings.
+        # To overcome this, we need to decode the uploaded file content as UTF-8 (ignoring errors),
+        # re-encode the file, and then process that. Wasteful, but necessary to parse the CSV
+        # in a consistent fashion.
+        t = tempfile.NamedTemporaryFile()
+        for chunk in form.cleaned_data['upload_file'].chunks():
+            t.write(chunk.decode('utf-8', 'ignore').encode())
+        t.flush()
         # We have to open the uploaded file in text mode to parse it.
-        file = open(form.cleaned_data['upload_file'].temporary_file_path(), 'r')
+        file = open(t.name, 'r')
         file_type = form.cleaned_data['upload_file_type']
         if validate_file(file, file_type):
             fy = form.cleaned_data['financial_year']
@@ -139,7 +147,8 @@ class UploadView(IbmsFormView):
             return redirect('upload')
         else:
             messages.error(
-                self.request, '''This file appears to be of an incorrect type. Please choose a {} file.'''.format(file_type))
+                self.request,
+                'This file appears to be of an incorrect type. Please choose a {} file.'.format(file_type))
             return redirect('upload')
         return super(UploadView, self).form_valid(form)
 

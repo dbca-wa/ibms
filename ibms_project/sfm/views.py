@@ -92,7 +92,16 @@ class FMUploadView(ProtectedFormView):
         return reverse('sfmupload')
 
     def form_valid(self, form):
-        file = open(form.cleaned_data['upload_file'].temporary_file_path(), 'r')
+        # Uploaded CSVs may contain characters with oddball encodings.
+        # To overcome this, we need to decode the uploaded file content as UTF-8 (ignoring errors),
+        # re-encode the file, and then process that. Wasteful, but necessary to parse the CSV
+        # in a consistent fashion.
+        t = tempfile.NamedTemporaryFile()
+        for chunk in form.cleaned_data['upload_file'].chunks():
+            t.write(chunk.decode('utf-8', 'ignore').encode())
+        t.flush()
+        # We have to open the uploaded file in text mode to parse it.
+        file = open(t.name, 'r')
         file_type = form.cleaned_data['upload_file_type']
         if validate_file(file, file_type):
             temp = tempfile.NamedTemporaryFile(delete=True)
