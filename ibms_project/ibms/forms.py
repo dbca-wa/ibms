@@ -49,26 +49,28 @@ class HelperForm(forms.Form):
         self.helper.field_class = 'col-xs-12 col-sm-8 col-md-6 col-lg-4'
 
 
-class ClearGLPivotForm(HelperForm):
-
-    def __init__(self, *args, **kwargs):
-        super(ClearGLPivotForm, self).__init__(*args, **kwargs)
-        self.helper.layout = Layout(
-            Div(
-                HTML('''<div class="row">
-                    <div class="col-sm-12 col-md-9 col-lg-6 alert alert-warning">
-                    Please confirm that you want to clear all current GL Pivot entries from the database.</div></div>'''),
-                Submit('confirm', 'Confirm', css_class='btn-danger'),
-                Submit('cancel', 'Cancel'),
-            )
-        )
-
-
 class FinancialYearFilterForm(HelperForm):
     """Base form class to be include a financial year filter select.
     """
     financial_year = forms.ChoiceField(
         choices=getGenericChoices(GLPivDownload, 'financialYear', allowNull=True))
+
+
+class ClearGLPivotForm(FinancialYearFilterForm):
+
+    def __init__(self, *args, **kwargs):
+        super(ClearGLPivotForm, self).__init__(*args, **kwargs)
+        self.helper.layout = Layout(
+            HTML('''<div class="row">
+                <div class="col-md-10 col-lg-9 alert alert-warning">
+                Please confirm that you want to clear all GL Pivot entries for the selected financial year.</div></div>'''),
+            Div(
+                'financial_year',
+                Submit('confirm', 'Confirm', css_class='btn-danger'),
+                Submit('cancel', 'Cancel'),
+                css_class='col-sm-offset-3 col-md-offset-2 col-lg-offset-1'
+            )
+        )
 
 
 class UploadForm(HelperForm):

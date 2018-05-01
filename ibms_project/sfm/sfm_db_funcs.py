@@ -41,7 +41,7 @@ def getFYChoices():
 
 
 def csvload(fileName):
-    file = open(fileName, "rb")
+    file = open(fileName, 'r')
     csv.field_size_limit(CSV_FILE_LIMIT)
     try:
         rdr = csv.reader(file, dialect='excel', quotechar='"')

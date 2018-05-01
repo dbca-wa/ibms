@@ -66,6 +66,8 @@ class IbmsFormView(FormView):
 
 
 class ClearGLPivotView(IbmsFormView):
+    """A basic function for admins to clear all GL Pivot entries for a financial year.
+    """
     form_class = forms.ClearGLPivotForm
 
     def get_context_data(self, **kwargs):
@@ -95,10 +97,11 @@ class ClearGLPivotView(IbmsFormView):
             return redirect('site_home')
         # Do the bulk delete. We can use the private method _raw_delete because we don't
         # have any signals or cascade deletes to worry about.
-        glpiv = GLPivDownload.objects.all()
+        fy = form.cleaned_data['financial_year']
+        glpiv = GLPivDownload.objects.filter(financialYear=fy)
         if glpiv.exists():
             glpiv._raw_delete(glpiv.db)
-            messages.success(self.request, 'GL Pivot entries have been cleared.')
+            messages.success(self.request, 'GL Pivot entries for {} have been cleared.'.format(fy))
         return super(ClearGLPivotView, self).form_valid(form)
 
 
@@ -126,21 +129,26 @@ class UploadView(IbmsFormView):
         return reverse('upload')
 
     def form_valid(self, form):
+        # Uploaded CSVs may contain characters with oddball encodings.
+        # To overcome this, we need to decode the uploaded file content as UTF-8 (ignoring errors),
+        # re-encode the file, and then process that. Wasteful, but necessary to parse the CSV
+        # in a consistent fashion.
+        t = tempfile.NamedTemporaryFile()
+        for chunk in form.cleaned_data['upload_file'].chunks():
+            t.write(chunk.decode('utf-8', 'ignore').encode())
+        t.flush()
+        # We have to open the uploaded file in text mode to parse it.
+        file = open(t.name, 'r')
         file_type = form.cleaned_data['upload_file_type']
-        fy = form.cleaned_data['financial_year']
-        if validate_file(form.cleaned_data['upload_file'], file_type):
-            t = tempfile.NamedTemporaryFile()
-            for chunk in form.cleaned_data['upload_file'].chunks():
-                t.write(chunk)
-            t.flush()
-            process_upload_file(t.name, file_type, fy)
-            messages.success(self.request, 'Data imported successfully.')
-            t.close()
+        if validate_file(file, file_type):
+            fy = form.cleaned_data['financial_year']
+            process_upload_file(file.name, file_type, fy)
+            messages.success(self.request, '{} data imported successfully'.format(file_type))
             return redirect('upload')
         else:
             messages.error(
-                self.request, '''This file appears to be of an incorrect type.
-                Please choose a {0} file.'''.format(file_type))
+                self.request,
+                'This file appears to be of an incorrect type. Please choose a {} file.'.format(file_type))
             return redirect('upload')
         return super(UploadView, self).form_valid(form)
 
