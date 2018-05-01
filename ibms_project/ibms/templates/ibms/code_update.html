@@ -1,5 +1,11 @@
 {% extends "ibms/form.html" %}
 
+{% block check_all_button %}
+{% if superuser %}
+<button id="checkAll" type="button" class="btn btn-sm btn-success">Check/uncheck all</button></button>
+{% endif %}
+{% endblock %}
+
 {% block extra_js %}
 <script type="text/javascript">
     // Utility function to update Cost Centre select field when financial year changes.
@@ -20,9 +26,30 @@
         });
         $("select#id_cost_centre")[0].disabled = false;
     };
+
+    function enableAllWidgets() {
+        $("select.select").each(function() {
+            this.disabled = false;
+        });
+        $("input.checkboxselectmultiple").each(function() {
+            this.disabled = false;
+        });
+    };
     // ------------------------------------
     $(function() {
         var finYear = $("select#id_financial_year").val();
+
+		// Small function to check/uncheck all checkboxes on the page.
+        $("#checkAll").attr("data-type", "check");
+		$("#checkAll").click(function() {
+			if ($("#checkAll").attr("data-type") === "check") {
+				$('input[type="checkbox"]').prop("checked", true);
+				$("#checkAll").attr("data-type", "uncheck");
+			} else {
+				$('input[type="checkbox"]').prop("checked", false);
+				$("#checkAll").attr("data-type", "check");
+			}
+		});
 
         // Check the Financial year select. If it has a value (if form fails validation, etc),
         // then ensure that the other selects are enabled.
@@ -41,14 +68,5 @@
             updateCostCentre(finYear);
         });
     });
-
-    function enableAllWidgets() {
-        $("select.select").each(function() {
-            this.disabled = false;
-        });
-        $("input.checkboxselectmultiple").each(function() {
-            this.disabled = false;
-        });
-    };
 </script>
 {% endblock %}

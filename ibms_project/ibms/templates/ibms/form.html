@@ -3,6 +3,6 @@
 
 {% block page_content_inner %}
 <h1>{{ title }}</h1>
-<p>Downloads as of: <strong>{{ download_period }}</strong></p>
+<p>Downloads as of: <strong>{{ download_period }}</strong>{% block check_all_button %}{% endblock %}</p>
 {% crispy form %}
 {% endblock %}
