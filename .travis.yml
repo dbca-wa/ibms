@@ -1,4 +1,4 @@
-sudo: required
+sudo: false
 language: python
 cache: pip
 dist: trusty
@@ -6,7 +6,6 @@ python:
     - 3.6
 services:
     - postgresql
-    - docker
 addons:
     postgresql: 9.6
     apt:
@@ -28,14 +27,4 @@ before_script:
     - psql -U postgres -d travis_ci_test -c "create extension postgis;"
     - python manage.py migrate --noinput
 script:
-    - python manage.py test -k -v 0
-before_deploy:
-    - wget https://github.com/openshift/source-to-image/releases/download/v1.1.9a/source-to-image-v1.1.9a-40ad911d-linux-amd64.tar.gz
-    - tar xvf source-to-image-v1.1.9a-40ad911d-linux-amd64.tar.gz
-    - ./s2i build -e SECRET_KEY=${SECRET_KEY} . dbcawa/s2i-django dbcawa/ibms:${TRAVIS_BRANCH}
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-deploy:
-    provider: script
-    script: docker push dbcawa/ibms
-    on:
-        all_branches: true
+    - python manage.py test
