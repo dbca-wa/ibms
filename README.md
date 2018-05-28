@@ -1,8 +1,8 @@
 # Integrated Business Management System
 
 This project consists of the Integrated Business Management System
-(IBMS) corporate application, used by the Department of Parks and
-Wildlife.
+(IBMS) corporate application, used by the Department of Biodiversity,
+Conservation and Environment.
 
 # Installation
 
