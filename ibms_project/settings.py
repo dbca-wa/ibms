@@ -1,14 +1,11 @@
-'''
-Django settings for the IBMS application.
-'''
 from confy import database, env
 import os
 import sys
-from unipath import Path
+from pathlib import Path
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = Path(__file__).ancestor(2)
-PROJECT_DIR = os.path.join(BASE_DIR, 'ibms_project')
+BASE_DIR = str(Path(__file__).resolve().parents[1])
+PROJECT_DIR = str(Path(__file__).resolve().parents[0])
 # Add PROJECT_DIR to the system path.
 sys.path.insert(0, PROJECT_DIR)
 
@@ -38,9 +35,11 @@ INSTALLED_APPS = (
     'sfm',
 )
 MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -73,7 +72,7 @@ TEMPLATES = [
 ]
 SITE_TITLE = 'Integrated Business Management System'
 SITE_ACRONYM = 'IBMS'
-APPLICATION_VERSION_NO = '2.3'
+APPLICATION_VERSION_NO = '2.3.1'
 ADMINS = ('asi@dbca.wa.gov.au',)
 MANAGERS = (
     ('Zen Wee', 'zen.wee@dbca.wa.gov.au', '9219 9928'),
@@ -90,7 +89,7 @@ IBM_CODE_UPDATER_URI = env('IBM_CODE_UPDATER_URI', '')
 IBM_SERVICE_PRIORITY_URI = env('IBM_SERVICE_PRIORITY_URI', '')
 IBM_RELOAD_URI = env('IBM_RELOAD_URI', '')
 IBM_DATA_AMEND_URI = env('IBM_DATA_AMEND_URI', '')
-HELP_URL = '{}'.format(CONFLUENCE_URL)
+HELP_URL = CONFLUENCE_URL
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None  # Required to allow end-of-month GLPivot bulk deletes.
 
@@ -102,15 +101,15 @@ DATABASES = {
 }
 
 
-# Setup directories for content.
-STATICFILES_DIRS = (os.path.join(PROJECT_DIR, 'static'), )
+# Static files (CSS, JavaScript, Images)
 # Ensure that the media directory exists:
 if not os.path.exists(os.path.join(BASE_DIR, 'media')):
     os.mkdir(os.path.join(BASE_DIR, 'media'))
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
+STATICFILES_DIRS = (os.path.join(PROJECT_DIR, 'static'), )
 
 
 # Internationalisation.
@@ -139,38 +138,29 @@ EMAIL_HOST = env('EMAIL_HOST', 'email.host')
 EMAIL_PORT = env('EMAIL_PORT', 25)
 
 
-# Logging settings
-# Ensure that the logs directory exists:
-if not os.path.exists(os.path.join(BASE_DIR, 'logs')):
-    os.mkdir(os.path.join(BASE_DIR, 'logs'))
+# Logging settings - log to stdout/stderr
 LOGGING = {
     'version': 1,
+    'disable_existing_loggers': False,
     'formatters': {
-        'simple': {
-            'format': '%(levelname)s %(asctime)s %(message)s'
-        },
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(message)s'
-        },
+        'console': {'format': '%(name)-12s %(message)s'},
+        'verbose': {'format': '%(asctime)s %(levelname)-8s %(message)s'},
     },
     'handlers': {
-        'file': {
+        'console': {
             'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'ibms.log'),
-            'formatter': 'simple',
-            'maxBytes': 1024 * 1024 * 5,
-            'backupCount': 5,
+            'class': 'logging.StreamHandler',
+            'formatter': 'console'
         },
     },
     'loggers': {
-        'django.request': {
-            'handlers': ['file'],
+        'ibms': {
+            'handlers': ['console'],
             'level': 'INFO'
         },
-        'log': {
-            'handlers': ['file'],
-            'level': 'INFO'
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'WARNING'
         },
     }
 }

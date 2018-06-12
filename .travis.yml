@@ -16,7 +16,7 @@ branches:
         - master
 env:
     global:
-        - SECRET_KEY=SecretKeyForTravis
+        - SECRET_KEY="SecretKeyForTravisCI"
         - DATABASE_URL="postgis://postgres@localhost:5432/travis_ci_test"
 install:
     - pip install --upgrade pip
