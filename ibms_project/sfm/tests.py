@@ -3,7 +3,7 @@ from django.test.client import Client
 from mixer.backend.django import mixer
 
 from ibms.tests import IbmsTestCase
-from sfm.models import Quarter, SFMMetric, MeasurementType, CostCentre, MeasurementValue
+from sfm.models import FinancialYear, Quarter, SFMMetric, MeasurementType, CostCentre, MeasurementValue
 
 
 class SfmViewsTest(IbmsTestCase):
@@ -47,11 +47,14 @@ class SfmViewsTest(IbmsTestCase):
         """Test sfm JSON endpoints for AJAX requests.
         """
         # For this, we need some dummy records.
-        mixer.cycle(10).blend(Quarter)
-        mixer.cycle(10).blend(SFMMetric)
-        mixer.cycle(10).blend(MeasurementType)
-        mixer.cycle(10).blend(CostCentre)
-        mixer.cycle(10).blend(MeasurementValue)
+        mixer.cycle(3).blend(CostCentre)
+        mixer.cycle(3).blend(FinancialYear)
+        mixer.cycle(3).blend(SFMMetric, financialYear=mixer.SELECT)
+        mixer.cycle(3).blend(Quarter, financialYear=mixer.SELECT)
+        mixer.cycle(3).blend(MeasurementType)
+        mixer.cycle(3).blend(
+            MeasurementValue, quarter=mixer.SELECT, sfmMetric=mixer.SELECT,
+            measurementType=mixer.SELECT, costCentre=mixer.SELECT)
 
         self.client.login(username='admin', password='test')
         for endpoint in [

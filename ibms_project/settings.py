@@ -29,6 +29,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.staticfiles',
     'django_extensions',
+    'raven.contrib.django.raven_compat',
     'crispy_forms',
     'webtemplate_dbca',
     'ibms',
@@ -72,7 +73,7 @@ TEMPLATES = [
 ]
 SITE_TITLE = 'Integrated Business Management System'
 SITE_ACRONYM = 'IBMS'
-APPLICATION_VERSION_NO = '2.3.2'
+APPLICATION_VERSION_NO = '2.4'
 ADMINS = ('asi@dbca.wa.gov.au',)
 MANAGERS = (
     ('Zen Wee', 'zen.wee@dbca.wa.gov.au', '9219 9928'),
@@ -152,15 +153,29 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'console'
         },
+		'sentry': {
+            'level': 'WARNING',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+        },
     },
     'loggers': {
+        'django': {
+            'handlers': ['console'],
+			'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['console', 'sentry'],
+            'level': 'WARNING',
+			'propagate': False,
+        },
         'ibms': {
             'handlers': ['console'],
             'level': 'INFO'
         },
-        'django.request': {
-            'handlers': ['console'],
-            'level': 'WARNING'
-        },
     }
 }
+
+
+# Sentry configuration
+if env('RAVEN_DSN', False):
+    RAVEN_CONFIG = {'dsn': env('RAVEN_DSN')}
