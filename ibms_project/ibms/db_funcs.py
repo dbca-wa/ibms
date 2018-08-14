@@ -4,7 +4,8 @@ import xlwt
 
 from ibms.models import (
     IBMData, GLPivDownload, CorporateStrategy, NCStrategicPlan, NCServicePriority,
-    ERServicePriority, GeneralServicePriority, PVSServicePriority, SFMServicePriority)
+    ERServicePriority, GeneralServicePriority, PVSServicePriority, SFMServicePriority,
+    ServicePriorityMappings)
 
 CSV_FILE_LIMIT = 100000000
 
@@ -518,6 +519,31 @@ def import_to_nc_service_priority(fileName, finyear):
         file.close()
         raise
 
+def import_to_service_priority_mappings(fileName, finyear):
+    rdr, file, fileName = csvload(fileName)
+    try: 
+        query = {
+            "financialYear": finyear
+        }
+        query_results = ServicePriorityMappings.objects.filter(**query)
+        if query_results.exists():
+            query_results.delete()
+        for row in rdr:
+            data = {
+                "financialYear": finyear,
+                "regionSubDirectorate": validateCharField('regionSubDirectorate', 100, row[0]),
+                "costCentreNo": validateCharField('costCentreNo', 4, row[1]),
+                "wildlifeManagement": validateCharField('wildlifeManagement', 100, row[2]),
+                "parksManagement": validateCharField('parksManagement', 100, row[3]),
+                "forestManagement": validateCharField('forestManagement', 100, row[4]),
+                "costCentreName": validateCharField('costCentreName', 100, row[5])
+            }
+            obj = ServicePriorityMappings(**data)
+            obj.save()
+        file.close()
+    except:
+        file.close()
+        raise
 
 def validateCharField(fieldName, fieldLen, data):
     if (len(data.strip()) > fieldLen):

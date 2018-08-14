@@ -11,6 +11,7 @@ COLS_PVS_SERVICE_PRIORITY = 8
 COLS_GENERAL_SERVICE_PRIORITY = 6
 COLS_NC_SERVICE_PRIORITY = 12
 COLS_NC_STRATEGIC_PLAN = 8
+COLS_SET_SERVICE_PRIORITY = 6
 
 
 def process_upload_file(fileName, fileType, fy):
@@ -32,6 +33,8 @@ def process_upload_file(fileName, fileType, fy):
         db_funcs.import_to_general_service_priority(fileName, fy)
     elif fileType == 'NCServicePriorityData':
         db_funcs.import_to_nc_service_priority(fileName, fy)
+    elif fileType == 'ServicePriorityMappings':
+        db_funcs.import_to_service_priority_mappings(fileName, fy)
     else:
         raise Exception('process_upload_file : file type {} unknown'.format(fileType))
 
@@ -56,6 +59,8 @@ def validate_file(file, fileType):
         return validate_general_servicepriority_hdr(rdr)
     elif fileType == 'NCServicePriorityData':
         return validate_nc_servicepriority_hdr(rdr)
+    elif fileType == 'ServicePriorityMappings':
+        return validate_settings_service_priority_hdr(rdr)
     else:
         raise Exception('validate_file: unknown file type {}'.format(fileType))
 
@@ -444,6 +449,36 @@ def validate_nc_strategicplan_hdr(rdr):
         if row[7].strip() != 'Action':
             sBad += row[7] + ' : ' + 'Action\n'
 
+        retVal = sBad == ''
+
+        if not retVal:
+            raise Exception(
+                'The column headings in the CSV file do not match the required headings\n' +
+                sBad)
+    else:
+        raise Exception(
+            'The number of columns in the CSV file do not match the required column count :\nExpects ' +
+            str(COLS_NC_STRATEGIC_PLAN) +
+            ' met ' +
+            str(
+                len(row)))
+
+    return retVal
+
+def validate_settings_service_priority_hdr(rdr):
+    retVal = False
+    row = next(rdr)
+    if len(row) == COLS_SET_SERVICE_PRIORITY:
+        sBad = ''
+        if row[1].strip() != 'CC No.':
+            sBad += row[1] + ' : ' + 'CC No.\n'
+        if row[2].strip() != 'Wildlife Management':
+            sBad += row[2] + ' : ' + 'Wildlife Management\n'
+        if row[3].strip() != 'Parks Management':
+            sBad += row[3] + ' : ' + 'Parks Management\n'
+        if row[4].strip() != 'Forest Management':
+            sBad += row[4] + ' : ' + 'Forest Management\n'
+        
         retVal = sBad == ''
 
         if not retVal:

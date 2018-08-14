@@ -300,6 +300,24 @@ def reload_report(workbook, ibm, nc_sp, pvs_sp, fm_sp, gl):
     sheet.col(0).width = 7500
     sheet.col(2).width = 12500
 
+    #Sheet 4 - Job and Job name
+    sheet = workbook.get_sheet(3)
+
+    jobs = []
+    jobNames = []
+    current_row = 0
+    for row, data in enumerate(gl):
+        if data.job not in jobs or data.jobName not in jobNames:
+            sheet.write(current_row, 0, data.job)
+            sheet.write(current_row, 1, data.jobName)
+            jobs.append(data.job)
+            jobNames.append(data.jobName)
+            current_row += 1
+        else:
+            pass
+    
+    sheet.col(1).width = 10000
+
 
 def write_budget_areas(sheet, ibm):
     """From a queryset of IBMData objects, write unique budgetArea values
