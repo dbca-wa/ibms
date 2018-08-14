@@ -18,7 +18,7 @@ from ibms import forms
 from ibms.file_funcs import validate_file, process_upload_file
 from ibms.models import (
     IBMData, GLPivDownload, NCServicePriority, PVSServicePriority,
-    SFMServicePriority)
+    SFMServicePriority, ServicePriorityMappings)
 from ibms.report import (
     reload_report, code_update_report, data_amend_report,
     service_priority_report, download_report)
@@ -103,7 +103,6 @@ class ClearGLPivotView(IbmsFormView):
             glpiv._raw_delete(glpiv.db)
             messages.success(self.request, 'GL Pivot entries for {} have been cleared.'.format(fy))
         return super(ClearGLPivotView, self).form_valid(form)
-
 
 class UploadView(IbmsFormView):
     """Upload view for superusers only.
@@ -249,7 +248,7 @@ class CodeUpdateView(IbmsFormView):
     template_name = 'ibms/code_update.html'
 
     def get_form_class(self):
-        if self.request.user.is_superuser:
+        if self.kwargs['v'] == 'v=AdminReportsView':
             return forms.ManagerCodeUpdateForm
         else:
             return forms.CodeUpdateForm
@@ -465,7 +464,7 @@ class ServicePriorityDataView(IbmsFormView):
         response['Content-Disposition'] = 'attachment; filename=serviceprioritydata.xls'
         book.save(response)  # Save the worksheet contents to the response.
 
-        return response
+        return response    
 
 
 class JSONResponseMixin(object):
@@ -484,6 +483,37 @@ class JSONResponseMixin(object):
         "Convert the context dictionary into a JSON object"
         return json.dumps(context)
 
+class ServicePriorityMappingsJSON(JSONResponseMixin, BaseDetailView):
+    """View to return a filtered list of mappings.
+    Cannot use below as we require multiple fields without PKs
+    """
+    model = None
+    fieldname = None
+    return_pk = False
+    
+    def get(self, request, *args, **kwargs):
+        try:
+            for fieldname in self.fieldname.split(', '):
+                self.model._meta.get_field(fieldname)
+        except:
+            return HttpResponseBadRequest(
+                'Invalid field name: {0}'.format(self.fieldname))
+        r = self.model.objects.all()
+        if request.GET.get('financialYear', None):
+            r = r.filter(financialYear=request.GET['financialYear'])
+        if request.GET.get('costCentreNo', None):
+            r = r.filter(costCentreNo=request.GET['costCentreNo'])
+        choices = []
+        r = r.distinct()
+        try:
+            res = r.get()
+        except:
+            return HttpResponse('Query returns empty.')
+        for fieldname in self.fieldname.split(', '):
+            choice_val = getattr(res, fieldname)
+            choices.append(choice_val)
+        context = {'choices': choices}
+        return self.render_to_response(context)
 
 class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
     """View to return a filtered list of distinct values from a

@@ -29,7 +29,8 @@ FILE_CHOICES = (
                             ('NCServicePriorityData', 'Nature Conservation'),
                             ('PVSServicePriorityData', 'Parks & Visitor Services'),
                             ('ERServicePriorityData', 'Fire Services'),
-                            ('SFMServicePriorityData', 'State Forest Management')))
+                            ('SFMServicePriorityData', 'State Forest Management'),
+                            ('ServicePriorityMappings', 'Pre-Population Mapping')))
 )
 REPORT_CHOICES = (
     (None, '--Please Select--'),
@@ -412,31 +413,35 @@ class CodeUpdateForm(FinancialYearFilterForm):
 class ManagerCodeUpdateForm(FinancialYearFilterForm):
 
     def __init__(self, request, *args, **kwargs):
-        super(ManagerCodeUpdateForm, self).__init__(*args, **kwargs)
-        self.fields['report_type'] = forms.ChoiceField(
-            choices=REPORT_CHOICES, label='Report Type?', required=True)
-        self.fields['ncChoice'] = forms.MultipleChoiceField(
-            widget=forms.CheckboxSelectMultiple,
-            choices=getGenericChoices(NCServicePriority, 'categoryID'),
-            required=False, label='Wildlife Management')
-        self.fields['pvsChoice'] = forms.MultipleChoiceField(
-            widget=forms.CheckboxSelectMultiple,
-            choices=getGenericChoices(PVSServicePriority, 'categoryID'),
-            required=False, label='Parks Management')
-        self.fields['fmChoice'] = forms.MultipleChoiceField(
-            widget=forms.CheckboxSelectMultiple,
-            choices=getGenericChoices(SFMServicePriority, 'categoryID'),
-            required=False, label='Forest Management')
+        if request.user.is_superuser:
+            super(ManagerCodeUpdateForm, self).__init__(*args, **kwargs)
+            self.fields['report_type'] = forms.ChoiceField(
+                choices=REPORT_CHOICES, label='Report Type?', required=True)
+            self.fields['ncChoice'] = forms.MultipleChoiceField(
+                widget=forms.CheckboxSelectMultiple,
+                choices=getGenericChoices(NCServicePriority, 'categoryID'),
+                required=False, label='Wildlife Management')
+            self.fields['pvsChoice'] = forms.MultipleChoiceField(
+                widget=forms.CheckboxSelectMultiple,
+                choices=getGenericChoices(PVSServicePriority, 'categoryID'),
+                required=False, label='Parks Management')
+            self.fields['fmChoice'] = forms.MultipleChoiceField(
+                widget=forms.CheckboxSelectMultiple,
+                choices=getGenericChoices(SFMServicePriority, 'categoryID'),
+                required=False, label='Forest Management')
 
-        self.helper.layout = Layout(
-            'report_type',
-            'financial_year',
-            HTML('<div class="checkbox">'),
-            'ncChoice',
-            'pvsChoice',
-            'fmChoice',
-            HTML('</div>'),
-            Div(
-                Submit('codeupdate', 'Code Update'),
-                css_class='col-sm-offset-4 col-md-offset-3 col-lg-offset-2')
-        )
+            self.helper.layout = Layout(
+                'report_type',
+                'financial_year',
+                HTML('<div class="checkbox">'),
+                'ncChoice',
+                'pvsChoice',
+                'fmChoice',
+                HTML('</div>'),
+                Div(
+                    Submit('codeupdate', 'Code Update'),
+                    css_class='col-sm-offset-4 col-md-offset-3 col-lg-offset-2')
+            )
+        else:
+            pass
+

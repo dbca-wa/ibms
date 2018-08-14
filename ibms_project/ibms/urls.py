@@ -1,14 +1,14 @@
 from django.urls import path
-from ibms.models import GLPivDownload, IBMData
+from ibms.models import GLPivDownload, IBMData, ServicePriorityMappings
 from ibms.views import (DownloadView, UploadView, ReloadView, CodeUpdateView,
                         ServicePriorityDataView, DataAmendmentView, ClearGLPivotView,
-                        IbmsModelFieldJSON)
+                        IbmsModelFieldJSON, ServicePriorityMappingsJSON)
 
 urlpatterns = [
     path('upload/', UploadView.as_view(), name='upload'),
     path('download/', DownloadView.as_view(), name='download'),
     path('reload/', ReloadView.as_view(), name='reload'),
-    path('code-update/', CodeUpdateView.as_view(), name='code_update'),
+    path('code-update/<v>', CodeUpdateView.as_view(), name='code_update'),
     path('service-priority-data/', ServicePriorityDataView.as_view(), name='serviceprioritydata'),
     path('data-amendment/', DataAmendmentView.as_view(), name='dataamendment'),
     path('clear-gl-pivot/', ClearGLPivotView.as_view(), name='clearglpivot'),
@@ -31,4 +31,5 @@ urlpatterns = [
     path('ajax/glpivdownload/cost-centre/', IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='costCentre'), name='ajax_glpivdownload_costcentre'),
     path('ajax/glpivdownload/region-branch/', IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='regionBranch'), name='ajax_glpivdownload_regionbranch'),
     path('ajax/glpivdownload/division/', IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='division'), name='ajax_glpivdownload_division'),
+    path('ajax/mappings', ServicePriorityMappingsJSON.as_view(model=ServicePriorityMappings, fieldname="wildlifeManagement, parksManagement, forestManagement"), name="ajax_mappings")
 ]

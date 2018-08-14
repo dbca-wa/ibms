@@ -69,7 +69,10 @@ class IbmsViewsTest(IbmsTestCase):
         for view in [
                 'upload', 'download', 'reload', 'code_update',
                 'serviceprioritydata', 'dataamendment']:
-            url = reverse(view)
+            if(view == 'code_update'):
+                url = reverse(view, args={'v='})
+            else:
+                url = reverse(view)
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
 
@@ -79,7 +82,10 @@ class IbmsViewsTest(IbmsTestCase):
         for view in [
                 'site_home', 'upload', 'download', 'reload', 'code_update',
                 'serviceprioritydata', 'dataamendment']:
-            url = reverse(view)
+            if(view == 'code_update'):
+                url = reverse(view, args={'v='})
+            else:
+                url = reverse(view)
             response = self.client.get(url)
             self.assertEqual(response.status_code, 302)
 
@@ -122,7 +128,8 @@ class IbmsViewsTest(IbmsTestCase):
                 'ajax_ibmdata_budgetarea', 'ajax_ibmdata_projectsponsor',
                 'ajax_ibmdata_service', 'ajax_glpivdownload_financialyear',
                 'ajax_glpivdownload_service', 'ajax_glpivdownload_costcentre',
-                'ajax_glpivdownload_regionbranch', 'ajax_glpivdownload_division']:
+                'ajax_glpivdownload_regionbranch', 'ajax_glpivdownload_division',
+                'ajax_mappings']:
             url = reverse(endpoint)
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
