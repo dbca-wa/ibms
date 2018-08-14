@@ -4,7 +4,8 @@ from django.http import HttpResponse
 
 from .models import (
     IBMData, GLPivDownload, CorporateStrategy, GeneralServicePriority, NCServicePriority,
-    PVSServicePriority, SFMServicePriority, ERServicePriority, NCStrategicPlan, Outcomes)
+    PVSServicePriority, SFMServicePriority, ERServicePriority, NCStrategicPlan, Outcomes,
+    ServicePriorityMappings)
 
 
 def export_as_csv_action(fields=None, translations=None, exclude=None,
@@ -222,3 +223,18 @@ class OutcomesAdmin(ModelAdmin):
                 'q3Input',
                 'q4Input'],
             fields=['id', 'financialYear', 'q1Input', 'q2Input', 'q3Input', 'q4Input'])]
+
+@register(ServicePriorityMappings)
+class ServicePriorityMappings(ModelAdmin):
+    list_display = ('costCentreNo','costCentreName', 'financialYear')
+    actions = [
+        export_as_csv_action(
+            translations=[
+                'financialYear',
+                'regionSubDirectorate',
+                'costCentreNo',
+                'wildlifeManagement',
+                'parksManagement',
+                'forestManagement',
+                'costCentreName'],
+            fields =['financialYear', 'regionSubDirectorate', 'costCentreNo', 'wildlifeManagement', 'parksManagement', 'forestManagement', 'costCentreName'])]

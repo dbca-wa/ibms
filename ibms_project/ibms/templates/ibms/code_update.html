@@ -27,6 +27,18 @@
         $("select#id_cost_centre")[0].disabled = false;
     };
 
+    //Function to update mappings based on the financial year and the cost centre selected.
+    function updateMappings(finYear, costCentreNo) {
+        $.ajax({
+            type: "GET",
+            url: "{% url 'ajax_mappings' %}",
+            data: {"financialYear": finYear, "costCentreNo": costCentreNo},
+            success : function(data) {
+                checkMappedBoxes(data.choices);
+            }
+        })
+    };
+
     function enableAllWidgets() {
         $("select.select").each(function() {
             this.disabled = false;
@@ -66,7 +78,32 @@
             finYear = $("select#id_financial_year").val();
             enableAllWidgets();
             updateCostCentre(finYear);
+            checkMappedBoxes();
+        });
+
+        //Updates auto mappings based on cost centre being selected.
+        $("select#id_cost_centre").change(function() {
+            finYear = $("select#id_financial_year").val();
+            costCentreNo = $("select#id_cost_centre").val();
+            updateMappings(finYear, costCentreNo);
         });
     });
+
+    //Will populate the checkboxes correctly, as per mappings uploaded.
+    function checkMappedBoxes(fieldlist){
+        $('input[type=checkbox]').each(function(){
+            $(this.checked = false);
+            if (fieldlist > ""){
+                for(i = 0; i < fieldlist.length; i++){
+                    to_check = fieldlist[i].split(', ');
+                    for (p = 0; p < to_check.length; p++){
+                        if($(this).val() == to_check[p]){
+                            $(this.checked = true);
+                        }
+                    }
+                }   
+            }
+        });
+    }
 </script>
 {% endblock %}
