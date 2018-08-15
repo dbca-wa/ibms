@@ -11,7 +11,7 @@ COLS_PVS_SERVICE_PRIORITY = 8
 COLS_GENERAL_SERVICE_PRIORITY = 6
 COLS_NC_SERVICE_PRIORITY = 12
 COLS_NC_STRATEGIC_PLAN = 8
-COLS_SET_SERVICE_PRIORITY = 6
+COLS_SET_SERVICE_PRIORITY = 4
 
 
 def process_upload_file(fileName, fileType, fy):
@@ -470,14 +470,14 @@ def validate_settings_service_priority_hdr(rdr):
     row = next(rdr)
     if len(row) == COLS_SET_SERVICE_PRIORITY:
         sBad = ''
-        if row[1].strip() != 'CC No.':
-            sBad += row[1] + ' : ' + 'CC No.\n'
-        if row[2].strip() != 'Wildlife Management':
-            sBad += row[2] + ' : ' + 'Wildlife Management\n'
-        if row[3].strip() != 'Parks Management':
-            sBad += row[3] + ' : ' + 'Parks Management\n'
-        if row[4].strip() != 'Forest Management':
-            sBad += row[4] + ' : ' + 'Forest Management\n'
+        if row[0].strip() != 'CC No.':
+            sBad += row[0] + ' : ' + 'CC No.\n'
+        if row[1].strip() != 'Wildlife Management':
+            sBad += row[1] + ' : ' + 'Wildlife Management\n'
+        if row[2].strip() != 'Parks Management':
+            sBad += row[2] + ' : ' + 'Parks Management\n'
+        if row[3].strip() != 'Forest Management':
+            sBad += row[3] + ' : ' + 'Forest Management\n'
         
         retVal = sBad == ''
 
@@ -488,7 +488,7 @@ def validate_settings_service_priority_hdr(rdr):
     else:
         raise Exception(
             'The number of columns in the CSV file do not match the required column count :\nExpects ' +
-            str(COLS_NC_STRATEGIC_PLAN) +
+            str(COLS_SET_SERVICE_PRIORITY) +
             ' met ' +
             str(
                 len(row)))

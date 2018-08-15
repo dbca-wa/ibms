@@ -226,15 +226,13 @@ class OutcomesAdmin(ModelAdmin):
 
 @register(ServicePriorityMappings)
 class ServicePriorityMappings(ModelAdmin):
-    list_display = ('costCentreNo','costCentreName', 'financialYear')
+    list_display = ('costCentreNo', 'financialYear')
     actions = [
         export_as_csv_action(
             translations=[
                 'financialYear',
-                'regionSubDirectorate',
                 'costCentreNo',
                 'wildlifeManagement',
                 'parksManagement',
-                'forestManagement',
-                'costCentreName'],
-            fields =['financialYear', 'regionSubDirectorate', 'costCentreNo', 'wildlifeManagement', 'parksManagement', 'forestManagement', 'costCentreName'])]
+                'forestManagement'],
+            fields =['financialYear','costCentreNo', 'wildlifeManagement', 'parksManagement', 'forestManagement'])]
