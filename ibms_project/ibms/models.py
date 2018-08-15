@@ -211,12 +211,10 @@ class Outcomes(models.Model):
 
 class ServicePriorityMappings(models.Model):
     financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100, db_index=True)
-    regionSubDirectorate = models.CharField(max_length=100)
     costCentreNo = models.CharField(max_length=4)
     wildlifeManagement = models.CharField(max_length=100)
     parksManagement = models.CharField(max_length=100)
     forestManagement = models.CharField(max_length=100)
-    costCentreName = models.CharField(max_length=100)
 
     def __str__(self):
         return self.costCentreNo

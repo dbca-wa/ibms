@@ -531,12 +531,10 @@ def import_to_service_priority_mappings(fileName, finyear):
         for row in rdr:
             data = {
                 "financialYear": finyear,
-                "regionSubDirectorate": validateCharField('regionSubDirectorate', 100, row[0]),
-                "costCentreNo": validateCharField('costCentreNo', 4, row[1]),
-                "wildlifeManagement": validateCharField('wildlifeManagement', 100, row[2]),
-                "parksManagement": validateCharField('parksManagement', 100, row[3]),
-                "forestManagement": validateCharField('forestManagement', 100, row[4]),
-                "costCentreName": validateCharField('costCentreName', 100, row[5])
+                "costCentreNo": validateCharField('costCentreNo', 4, row[0]),
+                "wildlifeManagement": validateCharField('wildlifeManagement', 100, row[1]),
+                "parksManagement": validateCharField('parksManagement', 100, row[2]),
+                "forestManagement": validateCharField('forestManagement', 100, row[3])
             }
             obj = ServicePriorityMappings(**data)
             obj.save()
