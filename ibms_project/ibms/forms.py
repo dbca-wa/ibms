@@ -150,9 +150,8 @@ class DownloadForm(FinancialYearFilterForm):
 
 class ReloadForm(FinancialYearFilterForm):
 
-    def __init__(self, request, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(ReloadForm, self).__init__(*args, **kwargs)
-        self.request = request
         self.fields['cost_centre'] = forms.ChoiceField(
             choices=getGenericChoices(GLPivDownload, 'costCentre', allowNull=True),
             required=True)
@@ -288,9 +287,8 @@ class DataAmendmentForm(FinancialYearFilterForm):
 
 class ServicePriorityDataForm(FinancialYearFilterForm):
 
-    def __init__(self, request, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(ServicePriorityDataForm, self).__init__(*args, **kwargs)
-        self.request = request
         self.fields['region'] = forms.ChoiceField(
             choices=getGenericChoices(
                 GLPivDownload,
@@ -349,9 +347,8 @@ class ServicePriorityDataForm(FinancialYearFilterForm):
 
 class CodeUpdateForm(FinancialYearFilterForm):
 
-    def __init__(self, request, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(CodeUpdateForm, self).__init__(*args, **kwargs)
-        self.request = request
         self.fields['cost_centre'] = forms.ChoiceField(
             choices=getGenericChoices(
                 GLPivDownload,
@@ -412,36 +409,32 @@ class CodeUpdateForm(FinancialYearFilterForm):
 
 class ManagerCodeUpdateForm(FinancialYearFilterForm):
 
-    def __init__(self, request, *args, **kwargs):
-        if request.user.is_superuser:
-            super(ManagerCodeUpdateForm, self).__init__(*args, **kwargs)
-            self.fields['report_type'] = forms.ChoiceField(
-                choices=REPORT_CHOICES, label='Report Type?', required=True)
-            self.fields['ncChoice'] = forms.MultipleChoiceField(
-                widget=forms.CheckboxSelectMultiple,
-                choices=getGenericChoices(NCServicePriority, 'categoryID'),
-                required=False, label='Wildlife Management')
-            self.fields['pvsChoice'] = forms.MultipleChoiceField(
-                widget=forms.CheckboxSelectMultiple,
-                choices=getGenericChoices(PVSServicePriority, 'categoryID'),
-                required=False, label='Parks Management')
-            self.fields['fmChoice'] = forms.MultipleChoiceField(
-                widget=forms.CheckboxSelectMultiple,
-                choices=getGenericChoices(SFMServicePriority, 'categoryID'),
-                required=False, label='Forest Management')
+    def __init__(self, *args, **kwargs):
+        super(ManagerCodeUpdateForm, self).__init__(*args, **kwargs)
+        self.fields['report_type'] = forms.ChoiceField(
+            choices=REPORT_CHOICES, label='Report Type?', required=True)
+        self.fields['ncChoice'] = forms.MultipleChoiceField(
+            widget=forms.CheckboxSelectMultiple,
+            choices=getGenericChoices(NCServicePriority, 'categoryID'),
+            required=False, label='Wildlife Management')
+        self.fields['pvsChoice'] = forms.MultipleChoiceField(
+            widget=forms.CheckboxSelectMultiple,
+            choices=getGenericChoices(PVSServicePriority, 'categoryID'),
+            required=False, label='Parks Management')
+        self.fields['fmChoice'] = forms.MultipleChoiceField(
+            widget=forms.CheckboxSelectMultiple,
+            choices=getGenericChoices(SFMServicePriority, 'categoryID'),
+            required=False, label='Forest Management')
 
-            self.helper.layout = Layout(
-                'report_type',
-                'financial_year',
-                HTML('<div class="checkbox">'),
-                'ncChoice',
-                'pvsChoice',
-                'fmChoice',
-                HTML('</div>'),
-                Div(
-                    Submit('codeupdate', 'Code Update'),
-                    css_class='col-sm-offset-4 col-md-offset-3 col-lg-offset-2')
-            )
-        else:
-            pass
-
+        self.helper.layout = Layout(
+            'report_type',
+            'financial_year',
+            HTML('<div class="checkbox">'),
+            'ncChoice',
+            'pvsChoice',
+            'fmChoice',
+            HTML('</div>'),
+            Div(
+                Submit('codeupdate', 'Code Update'),
+                css_class='col-sm-offset-4 col-md-offset-3 col-lg-offset-2')
+        )

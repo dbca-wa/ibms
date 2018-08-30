@@ -62,19 +62,38 @@ class IbmsViewsTest(IbmsTestCase):
         self.assertNotContains(response, '<li id="superuser_upload">')
 
     def test_ibms_views_render(self):
-        """Test that all the IBMS views render.
+        """Test that all the IBMS views render
         """
         self.client.login(username='admin', password='test')
 
         for view in [
                 'upload', 'download', 'reload', 'code_update',
                 'serviceprioritydata', 'dataamendment']:
-            if(view == 'code_update'):
-                url = reverse(view, args={'v='})
-            else:
-                url = reverse(view)
+            url = reverse(view)
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
+
+    def test_ibms_codeupdate_admin(self):
+        """Test that the Code Update admin form renders
+        """
+        self.client.login(username='admin', password='test')
+        url = reverse('code_update') + '?admin=true'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'You must select a financial year')
+        url = reverse('code_update')  # Test the normal form also.
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'You must select a financial year')
+
+    def test_ibms_codeupdate_normal(self):
+        """Test that the Code Update non-admin form renders for a normal user
+        """
+        self.client.login(username='testuser', password='test')
+        url = reverse('code_update') + '?admin=true'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'You must select a financial year')
 
     def test_ibms_views_req_auth(self):
         """Test that all the IBMS views will redirect a non-auth'ed user.
@@ -82,10 +101,7 @@ class IbmsViewsTest(IbmsTestCase):
         for view in [
                 'site_home', 'upload', 'download', 'reload', 'code_update',
                 'serviceprioritydata', 'dataamendment']:
-            if(view == 'code_update'):
-                url = reverse(view, args={'v='})
-            else:
-                url = reverse(view)
+            url = reverse(view)
             response = self.client.get(url)
             self.assertEqual(response.status_code, 302)
 
@@ -112,6 +128,8 @@ class IbmsViewsTest(IbmsTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_ibms_admin_views(self):
+        """Test that the Django ibms app admin works
+        """
         self.client.login(username='admin', password='test')
         url = reverse('admin:ibms_ibmdata_changelist')
         response = self.client.get(url)

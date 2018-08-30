@@ -195,11 +195,6 @@ class ReloadView(IbmsFormView):
     template_name = 'ibms/reload.html'
     form_class = forms.ReloadForm
 
-    def get_form_kwargs(self):
-        kwargs = super(ReloadView, self).get_form_kwargs()
-        kwargs.update({'request': self.request})
-        return kwargs
-
     def get_context_data(self, **kwargs):
         context = super(ReloadView, self).get_context_data(**kwargs)
         context['page_title'] = ' | '.join([T, 'Reload'])
@@ -248,15 +243,10 @@ class CodeUpdateView(IbmsFormView):
     template_name = 'ibms/code_update.html'
 
     def get_form_class(self):
-        if self.kwargs['v'] == 'v=AdminReportsView':
+        if self.request.GET.get('admin', None) == 'true' and self.request.user.is_superuser:
             return forms.ManagerCodeUpdateForm
         else:
             return forms.CodeUpdateForm
-
-    def get_form_kwargs(self):
-        kwargs = super(CodeUpdateView, self).get_form_kwargs()
-        kwargs.update({'request': self.request})
-        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super(CodeUpdateView, self).get_context_data(**kwargs)
@@ -422,11 +412,6 @@ class ServicePriorityDataView(IbmsFormView):
         context['breadcrumb_trail'] = breadcrumb_trail(links)
         return context
 
-    def get_form_kwargs(self):
-        kwargs = super(ServicePriorityDataView, self).get_form_kwargs()
-        kwargs.update({'request': self.request})
-        return kwargs
-
     def get_success_url(self):
         return reverse('serviceprioritydata')
 
@@ -464,7 +449,7 @@ class ServicePriorityDataView(IbmsFormView):
         response['Content-Disposition'] = 'attachment; filename=serviceprioritydata.xls'
         book.save(response)  # Save the worksheet contents to the response.
 
-        return response    
+        return response
 
 
 class JSONResponseMixin(object):
@@ -490,7 +475,7 @@ class ServicePriorityMappingsJSON(JSONResponseMixin, BaseDetailView):
     model = None
     fieldname = None
     return_pk = False
-    
+
     def get(self, request, *args, **kwargs):
         try:
             for fieldname in self.fieldname.split(', '):
