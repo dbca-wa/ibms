@@ -2,7 +2,9 @@
 
 {% block check_all_button %}
 {% if superuser %}
+{% if request.path != '/code-update/v=' %}
 <button id="checkAll" type="button" class="btn btn-sm btn-success">Check/uncheck all</button></button>
+{% endif %}
 {% endif %}
 {% endblock %}
 
