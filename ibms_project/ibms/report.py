@@ -305,18 +305,38 @@ def reload_report(workbook, ibm, nc_sp, pvs_sp, fm_sp, gl):
 
     jobs = []
     jobNames = []
+    jobDict = {}
+    jobNoNumDict = {}
     current_row = 0
     for row, data in enumerate(gl):
         if data.job not in jobs or data.jobName not in jobNames:
-            sheet.write(current_row, 0, data.job)
-            sheet.write(current_row, 1, data.jobName)
+            # sheet.write(current_row, 0, data.job)
+            # sheet.write(current_row, 1, data.jobName)
+            if(data.job.isdigit()):
+                job = {"job": int(data.job), "jobName": data.jobName}
+                jobDict[current_row] = job
+            else:
+                job = {"job": data.job, "jobName": data.jobName}
+                jobNoNumDict[current_row] = job
             jobs.append(data.job)
             jobNames.append(data.jobName)
             current_row += 1
         else:
             pass
+    current_row = 0
+    for s in sorted(jobDict.items(), key=lambda k_v : k_v[1]['job']):
+        sheet.write(current_row, 0, str(s[1]['job']))
+        sheet.write(current_row, 1, s[1]['jobName'])
+        current_row += 1
+
+    for s in sorted(jobNoNumDict.items(), key=lambda k_v : k_v[1]['job']):
+        sheet.write(current_row, 0, s[1]['job'])
+        sheet.write(current_row, 1, s[1]['jobName'])
+        current_row += 1
     
     sheet.col(1).width = 10000
+    workbook.active_sheet = 0
+    
 
 
 def write_budget_areas(sheet, ibm):
