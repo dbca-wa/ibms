@@ -38,6 +38,7 @@ INSTALLED_APPS = (
 )
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Serves static assets.
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -76,7 +77,7 @@ SITE_ACRONYM = 'IBMS'
 APPLICATION_VERSION_NO = '2.4.3'
 ADMINS = ('asi@dbca.wa.gov.au',)
 MANAGERS = (
-    ('Zen Wee', 'zen.wee@dbca.wa.gov.au', '9219 9928'),
+    ('Graham Holmes', 'graham.holmes@dbca.wa.gov.au', '9219 9928'),
     ('Neil Clancy', 'neil.clancy@dbca.wa.gov.au', '9219 9926'),
 )
 SITE_ID = 1
