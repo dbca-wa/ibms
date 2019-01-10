@@ -1,8 +1,9 @@
-git+git://github.com/dbca-wa/dpaw-utils@minimal
+git+git://github.com/dbca-wa/dbca-utils@1.0.0
 psycopg2-binary==2.7.5
 Django==2.1.5
-django-confy==1.0.4
 django-extensions==2.1.3
+django-dotenv==1.4.2
+dj-database-url==0.5.0
 gunicorn==19.9.0
 jinja2==2.10
 django-crispy-forms==1.7.2
