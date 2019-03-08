@@ -145,11 +145,11 @@ class UploadView(IbmsFormView):
                 process_upload_file(file.name, file_type, fy)
                 messages.success(self.request, '{} data imported successfully'.format(file_type))
                 return redirect('upload')
-            except ValidationError as e:
-                messages.error(self.request, 'Validation error: {}'.format(str(e)))
+            except Exception as e:
+                messages.warning(self.request, 'Error: {}'.format(str(e)))
                 return redirect('upload')
         else:
-            messages.error(
+            messages.warning(
                 self.request,
                 'This file appears to be of an incorrect type. Please choose a {} file.'.format(file_type))
             return redirect('upload')
