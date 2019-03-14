@@ -6,11 +6,13 @@ def get_download_period():
     # Handle edge case (for testing)
     if not GLPivDownload.objects.exists():
         return datetime.today()
-    dates = [datetime.strptime(x[0], "%d/%m/%Y") for x in
-             GLPivDownload.objects.order_by("-id")[:1000].values_list(
-                 "downloadPeriod")]
-    dates.sort()
-    return dates[-1].date()
+    try:
+        date_list = GLPivDownload.objects.order_by("-id")[:1000].values_list("downloadPeriod")
+        dates = [datetime.strptime(date[0], "%d/%m/%Y") for date in date_list]
+        dates.sort()
+        return dates[-1].date()
+    except ValueError:
+        return 'ERROR - GL Pivot Download date values are not valid (please correct and re-upload)'
 
 
 def breadcrumb_trail(links, sep=' > '):

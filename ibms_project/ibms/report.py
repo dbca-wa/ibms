@@ -65,9 +65,9 @@ def service_priority_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp):
                 sheet.write(current_row, 17, fy['fybudget__sum'])
 
     # Insert the footer row formulae and '#END OF INPUT'
-    sheet.write(current_row+2, 0, '#END OF INPUT')
-    sheet.write(current_row+2, 16, Formula('SUM({}:{})'.format(cellname(4, 16), cellname(current_row, 16))))
-    sheet.write(current_row+2, 17, Formula('SUM({}:{})'.format(cellname(4, 17), cellname(current_row, 17))))
+    sheet.write(current_row + 2, 0, '#END OF INPUT')
+    sheet.write(current_row + 2, 16, Formula('SUM({}:{})'.format(cellname(4, 16), cellname(current_row, 16))))
+    sheet.write(current_row + 2, 17, Formula('SUM({}:{})'.format(cellname(4, 17), cellname(current_row, 17))))
 
     # Sheet 2 - Service priority checkboxes.
     sheet = workbook.get_sheet(1)
@@ -128,9 +128,9 @@ def data_amend_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp, ibm_filtered):
                 sheet.write(current_row, 21, fy['fybudget__sum'])
 
     # Insert the footer row formulae and '#END OF INPUT'
-    sheet.write(current_row+2, 0, '#END OF INPUT')
-    sheet.write(current_row+2, 20, Formula('SUM({}:{})'.format(cellname(4, 20), cellname(current_row, 20))))
-    sheet.write(current_row+2, 21, Formula('SUM({}:{})'.format(cellname(4, 21), cellname(current_row, 21))))
+    sheet.write(current_row + 2, 0, '#END OF INPUT')
+    sheet.write(current_row + 2, 20, Formula('SUM({}:{})'.format(cellname(4, 20), cellname(current_row, 20))))
+    sheet.write(current_row + 2, 21, Formula('SUM({}:{})'.format(cellname(4, 21), cellname(current_row, 21))))
 
     # Sheet 2 - Service priority checkboxes.
     sheet = workbook.get_sheet(1)
@@ -142,6 +142,7 @@ def data_amend_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp, ibm_filtered):
     sheet = workbook.get_sheet(2)
     write_budget_areas(sheet, ibm_filtered)
     write_project_sponsors(sheet, ibm_filtered)
+    write_regional_spec_info(sheet, ibm_filtered)
 
     # Select the first sheet.
     sheet = workbook.get_sheet(0)
@@ -193,7 +194,7 @@ def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_
         sheet.write(row, 19, g.mPRACategory)
 
         # Write the SUM formula.
-        sheet.write(row, 20, Formula('ROUND(SUM(V{}:GP{}), 0)'.format(row+1, row+1)))
+        sheet.write(row, 20, Formula('ROUND(SUM(V{}:GP{}), 0)'.format(row + 1, row + 1)))
 
         # First, find the maximum column index in the template headers (row 4).
         blank_cell = False
@@ -225,10 +226,10 @@ def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_
     row += 1
     # Insert the footer row formulae and '#END OF INPUT'
     sheet.write(row, 0, '#END OF INPUT')
-    sheet.write(row, 20, Formula('ROUND(SUM(V{}:GP{}), 0)'.format(row+1, row+1)))
+    sheet.write(row, 20, Formula('ROUND(SUM(V{}:GP{}), 0)'.format(row + 1, row + 1)))
     for i in range(21, max_col_idx):
         # For cell V:<end> in the footer row, insert a SUM formula.
-        sheet.write(row, i, Formula('ROUND(SUM({}:{}), 0)'.format(cellname(4, i), cellname(row-1, i))))
+        sheet.write(row, i, Formula('ROUND(SUM({}:{}), 0)'.format(cellname(4, i), cellname(row - 1, i))))
 
     # Sheet 2: Service priority checkboxes.
     sheet = workbook.get_sheet(1)
@@ -300,7 +301,7 @@ def reload_report(workbook, ibm, nc_sp, pvs_sp, fm_sp, gl):
     sheet.col(0).width = 7500
     sheet.col(2).width = 12500
 
-    #Sheet 4 - Job and Job name
+    # Sheet 4 - Job and Job name
     sheet = workbook.get_sheet(3)
 
     jobs = []
@@ -324,19 +325,18 @@ def reload_report(workbook, ibm, nc_sp, pvs_sp, fm_sp, gl):
         else:
             pass
     current_row = 0
-    for s in sorted(jobDict.items(), key=lambda k_v : k_v[1]['job']):
+    for s in sorted(jobDict.items(), key=lambda k_v: k_v[1]['job']):
         sheet.write(current_row, 0, str(s[1]['job']))
         sheet.write(current_row, 1, s[1]['jobName'])
         current_row += 1
 
-    for s in sorted(jobNoNumDict.items(), key=lambda k_v : k_v[1]['job']):
+    for s in sorted(jobNoNumDict.items(), key=lambda k_v: k_v[1]['job']):
         sheet.write(current_row, 0, s[1]['job'])
         sheet.write(current_row, 1, s[1]['jobName'])
         current_row += 1
-    
+
     sheet.col(1).width = 10000
     workbook.active_sheet = 0
-    
 
 
 def write_budget_areas(sheet, ibm):

@@ -1,7 +1,8 @@
-from confy import database, env
+from dbca_utils.utils import env
+import dj_database_url
 import os
-import sys
 from pathlib import Path
+import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = str(Path(__file__).resolve().parents[1])
@@ -37,14 +38,13 @@ INSTALLED_APPS = (
 )
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'dpaw_utils.middleware.SSOLoginMiddleware',
+    'dbca_utils.middleware.SSOLoginMiddleware',
 ]
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
@@ -73,10 +73,10 @@ TEMPLATES = [
 ]
 SITE_TITLE = 'Integrated Business Management System'
 SITE_ACRONYM = 'IBMS'
-APPLICATION_VERSION_NO = '2.4'
+APPLICATION_VERSION_NO = '2.4.3'
 ADMINS = ('asi@dbca.wa.gov.au',)
 MANAGERS = (
-    ('Zen Wee', 'zen.wee@dbca.wa.gov.au', '9219 9928'),
+    ('Graham Holmes', 'graham.holmes@dbca.wa.gov.au', '9881 9212'),
     ('Neil Clancy', 'neil.clancy@dbca.wa.gov.au', '9219 9926'),
 )
 SITE_ID = 1
@@ -98,7 +98,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = None  # Required to allow end-of-month GLPivot b
 # Database configuration
 DATABASES = {
     # Defined in DATABASE_URL env variable.
-    'default': database.config(),
+    'default': dj_database_url.config(),
 }
 
 

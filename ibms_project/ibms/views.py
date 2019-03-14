@@ -1,9 +1,10 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.urls import reverse
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 from django.views.generic.detail import BaseDetailView
@@ -16,9 +17,7 @@ from xlutils.copy import copy
 
 from ibms import forms
 from ibms.file_funcs import validate_file, process_upload_file
-from ibms.models import (
-    IBMData, GLPivDownload, NCServicePriority, PVSServicePriority,
-    SFMServicePriority, ServicePriorityMappings)
+from ibms.models import IBMData, GLPivDownload, NCServicePriority, PVSServicePriority, SFMServicePriority
 from ibms.report import (
     reload_report, code_update_report, data_amend_report,
     service_priority_report, download_report)
@@ -104,6 +103,7 @@ class ClearGLPivotView(IbmsFormView):
             messages.success(self.request, 'GL Pivot entries for {} have been cleared.'.format(fy))
         return super(ClearGLPivotView, self).form_valid(form)
 
+
 class UploadView(IbmsFormView):
     """Upload view for superusers only.
     """
@@ -141,11 +141,15 @@ class UploadView(IbmsFormView):
         file_type = form.cleaned_data['upload_file_type']
         if validate_file(file, file_type):
             fy = form.cleaned_data['financial_year']
-            process_upload_file(file.name, file_type, fy)
-            messages.success(self.request, '{} data imported successfully'.format(file_type))
-            return redirect('upload')
+            try:
+                process_upload_file(file.name, file_type, fy)
+                messages.success(self.request, '{} data imported successfully'.format(file_type))
+                return redirect('upload')
+            except Exception as e:
+                messages.warning(self.request, 'Error: {}'.format(str(e)))
+                return redirect('upload')
         else:
-            messages.error(
+            messages.warning(
                 self.request,
                 'This file appears to be of an incorrect type. Please choose a {} file.'.format(file_type))
             return redirect('upload')
@@ -468,6 +472,7 @@ class JSONResponseMixin(object):
         "Convert the context dictionary into a JSON object"
         return json.dumps(context)
 
+
 class ServicePriorityMappingsJSON(JSONResponseMixin, BaseDetailView):
     """View to return a filtered list of mappings.
     Cannot use below as we require multiple fields without PKs
@@ -499,6 +504,7 @@ class ServicePriorityMappingsJSON(JSONResponseMixin, BaseDetailView):
             choices.append(choice_val)
         context = {'choices': choices}
         return self.render_to_response(context)
+
 
 class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
     """View to return a filtered list of distinct values from a
