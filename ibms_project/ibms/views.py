@@ -103,6 +103,61 @@ class ClearGLPivotView(IbmsFormView):
             messages.success(self.request, 'GL Pivot entries for {} have been cleared.'.format(fy))
         return super(ClearGLPivotView, self).form_valid(form)
 
+# View to upload Service Priority Mappings
+class UploadServicePriorityView(IbmsFormView):
+
+    form_class = forms.UploadServicePriorityForm
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            messages.error(self.request, 'You are not authorised to carry out this operation')
+            return redirect('site_home')
+        return super(UploadServicePriorityView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(UploadServicePriorityView, self).get_context_data(**kwargs)
+        context['page_title'] = ' | '.join([T, 'Upload Service Priority Mappings'])
+        context['title'] = 'Upload Service Priority Mappings'
+        links = [
+            (reverse('site_home'), 'Home'),
+            (None, 'Upload Service Priority Mappings')]
+        context['breadcrumb_trail'] = breadcrumb_trail(links)
+        return context
+
+    def get_success_url(self):
+        return reverse('uploadservicep')
+
+
+
+    def form_valid(self, form):
+        # Uploaded CSVs may contain characters with oddball encodings.
+        # To overcome this, we need to decode the uploaded file content as UTF-8 (ignoring errors),
+        # re-encode the file, and then process that. Wasteful, but necessary to parse the CSV
+        # in a consistent fashion.
+        t = tempfile.NamedTemporaryFile()
+        for chunk in form.cleaned_data['upload_file'].chunks():
+            t.write(chunk.decode('utf-8', 'ignore').encode())
+        t.flush()
+        # We have to open the uploaded file in text mode to parse it.
+        file = open(t.name, 'r')
+        file_type = 'ServicePriorityMappings'
+        # if file_type == 'ServicePriorityMappings':
+        if validate_file(file, file_type):
+            fy = form.cleaned_data['financial_year']
+            try:
+                process_upload_file(file.name, file_type, fy)
+                messages.success(self.request, '{} data imported successfully'.format(file_type))
+                return redirect('uploadservicep')
+            except Exception as e:
+                messages.warning(self.request, 'Error: {}'.format(str(e)))
+                return redirect('uploadservicep')
+        else:
+            messages.warning(
+                self.request,
+            'This file doesnt appears to be of an ServicePriority Type. Please choose a {} file.'.format(file_type))
+            return redirect('uploadservicep')
+        return super(UploadServicePriorityView, self).form_valid(form)
+
 
 class UploadView(IbmsFormView):
     """Upload view for superusers only.

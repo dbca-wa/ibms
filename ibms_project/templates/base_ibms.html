@@ -21,6 +21,9 @@
         <li><a href="{% url 'admin:index' %}">Admin</a></li>
         {% if superuser %}
         <li><a href="{% url 'clearglpivot' %}">Clear GL Pivot entries</a></li>
+
+        <li><a href="{% url 'uploadservicep' %}">Upload Service Priority Mappings</a></li>
+
         {% endif %}
         <li class="divider"></li>
         {% endif %}
