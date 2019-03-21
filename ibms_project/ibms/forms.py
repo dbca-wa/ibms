@@ -73,6 +73,22 @@ class ClearGLPivotForm(FinancialYearFilterForm):
             )
         )
 
+#Class added for the Upload Service Priority Mapping functionality
+class UploadServicePriorityForm(FinancialYearFilterForm):
+
+    financial_year = forms.ChoiceField(choices=FINYEAR_CHOICES)
+    upload_file = forms.FileField(label='Select file')
+
+    def __init__(self,*args, **kwargs):
+        super(UploadServicePriorityForm, self).__init__(*args, **kwargs)
+        self.helper.layout = Layout(
+        'financial_year',
+        'upload_file',
+        Div(
+            Submit('upload', 'Upload_to_Database'),
+            css_class='col-sm-offset-4 col-md-offset-3 col-lg-offset-2')
+        )
+
 
 class UploadForm(HelperForm):
     upload_file_type = forms.ChoiceField(choices=FILE_CHOICES)
