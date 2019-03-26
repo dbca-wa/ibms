@@ -21,6 +21,21 @@
         $("select#id_cost_centre")[0].disabled = false;
     };
 
+
+    //Extra Function for checkbox
+    //Function to update mappings based on the financial year and the cost centre selected.
+    function updateMappings(finYear, costCentreNo) {
+        $.ajax({
+            type: "GET",
+            url: "{% url 'ajax_mappings' %}",
+            data: {"financialYear": finYear, "costCentreNo": costCentreNo},
+            success : function(data) {
+                checkMappedBoxes(data.choices);
+            }
+        })
+    };
+
+
     // Utility function to update region/branch select field when financial year changes.
     function updateRegionBranch(finYear) {
         $("select#id_region")[0].disabled = true;
@@ -228,7 +243,40 @@
             }
             // Zero the selected value of the region/branch field.
             $("#id_cost_centre")[0].selectedIndex = 0;
+
+
+            uncheckMappedBoxes(data.choices); //Extra line to uncheck when regiom is selected
+
         });
+
+        //Extra function ---2
+        //Updates auto mappings based on cost centre being selected.
+        $("select#id_cost_centre").change(function() {
+            finYear = $("select#id_financial_year").val();
+            costCentreNo = $("select#id_cost_centre").val();
+            updateMappings(finYear, costCentreNo);
+        });
+
     });
+
+    //Extra function --4
+    //Will populate the checkboxes correctly, as per mappings uploaded.
+    function checkMappedBoxes(fieldlist){
+        $('input[type=checkbox]').each(function(){
+            $(this.checked = false);
+            if (fieldlist > ""){
+                for(i = 0; i < fieldlist.length; i++){
+                    to_check = fieldlist[i].split(', ');
+                    for (p = 0; p < to_check.length; p++){
+                        if($(this).val() == to_check[p]){
+                            $(this.checked = true);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+
 </script>
 {% endblock %}
