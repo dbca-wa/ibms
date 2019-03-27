@@ -29,8 +29,8 @@ FILE_CHOICES = (
                             ('NCServicePriorityData', 'Nature Conservation'),
                             ('PVSServicePriorityData', 'Parks & Visitor Services'),
                             ('ERServicePriorityData', 'Fire Services'),
-                            ('SFMServicePriorityData', 'State Forest Management'),
-                            ('ServicePriorityMappings', 'Pre-Population Mapping')))
+                            ('SFMServicePriorityData', 'Forest Management'),
+                            ('ServicePriorityMappings', 'Service Priority Mapping')))
 )
 REPORT_CHOICES = (
     (None, '--Please Select--'),
