@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ValidationError
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -276,12 +275,6 @@ class CodeUpdateView(IbmsFormView):
             gl = gl.filter(costCentre=cc)
             ibm = ibm.filter(costCentre=cc)
 
-        # Business rule: for CC 531 only, include accounts 1, 2 & 6.
-        if cc and cc == '531':
-            gl = gl.filter(account__in=[1, 2, 6])
-        else:  # All others, accounts 1 & 2 only.
-            gl = gl.filter(account__in=[1, 2])
-
         # Filter GLPivot to resource < 4000
         gl = gl.filter(resource__lt=4000)
 
@@ -289,27 +282,30 @@ class CodeUpdateView(IbmsFormView):
         gl = gl.exclude(service=11)
 
         # Superuser must specify DJ0 or non-DJ0 activities only.
-        if 'report_type' in form.cleaned_data:
-            if form.cleaned_data['report_type'] == 'no-dj0':
-                gl = gl.exclude(activity='DJ0')  # Non-DJ0 only
+        # Business rule: for normal users, include any line items that are
+        # activity 'DJ0', EXCEPT where service is 42, 43 or 75.
+        # For superusers, do the opposite (include activity DJ0 items ONLY if
+        # service is 42, 43 or 75).
+        if self.request.user.is_superuser and 'report_type' in form.cleaned_data:
+            if form.cleaned_data['report_type'] == 'dj0':
+                gl = gl.filter(activity='DJ0')
+                gl = gl.filter(service__in=[42, 43, 75])
+                gl = gl.filter(account__in=[1, 2, 4])
+            else:  # Non-DJ0.
+                gl = gl.exclude(activity='DJ0')
+                gl = gl.filter(account__in=[1, 2])
+        else:
+            # Business rule: for CC 531 only, include accounts 1, 2 & 6.
+            if cc and cc == '531':
+                gl = gl.filter(account__in=[1, 2, 6])
             else:
-                gl = gl.filter(activity='DJ0')  # DJ0 only
+                gl = gl.filter(account__in=[1, 2])
+            gl = gl.exclude(activity='DJ0', service__in=[42, 43, 75])
 
         # Filter by codeID: EXCLUDE objects with a codeID that matches any
         # IBMData object's ibmIdentifier for the same FY.
         code_ids = set(ibm.values_list('ibmIdentifier', flat=True))
         gl = gl.exclude(codeID__in=code_ids).order_by('codeID')
-
-        # Business rule: for normal users, include any line items that are
-        # activity 'DJ0', EXCEPT where service is 42, 43 or 75.
-        # For superusers, do the opposite (include activity DJ0 items ONLY if
-        # service is 42, 43 or 75).
-        if self.request.user.is_superuser:
-            if 'report_type' in form.cleaned_data and form.cleaned_data['report_type'] == 'dj0':
-                gl = gl.filter(service__in=[42, 43, 75])
-        else:
-            gl = gl.exclude(activity='DJ0', service__in=[42, 43, 75])
-
         gl_codeids = sorted(set(gl.values_list('codeID', flat=True)))
 
         # Service priority checkboxes.
@@ -321,10 +317,8 @@ class CodeUpdateView(IbmsFormView):
             financialYear=fy, categoryID__in=form.cleaned_data['fmChoice']).order_by('servicePriorityNo')
 
         # Style & populate the workbook.
-        fpath = os.path.join(
-            settings.STATIC_ROOT, 'excel', 'ibms_codeupdate_base.xls')
-        excel_template = open_workbook(
-            fpath, formatting_info=True, on_demand=True)
+        fpath = os.path.join(settings.STATIC_ROOT, 'excel', 'ibms_codeupdate_base.xls')
+        excel_template = open_workbook(fpath, formatting_info=True, on_demand=True)
         book = copy(excel_template)
         code_update_report(excel_template, book, gl, gl_codeids, nc_sp, pvs_sp, fm_sp, ibm)
 
