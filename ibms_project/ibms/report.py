@@ -167,13 +167,31 @@ def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_
     pad3.num_format_str = '000'
     pad4.num_format_str = '0000'
 
-    # For each of the GL code IDs, take a subset of the query
-    # and insert values as required.
-    row = 4
+    # Find the maximum column index in the template headers (row 4).
     max_col_idx = 21  # Start at column V.
-    for codeID in gl_codeids:
+    blank_cell = False
+    while not blank_cell:
+        if not sheet_ro.cell_value(3, max_col_idx):  # Blank cell
+            blank_cell = True
+        else:
+            max_col_idx += 1
+
+    # Create a dict of the resource column headings and their column numbers by reading in
+    # row 3 of the output spreadsheet.
+    resource_column_indexes = {}
+    resource_column_start = 21  # Column V, '0000'
+    for i in range(resource_column_start, max_col_idx + 1):
+        if sheet_ro.cell_value(3, i):
+            resource_column_indexes[int(sheet_ro.cell_value(3, i))] = i
+
+    # Start inserting GL codes at row 4.
+    row = 4
+
+    for k, codeID in enumerate(gl_codeids, start=1):
+        # For each of the GL code IDs, take a subset of the query and insert values as required.
         gl_pivs = gl.filter(codeID=codeID)
-        g = gl_pivs[0]
+        g = gl_pivs.first()  # Use the first GL code to write common values.
+
         # Fill the non-resource columns.
         sheet.write(row, 0, g.codeID)
         sheet.write(row, 1, int(g.costCentre), pad3)
@@ -196,30 +214,14 @@ def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_
         # Write the SUM formula.
         sheet.write(row, 20, Formula('ROUND(SUM(V{}:GP{}), 0)'.format(row + 1, row + 1)))
 
-        # First, find the maximum column index in the template headers (row 4).
-        blank_cell = False
-        while not blank_cell:
-            if not sheet_ro.cell_value(3, max_col_idx):  # Blank cell
-                blank_cell = True
-            else:
-                max_col_idx += 1
-
-        # Write ytdActual values for matching resource columns.
-        # Find the correct cell index of a matching resource code.
+        # Write ytdActual values for matching resource columns (use the dict created earlier).
+        # Use the column index of a matching resource code.
         # If no match found, use the '0000' column (the first).
         for gl_piv in gl_pivs:
-            resource_idx = 21  # Column V, '0000'
-            match_resource_code = False
-            for i in range(resource_idx, max_col_idx + 1):
-                if sheet_ro.cell_value(3, i) and int(sheet_ro.cell_value(3, i)) == gl_piv.resource:
-                    match_resource_code = True
-                    break
-                resource_idx += 1
-
-            if not match_resource_code:  # No match was found.
-                resource_idx = 21  # Insert the ytdActual into column V.
-            # Write the ytdActual to the sheet.
-            sheet.write(row, resource_idx, gl_piv.ytdActual)
+            if gl_piv.resource in resource_column_indexes:
+                sheet.write(row, resource_column_indexes[gl_piv.resource], gl_piv.ytdActual)
+            else:
+                sheet.write(row, resource_column_start, gl_piv.ytdActual)
 
         row += 1  # Advance one row, to the next Code ID.
 

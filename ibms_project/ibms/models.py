@@ -69,7 +69,7 @@ class GLPivDownload(models.Model):
     projectName = models.CharField(max_length=100)
     jobName = models.CharField(max_length=100)
     codeID = models.CharField(
-        max_length=30,
+        max_length=30, db_index=True,
         help_text="This should match an IBMData object's IBMIdentifier field.")
     resNameNo = models.CharField(max_length=100)
     actNameNo = models.CharField(max_length=100)
