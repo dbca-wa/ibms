@@ -1,13 +1,14 @@
 # Prepare the base environment.
-FROM python:3.7.2-slim-stretch as builder_base
+FROM python:3.7.2-slim-stretch as builder_base_ibms
 MAINTAINER asi@dbca.wa.gov.au
 RUN apt-get update -y \
+  && apt-get upgrade -y \
   && apt-get install --no-install-recommends -y wget git libmagic-dev gcc binutils libproj-dev gdal-bin python3-dev \
   && rm -rf /var/lib/apt/lists/* \
   && pip install --upgrade pip
 
 # Install Python libs from requirements.txt.
-FROM builder_base as python_libs_ibms
+FROM builder_base_ibms as python_libs_ibms
 WORKDIR /app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
