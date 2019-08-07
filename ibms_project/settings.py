@@ -30,7 +30,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.staticfiles',
     'django_extensions',
-    'raven.contrib.django.raven_compat',
     'crispy_forms',
     'webtemplate_dbca',
     'ibms',
@@ -153,10 +152,6 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'console'
         },
-		'sentry': {
-            'level': 'WARNING',
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-        },
     },
     'loggers': {
         'django': {
@@ -164,7 +159,7 @@ LOGGING = {
 			'propagate': True,
         },
         'django.request': {
-            'handlers': ['console', 'sentry'],
+            'handlers': ['console'],
             'level': 'WARNING',
 			'propagate': False,
         },
@@ -177,5 +172,5 @@ LOGGING = {
 
 
 # Sentry configuration
-if env('RAVEN_DSN', False):
-    RAVEN_CONFIG = {'dsn': env('RAVEN_DSN')}
+if env('SENTRY_DSN', False):
+    SENTRY_CONFIG = {'dsn': env('SENTRY_DSN')}
