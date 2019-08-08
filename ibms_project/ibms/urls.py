@@ -26,7 +26,7 @@ urlpatterns = [
     path('ajax/ibmdata/budget-area/', IbmsModelFieldJSON.as_view(model=IBMData, fieldname='budgetArea'), name='ajax_ibmdata_budgetarea'),
     path('ajax/ibmdata/project-sponsor/', IbmsModelFieldJSON.as_view(model=IBMData, fieldname='projectSponsor'), name='ajax_ibmdata_projectsponsor'),
     path('ajax/ibmdata/service/', IbmsModelFieldJSON.as_view(model=IBMData, fieldname='service'), name='ajax_ibmdata_service'),
-    path('ajax/glpivdownload/financial-year/', IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='financialYear'), name='ajax_glpivdownload_financialyear'),
+    path('ajax/glpivdownload/financial-year/', IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='fy'), name='ajax_glpivdownload_financialyear'),
     path('ajax/glpivdownload/service/', IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='service'), name='ajax_glpivdownload_service'),
     path('ajax/glpivdownload/cost-centre/', IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='costCentre'), name='ajax_glpivdownload_costcentre'),
     path('ajax/glpivdownload/region-branch/', IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='regionBranch'), name='ajax_glpivdownload_regionbranch'),

@@ -17,9 +17,6 @@ class FinancialYear(models.Model):
     def __str__(self):
         return self.financialYear
 
-    class meta:
-        abstract = True
-
 
 class SFMMetric(models.Model):
     financialYear = models.ForeignKey(FinancialYear, on_delete=models.PROTECT)

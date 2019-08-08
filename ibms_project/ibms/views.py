@@ -179,8 +179,7 @@ class DownloadView(IbmsFormView):
 
     def form_valid(self, form):
         d = form.cleaned_data
-        glrows = GLPivDownload.objects.filter(
-            financialYear=d['financial_year'])
+        glrows = GLPivDownload.objects.filter(fy=d['financial_year'])
         if d.get('cost_centre', None):
             glrows = glrows.filter(costCentre=d['cost_centre'])
         elif d.get('region', None):
