@@ -17,7 +17,7 @@ urlpatterns = [
     # into form select lists. In some cases, the background query requires text
     # values for the lookup, and in other cases it requires primary keys.
     # The view can return all unique values, or can be further filtered by
-    # query parameters on the GET (e.g. filter by financialYear field).
+    # query parameters on the GET (e.g. filter by fy field).
     # In each URL, we define the model and the field value to return as a list
     # of tuples, serialised to JSON.
     # Review the IbmsModelFieldJSON view for further details.

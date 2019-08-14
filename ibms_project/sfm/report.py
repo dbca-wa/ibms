@@ -15,8 +15,6 @@ def outputs_report(workbook, sfm, spn, dp, fy, qtr, cc):
     curr = '"$"#,##0_);("$"#,##'  # An Excel currency format.
     wrapped = Alignment(vertical='top', wrap_text=True)
     row = 6  # Note that openpyxl start row indexing at 1.
-    # Repeat rows at the top.
-    sheet.add_print_title(5)
 
     # For each of the service priority numbers, take a subset of the query
     # and insert values as required.

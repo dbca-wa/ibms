@@ -144,8 +144,7 @@ class PVSServicePriorityAdmin(ModelAdmin):
         export_as_csv_action(
             translations=[
                 'id', 'financialYear', 'CategoryID', 'SerPriNo', 'StratPlanNo',
-                'IBMCS', 'SerPri1', 'SerPri', 'PVSExampleAnnWP',
-                'PVSExampleActNo'],
+                'IBMCS', 'SerPri1', 'SerPri', 'PVSExampleAnnWP', 'PVSExampleActNo'],
             fields=[
                 'id', 'fy', 'categoryID', 'servicePriorityNo', 'strategicPlanNo',
                 'corporateStrategyNo', 'description', 'pvsExampleAnnWP', 'pvsExampleActNo',

@@ -96,7 +96,7 @@ class ClearGLPivotView(IbmsFormView):
         # Do the bulk delete. We can use the private method _raw_delete because we don't
         # have any signals or cascade deletes to worry about.
         fy = form.cleaned_data['financial_year']
-        glpiv = GLPivDownload.objects.filter(financialYear=fy)
+        glpiv = GLPivDownload.objects.filter(fy=fy)
         if glpiv.exists():
             glpiv._raw_delete(glpiv.db)
             messages.success(self.request, 'GL Pivot entries for {} have been cleared.'.format(fy))
@@ -212,20 +212,15 @@ class ReloadView(IbmsFormView):
 
     def form_valid(self, form):
         fy = form.cleaned_data['financial_year']
-        ibm = IBMData.objects.filter(
-            financialYear=fy, costCentre=form.cleaned_data['cost_centre'])
+        ibm = IBMData.objects.filter(fy=fy, costCentre=form.cleaned_data['cost_centre'])
         ibm = ibm.exclude(service=11, job='777', activity='DJ0')
-        gl = GLPivDownload.objects.filter(
-            financialYear=fy, costCentre=form.cleaned_data['cost_centre'])
+        gl = GLPivDownload.objects.filter(fy=fy, costCentre=form.cleaned_data['cost_centre'])
         gl = gl.exclude(shortCode='').distinct().order_by(
             'gLCode', 'shortCode', 'shortCodeName')
         # Service priority checkboxes
-        nc_sp = NCServicePriority.objects.filter(
-            financialYear=fy, categoryID__in=form.cleaned_data['ncChoice'])
-        pvs_sp = PVSServicePriority.objects.filter(
-            financialYear=fy, categoryID__in=form.cleaned_data['pvsChoice'])
-        fm_sp = SFMServicePriority.objects.filter(
-            financialYear=fy, categoryID__in=form.cleaned_data['fmChoice'])
+        nc_sp = NCServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data['ncChoice'])
+        pvs_sp = PVSServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data['pvsChoice'])
+        fm_sp = SFMServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data['fmChoice'])
 
         fpath = os.path.join(settings.STATIC_ROOT, 'excel', 'reload_base.xls')
         excel_template = open_workbook(
@@ -265,8 +260,8 @@ class CodeUpdateView(IbmsFormView):
 
     def form_valid(self, form):
         fy = form.cleaned_data['financial_year']
-        ibm = IBMData.objects.filter(financialYear=fy)
-        gl = GLPivDownload.objects.filter(financialYear=fy)
+        ibm = IBMData.objects.filter(fy=fy)
+        gl = GLPivDownload.objects.filter(fy=fy)
 
         # CC limits both the querysets.
         cc = self.request.POST.get('cost_centre')
@@ -309,11 +304,11 @@ class CodeUpdateView(IbmsFormView):
 
         # Service priority checkboxes.
         nc_sp = NCServicePriority.objects.filter(
-            financialYear=fy, categoryID__in=form.cleaned_data['ncChoice']).order_by('servicePriorityNo')
+            fy=fy, categoryID__in=form.cleaned_data['ncChoice']).order_by('servicePriorityNo')
         pvs_sp = PVSServicePriority.objects.filter(
-            financialYear=fy, categoryID__in=form.cleaned_data['pvsChoice']).order_by('servicePriorityNo')
+            fy=fy, categoryID__in=form.cleaned_data['pvsChoice']).order_by('servicePriorityNo')
         fm_sp = SFMServicePriority.objects.filter(
-            financialYear=fy, categoryID__in=form.cleaned_data['fmChoice']).order_by('servicePriorityNo')
+            fy=fy, categoryID__in=form.cleaned_data['fmChoice']).order_by('servicePriorityNo')
 
         # Style & populate the workbook.
         fpath = os.path.join(settings.STATIC_ROOT, 'excel', 'ibms_codeupdate_base.xls')
@@ -351,12 +346,12 @@ class DataAmendmentView(IbmsFormView):
 
     def form_valid(self, form):
         fy = form.cleaned_data['financial_year']
-        gl = GLPivDownload.objects.filter(financialYear=fy, account__in=[1, 2], resource__lt=4000)
+        gl = GLPivDownload.objects.filter(fy=fy, account__in=[1, 2], resource__lt=4000)
         gl = gl.exclude(activity='DJ0', job='777', service='11')
         gl = gl.order_by('codeID')
-        ibm = IBMData.objects.filter(financialYear=fy)
+        ibm = IBMData.objects.filter(fy=fy)
         # NOTE: we need a second queryset of IBMData objects to insert budget areas and sponsors to the workbook.
-        ibm_filtered = IBMData.objects.filter(financialYear=fy)
+        ibm_filtered = IBMData.objects.filter(fy=fy)
         if form.cleaned_data['cost_centre']:
             gl = gl.filter(costCentre=form.cleaned_data['cost_centre'])
             ibm_filtered = ibm_filtered.filter(costCentre=form.cleaned_data['cost_centre'])
@@ -371,11 +366,11 @@ class DataAmendmentView(IbmsFormView):
 
         # Service priority checkboxes.
         nc_sp = NCServicePriority.objects.filter(
-            financialYear=fy, categoryID__in=form.cleaned_data['ncChoice']).order_by('servicePriorityNo')
+            fy=fy, categoryID__in=form.cleaned_data['ncChoice']).order_by('servicePriorityNo')
         pvs_sp = PVSServicePriority.objects.filter(
-            financialYear=fy, categoryID__in=form.cleaned_data['pvsChoice']).order_by('servicePriorityNo')
+            fy=fy, categoryID__in=form.cleaned_data['pvsChoice']).order_by('servicePriorityNo')
         fm_sp = SFMServicePriority.objects.filter(
-            financialYear=fy, categoryID__in=form.cleaned_data['fmChoice']).order_by('servicePriorityNo')
+            fy=fy, categoryID__in=form.cleaned_data['fmChoice']).order_by('servicePriorityNo')
 
         fpath = os.path.join(
             settings.STATIC_ROOT, 'excel', 'ibms_dataamend_base.xls')
@@ -414,24 +409,22 @@ class ServicePriorityDataView(IbmsFormView):
 
     def form_valid(self, form):
         fy = form.cleaned_data['financial_year']
-        gl = GLPivDownload.objects.filter(
-            financialYear=fy, account__in=[1, 2], resource__lt=4000)
+        gl = GLPivDownload.objects.filter(fy=fy, account__in=[1, 2], resource__lt=4000)
         gl = gl.order_by('codeID')
         if form.cleaned_data['region']:
             gl = gl.filter(regionBranch=form.cleaned_data['region'])
         if form.cleaned_data['service']:
             gl = gl.filter(service=form.cleaned_data['service'])
 
-        ibm = IBMData.objects.filter(
-            financialYear=fy, servicePriorityID__iexact='GENERAL 01')
+        ibm = IBMData.objects.filter(fy=fy, servicePriorityID__iexact='GENERAL 01')
 
         # Service priority checkboxes.
         nc_sp = NCServicePriority.objects.filter(
-            financialYear=fy, categoryID__in=form.cleaned_data['ncChoice']).order_by('servicePriorityNo')
+            fy=fy, categoryID__in=form.cleaned_data['ncChoice']).order_by('servicePriorityNo')
         pvs_sp = PVSServicePriority.objects.filter(
-            financialYear=fy, categoryID__in=form.cleaned_data['pvsChoice']).order_by('servicePriorityNo')
+            fy=fy, categoryID__in=form.cleaned_data['pvsChoice']).order_by('servicePriorityNo')
         fm_sp = SFMServicePriority.objects.filter(
-            financialYear=fy, categoryID__in=form.cleaned_data['fmChoice']).order_by('servicePriorityNo')
+            fy=fy, categoryID__in=form.cleaned_data['fmChoice']).order_by('servicePriorityNo')
 
         fpath = os.path.join(
             settings.STATIC_ROOT, 'excel', 'service_priority_base.xls')
@@ -483,7 +476,7 @@ class ServicePriorityMappingsJSON(JSONResponseMixin, BaseDetailView):
                 'Invalid field name: {0}'.format(self.fieldname))
         r = self.model.objects.all()
         if request.GET.get('financialYear', None):
-            r = r.filter(financialYear=request.GET['financialYear'])
+            r = r.filter(fy=request.GET['financialYear'])
         if request.GET.get('costCentreNo', None):
             r = r.filter(costCentreNo=request.GET['costCentreNo'])
         choices = []
@@ -515,23 +508,20 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
         try:
             self.model._meta.get_field(self.fieldname)
         except:
-            return HttpResponseBadRequest(
-                'Invalid field name: {0}'.format(self.fieldname))
+            return HttpResponseBadRequest('Invalid field name: {0}'.format(self.fieldname))
         r = self.model.objects.all()
         if request.GET.get('financialYear', None):
-            r = r.filter(financialYear=request.GET['financialYear'])
+            r = r.filter(fy=request.GET['financialYear'])
         if request.GET.get('costCentre', None):
             r = r.filter(costCentre=request.GET['costCentre'])
         # Check for fields that may not exist on the model.
         try:
-            if request.GET.get('regionBranch', None) and self.model._meta.get_field(
-                    'regionBranch'):
+            if request.GET.get('regionBranch', None) and self.model._meta.get_field('regionBranch'):
                 r = r.filter(regionBranch=request.GET['regionBranch'])
         except:
             pass
         try:
-            if request.GET.get('service', None) and self.model._meta.get_field(
-                    'service'):
+            if request.GET.get('service', None) and self.model._meta.get_field('service'):
                 r = r.filter(costCentre=request.GET['service'])
         except:
             pass
