@@ -19,7 +19,7 @@ class FinancialYear(models.Model):
 
 
 class SFMMetric(models.Model):
-    financialYear = models.ForeignKey(FinancialYear, on_delete=models.PROTECT)
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT)
     servicePriorityNo = models.CharField(
         max_length=100,
         null=False,
@@ -29,7 +29,7 @@ class SFMMetric(models.Model):
     example = models.TextField(null=True)
 
     class Meta:
-        unique_together = (('financialYear', 'metricID'), )
+        unique_together = (('fy', 'metricID'), )
         verbose_name = 'SFM Metric'
         verbose_name_plural = 'SFM Metric'
 
@@ -45,12 +45,12 @@ class MeasurementType(models.Model):
 
 
 class Quarter(models.Model):
-    financialYear = models.ForeignKey(FinancialYear, on_delete=models.PROTECT)
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT)
     quarter = models.IntegerField()
     description = models.TextField(null=True)
 
     def __str__(self):
-        return self.financialYear.financialYear + " " + self.description
+        return self.fy.financialYear + " " + self.description
 
 
 class MeasurementValue(models.Model):

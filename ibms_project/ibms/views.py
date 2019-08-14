@@ -511,7 +511,7 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
             return HttpResponseBadRequest('Invalid field name: {0}'.format(self.fieldname))
         r = self.model.objects.all()
         if request.GET.get('financialYear', None):
-            r = r.filter(fy=request.GET['financialYear'])
+            r = r.filter(fy__financialYear=request.GET['financialYear'])
         if request.GET.get('costCentre', None):
             r = r.filter(costCentre=request.GET['costCentre'])
         # Check for fields that may not exist on the model.
