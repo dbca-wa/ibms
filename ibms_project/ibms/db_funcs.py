@@ -251,75 +251,21 @@ def import_to_glpivotdownload(fileName, finyear):
     rdr, file, fileName = csvload(fileName)
     glpiv = []
     for row in rdr:
-        glpiv.append(GLPivDownload(
-            financialYear=finyear, downloadPeriod=row[0], costCentre=row[1],
-            account=row[2], service=row[3], activity=row[4], resource=row[5],
-            project=row[6], job=row[7], shortCode=row[8], shortCodeName=row[9],
-            gLCode=row[10], ptdActual=row[11], ptdBudget=row[12], ytdActual=row[13],
-            ytdBudget=row[14], fybudget=row[15], ytdVariance=row[16], ccName=row[17],
-            serviceName=row[18], activityName=row[19], resourceName=row[20],
-            projectName=row[21], jobName=row[22], codeID=row[23], resNameNo=row[24],
-            actNameNo=row[25], projNameNo=row[26], regionBranch=row[27],
-            division=row[28], resourceCategory=row[29], wildfire=row[30],
-            expenseRevenue=row[31], fireActivities=row[32], mPRACategory=row[33])
+        glpiv.append(
+            GLPivDownload(
+                fy=finyear, downloadPeriod=row[0], costCentre=row[1],
+                account=row[2], service=row[3], activity=row[4], resource=row[5],
+                project=row[6], job=row[7], shortCode=row[8], shortCodeName=row[9],
+                gLCode=row[10], ptdActual=row[11], ptdBudget=row[12], ytdActual=row[13],
+                ytdBudget=row[14], fybudget=row[15], ytdVariance=row[16], ccName=row[17],
+                serviceName=row[18], activityName=row[19], resourceName=row[20],
+                projectName=row[21], jobName=row[22], codeID=row[23], resNameNo=row[24],
+                actNameNo=row[25], projNameNo=row[26], regionBranch=row[27],
+                division=row[28], resourceCategory=row[29], wildfire=row[30],
+                expenseRevenue=row[31], fireActivities=row[32], mPRACategory=row[33]
+            )
         )
     GLPivDownload.objects.bulk_create(glpiv)
-
-
-@transaction.atomic
-def OLD_import_to_glpivotdownload(fileName, finyear):
-    rdr, file, fileName = csvload(fileName)
-    i = 0
-    try:
-        for row in rdr:
-            data = {
-                'financialYear': finyear,
-                'downloadPeriod': validateCharField('downloadPeriod', 10, row[0]),
-                'costCentre': validateCharField('costCentre', 4, row[1]),
-                'account': row[2],
-                'service': row[3],
-                'activity': validateCharField('activity', 4, row[4]),
-                'resource': row[5],
-                'project': validateCharField('project', 6, row[6]),
-                'job': validateCharField('job', 6, row[7]),
-                'shortCode': validateCharField('shortCode', 20, row[8]),
-                'shortCodeName': validateCharField('shortCodeName', 200, row[9]),
-                'gLCode': validateCharField('gLCode', 30, row[10]),
-                'ptdActual': row[11],
-                'ptdBudget': row[12],
-                'ytdActual': row[13],
-                'ytdBudget': row[14],
-                'fybudget': row[15],
-                'ytdVariance': row[16],
-                'ccName': validateCharField('ccName', 100, row[17]),
-                'serviceName': validateCharField('serviceName', 100, row[18]),
-                'activityName': validateCharField('activityName', 100, row[19]),
-                'resourceName': validateCharField('resourceName', 100, row[20]),
-                'projectName': validateCharField('projectName', 100, row[21]),
-                'jobName': validateCharField('jobName', 100, row[22]),
-                'codeID': validateCharField('codeID', 30, row[23]),
-                'resNameNo': validateCharField('resNameNo', 100, row[24]),
-                'actNameNo': validateCharField('actNameNo', 100, row[25]),
-                'projNameNo': validateCharField('projNameNo', 100, row[26]),
-                'regionBranch': validateCharField('regionBranch', 100, row[27]),
-                'division': validateCharField('division', 100, row[28]),
-                'resourceCategory': validateCharField('resourceCategory', 100, row[29]),
-                'wildfire': validateCharField('wildfire', 30, row[30]),
-                'expenseRevenue': validateCharField('expenseRevenue', 7, row[31]),
-                'fireActivities': validateCharField('fireActivities', 50, row[32]),
-                'mPRACategory': validateCharField('mPRACategory', 100, row[33])}
-
-            query = {
-                'financialYear': finyear,
-                'gLCode': str(row[10])
-            }
-            i += 1
-            saverow(GLPivDownload, data, query)
-        file.close()
-    except:
-        file.close()
-        raise Exception(
-            'An error occured populating table:\nRow {0}\n{1}'.format(i, ','.join(row)))
 
 
 def import_to_corporate_strategy(fileName, finyear):
@@ -519,9 +465,10 @@ def import_to_nc_service_priority(fileName, finyear):
         file.close()
         raise
 
+
 def import_to_service_priority_mappings(fileName, finyear):
     rdr, file, fileName = csvload(fileName)
-    try: 
+    try:
         query = {
             "financialYear": finyear
         }
@@ -542,6 +489,7 @@ def import_to_service_priority_mappings(fileName, finyear):
     except:
         file.close()
         raise
+
 
 def validateCharField(fieldName, fieldLen, data):
     if (len(data.strip()) > fieldLen):
