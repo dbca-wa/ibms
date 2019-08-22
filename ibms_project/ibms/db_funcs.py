@@ -12,127 +12,57 @@ CSV_FILE_LIMIT = 100000000
 
 def export_ibms_data(response, fy):
     writer = csv.writer(response, quoting=csv.QUOTE_ALL)
-    glrows = GLPivDownload.objects.filter(financialYear=fy).order_by('codeID')
-    writer.writerow(["IBM ID",
-                     "FinancialYear",
-                     "DownloadPeriod",
-                     "CostCentre",
-                     "Account",
-                     "Service",
-                     "Activity",
-                     "Resource",
-                     "Project",
-                     "Job",
-                     "ShortCode",
-                     "ShortCodeName",
-                     "GLCode",
-                     "ptdActual",
-                     "ptdBudget",
-                     "ytdActual",
-                     "ytdBudget",
-                     "fybudget",
-                     "ytdVariance",
-                     "ccName",
-                     "serviceName",
-                     "activityName",
-                     "resourceName"
-                     "jobName",
-                     "codeIdentifier",
-                     "resNameNo",
-                     "actNameNo",
-                     "projNameNo",
-                     "regionBranch",
-                     "division",
-                     "resourceCategory",
-                     "wildfire",
-                     "expenseRevenue",
-                     "fireActivities",
-                     "mPRACategory",
-                     "budgetArea",
-                     "projectSponsor",
-                     "corporatePlanNo",
-                     "strategicPlanNo",
-                     "regionalSpecificInfo",
-                     "servicePriorityID",
-                     "annualWPInfo",
-                     "CS Description1",
-                     "CS Description2",
-                     "Strategic Direction No",
-                     "Strategic Direction",
-                     "Aim No",
-                     "Aim 1",
-                     "Aim 2",
-                     "Action No",
-                     "Action Description",
-                     "SP Description1",
-                     "SP Description2"])
+    glrows = GLPivDownload.objects.filter(fy=fy).order_by('codeID')
+    writer.writerow([
+        "IBM ID", "Financial year", "DownloadPeriod", "CostCentre", "Account", "Service",
+        "Activity", "Resource", "Project", "Job", "ShortCode", "ShortCodeName", "GLCode",
+        "ptdActual", "ptdBudget", "ytdActual", "ytdBudget", "fybudget", "ytdVariance",
+        "ccName", "serviceName", "activityName", "resourceName", "jobName", "codeIdentifier",
+        "resNameNo", "actNameNo", "projNameNo", "regionBranch", "division", "resourceCategory",
+        "wildfire", "expenseRevenue", "fireActivities", "mPRACategory", "budgetArea",
+        "projectSponsor", "corporatePlanNo", "strategicPlanNo", "regionalSpecificInfo",
+        "servicePriorityID", "annualWPInfo", "CS Description1", "CS Description2",
+        "Strategic Direction No", "Strategic Direction", "Aim No", "Aim 1", "Aim 2",
+        "Action No", "Action Description", "SP Description1", "SP Description2"
+    ])
 
     for r in glrows.iterator():
-        if IBMData.objects.filter(
-                ibmIdentifier=r.codeID, financialYear=fy).exists():
-            ibm = IBMData.objects.get(ibmIdentifier=r.codeID, financialYear=fy)
+        if IBMData.objects.filter(ibmIdentifier=r.codeID, fy=fy).exists():
+            ibm = IBMData.objects.get(ibmIdentifier=r.codeID, fy=fy)
         else:
             ibm = IBMData()
 
-        if CorporateStrategy.objects.filter(
-                corporateStrategyNo=ibm.corporatePlanNo,
-                financialYear=fy).exists():
-            cs = CorporateStrategy.objects.get(
-                corporateStrategyNo=ibm.corporatePlanNo,
-                financialYear=fy)
+        if CorporateStrategy.objects.filter(corporateStrategyNo=ibm.corporatePlanNo, fy=fy).exists():
+            cs = CorporateStrategy.objects.get(corporateStrategyNo=ibm.corporatePlanNo, fy=fy)
         else:
             cs = CorporateStrategy()
 
-        if NCStrategicPlan.objects.filter(
-                strategicPlanNo=ibm.strategicPlanNo,
-                financialYear=fy).exists():
-            nc = NCStrategicPlan.objects.get(
-                strategicPlanNo=ibm.strategicPlanNo,
-                financialYear=fy)
+        if NCStrategicPlan.objects.filter(strategicPlanNo=ibm.strategicPlanNo, fy=fy).exists():
+            nc = NCStrategicPlan.objects.get(strategicPlanNo=ibm.strategicPlanNo, fy=fy)
         else:
             nc = NCStrategicPlan()
 
         sp = NCServicePriority()
         d1 = ""
         d2 = ""
-        if ERServicePriority.objects.filter(
-                servicePriorityNo=ibm.servicePriorityID,
-                financialYear=fy).exists():
-            sp = ERServicePriority.objects.get(
-                servicePriorityNo=ibm.servicePriorityID,
-                financialYear=fy)
+        if ERServicePriority.objects.filter(servicePriorityNo=ibm.servicePriorityID, fy=fy).exists():
+            sp = ERServicePriority.objects.get(servicePriorityNo=ibm.servicePriorityID, fy=fy)
             d1 = sp.classification
             d2 = sp.description
-        if GeneralServicePriority.objects.filter(
-                servicePriorityNo=ibm.servicePriorityID,
-                financialYear=fy).exists():
-            sp = GeneralServicePriority.objects.get(
-                servicePriorityNo=ibm.servicePriorityID,
-                financialYear=fy)
+        if GeneralServicePriority.objects.filter(servicePriorityNo=ibm.servicePriorityID, fy=fy).exists():
+            sp = GeneralServicePriority.objects.get(servicePriorityNo=ibm.servicePriorityID, fy=fy)
             d1 = sp.description
             d2 = sp.description2
-        if PVSServicePriority.objects.filter(
-                servicePriorityNo=ibm.servicePriorityID,
-                financialYear=fy).exists():
-            sp = PVSServicePriority.objects.get(
-                servicePriorityNo=ibm.servicePriorityID,
-                financialYear=fy)
+        if PVSServicePriority.objects.filter(servicePriorityNo=ibm.servicePriorityID, fy=fy).exists():
+            sp = PVSServicePriority.objects.get(servicePriorityNo=ibm.servicePriorityID, fy=fy)
             d1 = sp.servicePriority1
             d2 = sp.description
-        if SFMServicePriority.objects.filter(
-                servicePriorityNo=ibm.servicePriorityID,
-                financialYear=fy).exists():
-            sp = SFMServicePriority.objects.get(
-                servicePriorityNo=ibm.servicePriorityID,
-                financialYear=fy)
+        if SFMServicePriority.objects.filter(servicePriorityNo=ibm.servicePriorityID, fy=fy).exists():
+            sp = SFMServicePriority.objects.get(servicePriorityNo=ibm.servicePriorityID, fy=fy)
             d1 = sp.description
             d2 = sp.description2
-        if NCServicePriority.objects.filter(
-                servicePriorityNo=ibm.servicePriorityID,
-                financialYear=fy).exists():
-            sp = NCServicePriority.objects.get(
-                servicePriorityNo=ibm.servicePriorityID,
-                financialYear=fy)
+        if NCServicePriority.objects.filter(servicePriorityNo=ibm.servicePriorityID, fy=fy).exists():
+            sp = NCServicePriority.objects.get(servicePriorityNo=ibm.servicePriorityID, fy=fy)
             d1 = sp.action
             d2 = sp.milestone
 
@@ -212,13 +142,13 @@ def saverow(model, data, query):
     obj.save()
 
 
-def import_to_ibmdata(fileName, finyear):
+def import_to_ibmdata(fileName, fy):
     rdr, csvfile, fileName = csvload(fileName)
     i = 2
     try:
         for row in rdr:
             data = {
-                "financialYear": finyear,
+                "fy": fy,
                 "ibmIdentifier": validateCharField("ibmsIdentifier", 50, row[0]),
                 "costCentre": validateCharField('costCentre', 4, row[1]),
                 "account": row[2],
@@ -235,7 +165,7 @@ def import_to_ibmdata(fileName, finyear):
                 "annualWPInfo": str(row[13])
             }
             query = {
-                "financialYear": finyear,
+                "fy": fy,
                 "ibmIdentifier": str(row[0])
             }
             saverow(IBMData, data, query)
@@ -247,13 +177,13 @@ def import_to_ibmdata(fileName, finyear):
 
 
 @transaction.atomic
-def import_to_glpivotdownload(fileName, finyear):
+def import_to_glpivotdownload(fileName, fy):
     rdr, file, fileName = csvload(fileName)
     glpiv = []
     for row in rdr:
         glpiv.append(
             GLPivDownload(
-                fy=finyear, downloadPeriod=row[0], costCentre=row[1],
+                fy=fy, downloadPeriod=row[0], costCentre=row[1],
                 account=row[2], service=row[3], activity=row[4], resource=row[5],
                 project=row[6], job=row[7], shortCode=row[8], shortCodeName=row[9],
                 gLCode=row[10], ptdActual=row[11], ptdBudget=row[12], ytdActual=row[13],
@@ -268,18 +198,18 @@ def import_to_glpivotdownload(fileName, finyear):
     GLPivDownload.objects.bulk_create(glpiv)
 
 
-def import_to_corporate_strategy(fileName, finyear):
+def import_to_corporate_strategy(fileName, fy):
     rdr, file, fileName = csvload(fileName)
     try:
         for row in rdr:
             data = {
-                "financialYear": finyear,
+                "fy": fy,
                 "corporateStrategyNo": validateCharField('corporateStrategyNo', 10, row[0]),
                 "description1": str(row[1]),
                 "description2": str(row[2])
             }
             query = {
-                "financialYear": finyear,
+                "fy": fy,
                 "corporateStrategyNo": str(row[0])
             }
             saverow(CorporateStrategy, data, query)
@@ -289,13 +219,13 @@ def import_to_corporate_strategy(fileName, finyear):
         raise
 
 
-def import_to_nc_strategic_plan(fileName, finyear):
+def import_to_nc_strategic_plan(fileName, fy):
     rdr, file, fileName = csvload(fileName)
     try:
         i = 1
         for row in rdr:
             data = {
-                "financialYear": finyear,
+                "fy": fy,
                 "strategicPlanNo": validateCharField('strategicPlanNo', 20, row[0]),
                 "directionNo": validateCharField('directionNo', 20, row[1]),
                 "direction": str(row[2]),
@@ -306,7 +236,7 @@ def import_to_nc_strategic_plan(fileName, finyear):
                 "Action": str(row[7])
             }
             query = {
-                "financialYear": finyear,
+                "fy": fy,
                 "strategicPlanNo": str(row[0])
             }
             saverow(NCStrategicPlan, data, query)
@@ -321,13 +251,13 @@ def import_to_nc_strategic_plan(fileName, finyear):
                 row[0]))
 
 
-def import_to_pvs_service_priority(fileName, finyear):
+def import_to_pvs_service_priority(fileName, fy):
     rdr, file, fileName = csvload(fileName)
     try:
         for row in rdr:
 
             data = {
-                "financialYear": validateCharField('financialYear', 7, finyear),
+                "fy": fy,
                 "categoryID": validateCharField('categoryID', 30, row[0]),
                 "servicePriorityNo": validateCharField('servicePriorityNo', 100, row[1]),
                 "strategicPlanNo": validateCharField('strategicPlanNo', 100, row[2]),
@@ -339,7 +269,7 @@ def import_to_pvs_service_priority(fileName, finyear):
             }
 
             query = {
-                "financialYear": finyear,
+                "fy": fy,
                 "servicePriorityNo": str(row[1])
             }
             saverow(PVSServicePriority, data, query)
@@ -350,12 +280,12 @@ def import_to_pvs_service_priority(fileName, finyear):
         raise
 
 
-def import_to_sfm_service_priority(fileName, finyear):
+def import_to_sfm_service_priority(fileName, fy):
     rdr, file, fileName = csvload(fileName)
     try:
         for row in rdr:
             data = {
-                "financialYear": finyear,
+                "fy": fy,
                 "categoryID": validateCharField('categoryID', 30, row[0]),
                 "regionBranch": validateCharField('regionBranch', 20, row[1]),
                 "servicePriorityNo": validateCharField('servicePriorityNo', 20, row[2]),
@@ -365,11 +295,8 @@ def import_to_sfm_service_priority(fileName, finyear):
                 "description2": str(row[6])
             }
             query = {
-                "financialYear": finyear,
-                "servicePriorityNo": validateCharField(
-                    'servicePriorityNo',
-                    20,
-                    row[2])}
+                "fy": fy,
+                "servicePriorityNo": validateCharField('servicePriorityNo', 20, row[2])}
             saverow(SFMServicePriority, data, query)
 
         file.close()
@@ -379,12 +306,12 @@ def import_to_sfm_service_priority(fileName, finyear):
         raise
 
 
-def import_to_er_service_priority(fileName, finyear):
+def import_to_er_service_priority(fileName, fy):
     rdr, file, fileName = csvload(fileName)
     try:
         for row in rdr:
             data = {
-                "financialYear": validateCharField('financialYear', 7, finyear),
+                "fy": fy,
                 "categoryID": validateCharField('categoryID', 30, row[0]),
                 "servicePriorityNo": validateCharField('servicePriorityNo', 10, row[1]),
                 "strategicPlanNo": validateCharField('strategicPlanNo', 10, row[2]),
@@ -393,7 +320,7 @@ def import_to_er_service_priority(fileName, finyear):
                 "description": str(row[5])
             }
             query = {
-                "financialYear": finyear,
+                "fy": fy,
                 "servicePriorityNo": str(row[1])
             }
             saverow(ERServicePriority, data, query)
@@ -405,13 +332,13 @@ def import_to_er_service_priority(fileName, finyear):
         raise
 
 
-def import_to_general_service_priority(fileName, finyear):
+def import_to_general_service_priority(fileName, fy):
     rdr, file, fileName = csvload(fileName)
     try:
         for row in rdr:
             try:
                 data = {
-                    "financialYear": finyear,
+                    "fy": fy,
                     "categoryID": validateCharField('categoryID', 30, row[0]),
                     "servicePriorityNo": validateCharField('servicePriorityNo', 20, row[1]),
                     "strategicPlanNo": validateCharField('strategicPlanNo', 20, row[2]),
@@ -420,7 +347,7 @@ def import_to_general_service_priority(fileName, finyear):
                     "description2": str(row[5])
                 }
                 query = {
-                    "financialYear": finyear,
+                    "fy": fy,
                     "servicePriorityNo": str(row[1])
                 }
 
@@ -435,12 +362,12 @@ def import_to_general_service_priority(fileName, finyear):
         raise
 
 
-def import_to_nc_service_priority(fileName, finyear):
+def import_to_nc_service_priority(fileName, fy):
     rdr, file, fileName = csvload(fileName)
     try:
         for row in rdr:
             data = {
-                "financialYear": finyear,
+                "fy": fy,
                 "categoryID": validateCharField('categoryID', 30, row[0]),
                 "servicePriorityNo": validateCharField('servicePriorityNo', 100, row[1]),
                 "strategicPlanNo": validateCharField('strategicPlanNo', 100, row[2]),
@@ -455,7 +382,7 @@ def import_to_nc_service_priority(fileName, finyear):
                 "milestone": str(row[11])
             }
             query = {
-                "financialYear": finyear,
+                "fy": fy,
                 "servicePriorityNo": str(row[1])
             }
             saverow(NCServicePriority, data, query)
@@ -466,18 +393,18 @@ def import_to_nc_service_priority(fileName, finyear):
         raise
 
 
-def import_to_service_priority_mappings(fileName, finyear):
+def import_to_service_priority_mappings(fileName, fy):
     rdr, file, fileName = csvload(fileName)
     try:
         query = {
-            "financialYear": finyear
+            "fy": fy
         }
         query_results = ServicePriorityMappings.objects.filter(**query)
         if query_results.exists():
             query_results.delete()
         for row in rdr:
             data = {
-                "financialYear": finyear,
+                "fy": fy,
                 "costCentreNo": validateCharField('costCentreNo', 4, row[0]),
                 "wildlifeManagement": validateCharField('wildlifeManagement', 100, row[1]),
                 "parksManagement": validateCharField('parksManagement', 100, row[2]),
@@ -500,7 +427,7 @@ def validateCharField(fieldName, fieldLen, data):
 def download_ibms_data(glrows):
     rows = glrows.values(
         "codeID",
-        "financialYear",
+        "fy",
         "downloadPeriod",
         "costCentre",
         "account",
@@ -534,7 +461,7 @@ def download_ibms_data(glrows):
 
     ibmrows = IBMData.objects.values(
         "ibmIdentifier",
-        "financialYear",
+        "fy",
         "budgetArea",
         "projectSponsor",
         "corporatePlanNo",
@@ -545,23 +472,23 @@ def download_ibms_data(glrows):
     ibmdict = dict(
         ((r["ibmIdentifier"] +
           "_" +
-          r["financialYear"],
+          r["fy"],
             r) for r in ibmrows))
 
     csrows = CorporateStrategy.objects.values(
         "corporateStrategyNo",
-        "financialYear",
+        "fy",
         "description1",
         "description2")
     csdict = dict(
         ((r["corporateStrategyNo"] +
           "_" +
-          r["financialYear"],
+          r["fy"],
             r) for r in csrows))
 
     ncrows = NCStrategicPlan.objects.values(
         "strategicPlanNo",
-        "financialYear",
+        "fy",
         "directionNo",
         "direction",
         "AimNo",
@@ -572,23 +499,23 @@ def download_ibms_data(glrows):
     ncdict = dict(
         ((r["strategicPlanNo"] +
           "_" +
-          r["financialYear"],
+          r["fy"],
             r) for r in ncrows))
 
     spdict = dict()
     ncsprows = NCServicePriority.objects.values_list(
-        "servicePriorityNo", "financialYear", "action", "milestone")
+        "servicePriorityNo", "fy", "action", "milestone")
     sfmsprows = SFMServicePriority.objects.values_list(
-        "servicePriorityNo", "financialYear", "description", "description2")
+        "servicePriorityNo", "fy", "description", "description2")
     pvssprows = PVSServicePriority.objects.values_list(
         "servicePriorityNo",
-        "financialYear",
+        "fy",
         "servicePriority1",
         "description")
     gensprows = GeneralServicePriority.objects.values_list(
-        "servicePriorityNo", "financialYear", "description", "description2")
+        "servicePriorityNo", "fy", "description", "description2")
     ersprows = ERServicePriority.objects.values_list(
-        "servicePriorityNo", "financialYear", "classification", "description")
+        "servicePriorityNo", "fy", "classification", "description")
 
     # order important
     for sprows in [ncsprows, sfmsprows, pvssprows, gensprows, ersprows]:
@@ -657,30 +584,30 @@ def download_ibms_data(glrows):
             ibmdict.get(
                 row["codeID"] +
                 "_" +
-                row["financialYear"],
+                row["fy"],
                 dict()))
         if "corporatePlanNo" in outputdict.keys():
             outputdict.update(
                 csdict.get(
                     outputdict["corporatePlanNo"] +
                     "_" +
-                    row["financialYear"],
+                    row["fy"],
                     dict()))
         if "strategicPlanNo" in outputdict.keys():
             outputdict.update(
                 ncdict.get(
                     outputdict["strategicPlanNo"] +
                     "_" +
-                    row["financialYear"],
+                    row["fy"],
                     dict()))
         if "servicePriorityID" in outputdict.keys():
             d1, d2 = spdict.get(
-                outputdict["servicePriorityID"] + "_" + row["financialYear"], ("", "", "", ""))[2:]
+                outputdict["servicePriorityID"] + "_" + row["fy"], ("", "", "", ""))[2:]
             outputdict.update({"d1": d1, "d2": d2})
         xlrow = list()
         for key in [
                 "codeID",
-                "financialYear",
+                "fy",
                 "downloadPeriod",
                 "costCentre",
                 "account",
