@@ -74,12 +74,9 @@ class ClearGLPivotForm(FinancialYearFilterForm):
         )
 
 
-class UploadForm(HelperForm):
+class UploadForm(FinancialYearFilterForm):
     upload_file_type = forms.ChoiceField(choices=FILE_CHOICES)
     upload_file = forms.FileField(label='Select file')
-    # We still use FINYEAR_CHOICES from the models.py because this covers
-    # future uploads.
-    financial_year = forms.ChoiceField(choices=FINYEAR_CHOICES)
 
     def __init__(self, *args, **kwargs):
         super(UploadForm, self).__init__(*args, **kwargs)
