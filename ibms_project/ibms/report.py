@@ -440,7 +440,7 @@ def download_report(glrows, response):
     """
     rows = glrows.values(
         "codeID",
-        "financialYear",
+        "fy",
         "downloadPeriod",
         "costCentre",
         "account",
@@ -474,7 +474,7 @@ def download_report(glrows, response):
 
     ibmrows = IBMData.objects.values(
         "ibmIdentifier",
-        "financialYear",
+        "fy",
         "budgetArea",
         "projectSponsor",
         "corporatePlanNo",
@@ -485,23 +485,23 @@ def download_report(glrows, response):
     ibmdict = dict(
         ((r["ibmIdentifier"] +
           "_" +
-          r["financialYear"],
+          r["fy"],
             r) for r in ibmrows))
 
     csrows = CorporateStrategy.objects.values(
         "corporateStrategyNo",
-        "financialYear",
+        "fy",
         "description1",
         "description2")
     csdict = dict(
         ((r["corporateStrategyNo"] +
           "_" +
-          r["financialYear"],
+          r["fy"],
             r) for r in csrows))
 
     ncrows = NCStrategicPlan.objects.values(
         "strategicPlanNo",
-        "financialYear",
+        "fy",
         "directionNo",
         "direction",
         "AimNo",
@@ -512,23 +512,23 @@ def download_report(glrows, response):
     ncdict = dict(
         ((r["strategicPlanNo"] +
           "_" +
-          r["financialYear"],
+          r["fy"],
             r) for r in ncrows))
 
     spdict = dict()
     ncsprows = NCServicePriority.objects.values_list(
-        "servicePriorityNo", "financialYear", "action", "milestone")
+        "servicePriorityNo", "fy", "action", "milestone")
     sfmsprows = SFMServicePriority.objects.values_list(
-        "servicePriorityNo", "financialYear", "description", "description2")
+        "servicePriorityNo", "fy", "description", "description2")
     pvssprows = PVSServicePriority.objects.values_list(
         "servicePriorityNo",
-        "financialYear",
+        "fy",
         "servicePriority1",
         "description")
     gensprows = GeneralServicePriority.objects.values_list(
-        "servicePriorityNo", "financialYear", "description", "description2")
+        "servicePriorityNo", "fy", "description", "description2")
     ersprows = ERServicePriority.objects.values_list(
-        "servicePriorityNo", "financialYear", "classification", "description")
+        "servicePriorityNo", "fy", "classification", "description")
 
     # order important
     for sprows in [ncsprows, sfmsprows, pvssprows, gensprows, ersprows]:
@@ -595,30 +595,30 @@ def download_report(glrows, response):
             ibmdict.get(
                 row["codeID"] +
                 "_" +
-                row["financialYear"],
+                row["fy"],
                 dict()))
         if "corporatePlanNo" in outputdict.keys():
             outputdict.update(
                 csdict.get(
                     outputdict["corporatePlanNo"] +
                     "_" +
-                    row["financialYear"],
+                    row["fy"],
                     dict()))
         if "strategicPlanNo" in outputdict.keys():
             outputdict.update(
                 ncdict.get(
                     outputdict["strategicPlanNo"] +
                     "_" +
-                    row["financialYear"],
+                    row["fy"],
                     dict()))
         if "servicePriorityID" in outputdict.keys():
             d1, d2 = spdict.get(
-                outputdict["servicePriorityID"] + "_" + row["financialYear"], ("", "", "", ""))[2:]
+                outputdict["servicePriorityID"] + "_" + row["fy"], ("", "", "", ""))[2:]
             outputdict.update({"d1": d1, "d2": d2})
         xlrow = list()
         for key in [
                 "codeID",
-                "financialYear",
+                "fy",
                 "downloadPeriod",
                 "costCentre",
                 "account",

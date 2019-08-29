@@ -1,4 +1,5 @@
 from django.db import models
+from sfm.models import FinancialYear
 
 
 FINYEAR_CHOICES = (
@@ -10,12 +11,14 @@ FINYEAR_CHOICES = (
     ('2016/17', '2016/17'),
     ('2017/18', '2017/18'),
     ('2018/19', '2018/19'),
-    ('2019/20', '2019/20')
+    ('2019/20', '2019/20'),
+    ('2020/21', '2020/21'),
 )
 
 
 class IBMData(models.Model):
     financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100, db_index=True)
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
     ibmIdentifier = models.CharField(
         max_length=100,
         verbose_name='IBMId',
@@ -38,13 +41,14 @@ class IBMData(models.Model):
         return self.ibmIdentifier
 
     class Meta:
-        unique_together = [('ibmIdentifier', 'financialYear')]
+        unique_together = [('ibmIdentifier', 'fy')]
         verbose_name = 'IBM data'
         verbose_name_plural = 'IBM data'
 
 
 class GLPivDownload(models.Model):
     financialYear = models.CharField(max_length=7, db_index=True)
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
     downloadPeriod = models.CharField(max_length=10)
     costCentre = models.CharField(max_length=4, db_index=True)
     account = models.IntegerField(db_index=True)
@@ -83,13 +87,14 @@ class GLPivDownload(models.Model):
     mPRACategory = models.CharField(max_length=100)
 
     class Meta:
-        unique_together = [('gLCode', 'financialYear')]
+        unique_together = [('gLCode', 'fy')]
         verbose_name = 'GL pivot download'
         verbose_name_plural = 'GL pivot downloads'
 
 
 class CorporateStrategy(models.Model):
     financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100, db_index=True)
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
     corporateStrategyNo = models.CharField(max_length=100)
     description1 = models.TextField(null=True)
     description2 = models.TextField(null=True)
@@ -103,7 +108,7 @@ class CorporateStrategy(models.Model):
             return '{0} (...more...)'.format(desc_trunc)
 
     class Meta:
-        unique_together = [('corporateStrategyNo', 'financialYear')]
+        unique_together = [('corporateStrategyNo', 'fy')]
         verbose_name_plural = 'corporate strategies'
 
 
@@ -112,6 +117,7 @@ class ServicePriority(models.Model):
     Abstract base class.
     """
     financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100, db_index=True)
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
     categoryID = models.CharField(max_length=100, null=True, blank=True, db_index=True)
     servicePriorityNo = models.CharField(max_length=100, null=False, default='-1', db_index=True)
     strategicPlanNo = models.CharField(max_length=100, null=True, blank=True)
@@ -128,7 +134,7 @@ class ServicePriority(models.Model):
 
     class Meta:
         abstract = True
-        unique_together = [('servicePriorityNo', 'financialYear')]
+        unique_together = [('servicePriorityNo', 'fy')]
 
 
 class GeneralServicePriority(ServicePriority):
@@ -149,7 +155,7 @@ class NCServicePriority(ServicePriority):
     milestone = models.TextField()
 
     class Meta:
-        unique_together = [('servicePriorityNo', 'financialYear')]
+        unique_together = [('servicePriorityNo', 'fy')]
         verbose_name = 'NC service priority'
         verbose_name_plural = 'NC service priorities'
 
@@ -181,6 +187,7 @@ class ERServicePriority(ServicePriority):
 
 class NCStrategicPlan(models.Model):
     financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100, db_index=True)
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
     strategicPlanNo = models.CharField(max_length=100)
     directionNo = models.CharField(max_length=100)
     direction = models.TextField()
@@ -191,26 +198,28 @@ class NCStrategicPlan(models.Model):
     Action = models.TextField()
 
     class Meta:
-        unique_together = [('strategicPlanNo', 'financialYear')]
+        unique_together = [('strategicPlanNo', 'fy')]
         verbose_name = 'NC strategic plan'
         verbose_name_plural = 'NC strategic plans'
 
 
 class Outcomes(models.Model):
     financialYear = models.CharField(max_length=7, db_index=True)
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
     q1Input = models.TextField()
     q2Input = models.TextField(blank=True)
     q3Input = models.TextField(blank=True)
     q4Input = models.TextField(blank=True)
 
     def __str__(self):
-        return self.financialYear
+        return self.fy
 
     class Meta:
         verbose_name_plural = 'outcomes'
 
 class ServicePriorityMappings(models.Model):
     financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100, db_index=True)
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
     costCentreNo = models.CharField(max_length=4)
     wildlifeManagement = models.CharField(max_length=100)
     parksManagement = models.CharField(max_length=100)

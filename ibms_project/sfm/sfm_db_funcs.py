@@ -82,14 +82,14 @@ def import_to_sfmmetrics(fileName, finyear):
         i = 1
         for row in rdr:
             data = {
-                "financialYear": finyear,
+                "fy": finyear,
                 "servicePriorityNo": validateCharField('servicePriorityNo', 20, row[0]),
                 "metricID": validateCharField('metricID', 20, row[1]),
                 "descriptor": str(row[2]),
                 "example": str(row[3])
             }
             query = {
-                "financialYear": finyear,
+                "fy": finyear,
                 "servicePriorityNo": str(row[0]),
                 "metricID": str(row[1])
             }
@@ -125,9 +125,8 @@ def import_to_costcentres(fileName, finyear):
 
 
 def import_to_measurement_value(sfmdata, sfmvals):
-    metric = SFMMetric.objects.get(financialYear=str(sfmdata['financialYear']), metricID=str(sfmdata['metricID']))
-    quarter = Quarter.objects.get(financialYear=str(sfmdata['financialYear']),
-                                  id=str(sfmdata['quarter']))
+    metric = SFMMetric.objects.get(fy=str(sfmdata['financialYear']), metricID=str(sfmdata['metricID']))
+    quarter = Quarter.objects.get(fy=str(sfmdata['financialYear']), id=str(sfmdata['quarter']))
     cc = CostCentre.objects.get(pk=sfmdata['costCentre'].pk)
 
     if len(sfmvals.keys()):

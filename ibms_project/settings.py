@@ -30,7 +30,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.staticfiles',
     'django_extensions',
-    'raven.contrib.django.raven_compat',
     'crispy_forms',
     'webtemplate_dbca',
     'ibms',
@@ -73,9 +72,10 @@ TEMPLATES = [
 ]
 SITE_TITLE = 'Integrated Business Management System'
 SITE_ACRONYM = 'IBMS'
-APPLICATION_VERSION_NO = '2.4.6'
+APPLICATION_VERSION_NO = '2.4.8'
 ADMINS = ('asi@dbca.wa.gov.au',)
 MANAGERS = (
+    ('Natasha Omelchuk', 'natasha.omelchuk@dbca.wa.gov.au', '9212 9099'),
     ('Graham Holmes', 'graham.holmes@dbca.wa.gov.au', '9881 9212'),
     ('Neil Clancy', 'neil.clancy@dbca.wa.gov.au', '9219 9926'),
 )
@@ -153,10 +153,6 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'console'
         },
-		'sentry': {
-            'level': 'WARNING',
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-        },
     },
     'loggers': {
         'django': {
@@ -164,7 +160,7 @@ LOGGING = {
 			'propagate': True,
         },
         'django.request': {
-            'handlers': ['console', 'sentry'],
+            'handlers': ['console'],
             'level': 'WARNING',
 			'propagate': False,
         },
@@ -177,5 +173,5 @@ LOGGING = {
 
 
 # Sentry configuration
-if env('RAVEN_DSN', False):
-    RAVEN_CONFIG = {'dsn': env('RAVEN_DSN')}
+if env('SENTRY_DSN', False):
+    SENTRY_CONFIG = {'dsn': env('SENTRY_DSN')}

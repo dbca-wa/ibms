@@ -15,26 +15,20 @@ def outputs_report(workbook, sfm, spn, dp, fy, qtr, cc):
     curr = '"$"#,##0_);("$"#,##'  # An Excel currency format.
     wrapped = Alignment(vertical='top', wrap_text=True)
     row = 6  # Note that openpyxl start row indexing at 1.
-    # Repeat rows at the top.
-    sheet.add_print_title(5)
 
     # For each of the service priority numbers, take a subset of the query
     # and insert values as required.
     for s in spn:
         # Where there are no SFMServicePriority objects for the given
         # servicePriorityNo and financialYear, skip the priority no.
-        if not SFMServicePriority.objects.filter(
-                servicePriorityNo=s, financialYear=fy.financialYear).exists():
+        if not SFMServicePriority.objects.filter(servicePriorityNo=s, fy=fy.financialYear).exists():
             continue
         sfm_metrics = sfm.filter(servicePriorityNo=s)
-        sfm_service_pri = SFMServicePriority.objects.get(
-            servicePriorityNo=s, financialYear=fy.financialYear)
-        ibm_data = IBMData.objects.filter(
-            financialYear=fy.financialYear, servicePriorityID=s,
+        sfm_service_pri = SFMServicePriority.objects.get(servicePriorityNo=s, fy=fy.financialYear)
+        ibm_data = IBMData.objects.filter(fy=fy.financialYear, servicePriorityID=s,
             costCentre=cc.costCentre)
         ibm_ids = set(ibm_data.values_list('ibmIdentifier', flat=True))
-        gl = GLPivDownload.objects.filter(
-            financialYear=fy.financialYear, costCentre=cc.costCentre,
+        gl = GLPivDownload.objects.filter(fy=fy.financialYear, costCentre=cc.costCentre,
             codeID__in=ibm_ids)
         for k, metric in enumerate(sfm_metrics):  # Subquery
             if k == 0:  # First row only of subquery.
@@ -72,8 +66,7 @@ def outputs_report(workbook, sfm, spn, dp, fy, qtr, cc):
                 'Q3 (Jan - Mar)': 18,
                 'Q4 (Apr - Jun)': 19}
             measurements_ytd = MeasurementValue.objects.filter(
-                quarter__financialYear=qtr.financialYear,
-                costCentre=cc, sfmMetric=metric, value__isnull=False)
+                quarter=qtr, costCentre=cc, sfmMetric=metric, value__isnull=False)
             for m in measurements_ytd:
                 # Aggregate the YTD measurements of each unit type:
                 ytd_measure[m.measurementType.unit] += m.value

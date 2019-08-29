@@ -139,7 +139,7 @@ class FMOutputReport(ProtectedFormView):
         fy = d['financial_year']
         qtr = d['quarter']
         cc = d['cost_centre']
-        sfm = SFMMetric.objects.filter(financialYear=fy).order_by('servicePriorityNo', 'metricID')
+        sfm = SFMMetric.objects.filter(fy=fy).order_by('servicePriorityNo', 'metricID')
         # Ordered list of service priority numbers.
         spn = sorted(set(sfm.values_list('servicePriorityNo', flat=True)))
         # Current download period.

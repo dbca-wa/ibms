@@ -478,7 +478,7 @@ def validate_settings_service_priority_hdr(rdr):
             sBad += row[2] + ' : ' + 'Parks Management\n'
         if row[3].strip() != 'Forest Management':
             sBad += row[3] + ' : ' + 'Forest Management\n'
-        
+
         retVal = sBad == ''
 
         if not retVal:

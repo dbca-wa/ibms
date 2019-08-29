@@ -4,6 +4,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, HTML, Div
 from ibms.models import (
     GLPivDownload, FINYEAR_CHOICES, NCServicePriority, IBMData, PVSServicePriority, SFMServicePriority)
+from sfm.models import FinancialYear
 
 
 def getGenericChoices(classmodel, key, allowNull=False):
@@ -53,8 +54,7 @@ class HelperForm(forms.Form):
 class FinancialYearFilterForm(HelperForm):
     """Base form class to be include a financial year filter select.
     """
-    financial_year = forms.ChoiceField(
-        choices=getGenericChoices(GLPivDownload, 'financialYear', allowNull=True))
+    financial_year = forms.ModelChoiceField(queryset=FinancialYear.objects.all().order_by('financialYear'))
 
 
 class ClearGLPivotForm(FinancialYearFilterForm):
@@ -74,12 +74,9 @@ class ClearGLPivotForm(FinancialYearFilterForm):
         )
 
 
-class UploadForm(HelperForm):
+class UploadForm(FinancialYearFilterForm):
     upload_file_type = forms.ChoiceField(choices=FILE_CHOICES)
     upload_file = forms.FileField(label='Select file')
-    # We still use FINYEAR_CHOICES from the models.py because this covers
-    # future uploads.
-    financial_year = forms.ChoiceField(choices=FINYEAR_CHOICES)
 
     def __init__(self, *args, **kwargs):
         super(UploadForm, self).__init__(*args, **kwargs)
