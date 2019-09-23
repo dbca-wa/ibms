@@ -174,4 +174,8 @@ LOGGING = {
 
 # Sentry configuration
 if env('SENTRY_DSN', False):
-    SENTRY_CONFIG = {'dsn': env('SENTRY_DSN')}
+    import sentry_sdk
+    sentry_sdk.init(dsn=env('SENTRY_DSN'))
+    SENTRY_SDK = True
+else:
+    SENTRY_SDK = False

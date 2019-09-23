@@ -1,3 +1,5 @@
+from datetime import datetime
+from django.conf import settings
 from django.db import models
 from sfm.models import FinancialYear
 
@@ -17,7 +19,6 @@ FINYEAR_CHOICES = (
 
 
 class IBMData(models.Model):
-    financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100, db_index=True)
     fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
     ibmIdentifier = models.CharField(
         max_length=100,
@@ -47,8 +48,8 @@ class IBMData(models.Model):
 
 
 class GLPivDownload(models.Model):
-    financialYear = models.CharField(max_length=7, db_index=True)
     fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
+    download_period = models.DateField(blank=True, null=True)
     downloadPeriod = models.CharField(max_length=10)
     costCentre = models.CharField(max_length=4, db_index=True)
     account = models.IntegerField(db_index=True)
@@ -91,9 +92,21 @@ class GLPivDownload(models.Model):
         verbose_name = 'GL pivot download'
         verbose_name_plural = 'GL pivot downloads'
 
+    def save(self, force_insert=False, force_update=False, *args, **kwargs):
+        """Overide save() to parse string date to a Python date.
+        """
+        if self.downloadPeriod:
+            try:
+                self.download_period = datetime.strptime(self.downloadPeriod, "%d/%m/%Y")
+            except Exception as e:
+                if settings.SENTRY_SDK:
+                    from sentry_sdk import capture_exception
+                    capture_exception(e)
+                    self.download_period = None
+        super(GLPivDownload, self).save(force_insert, force_update)
+
 
 class CorporateStrategy(models.Model):
-    financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100, db_index=True)
     fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
     corporateStrategyNo = models.CharField(max_length=100)
     description1 = models.TextField(null=True)
@@ -116,7 +129,6 @@ class ServicePriority(models.Model):
     """
     Abstract base class.
     """
-    financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100, db_index=True)
     fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
     categoryID = models.CharField(max_length=100, null=True, blank=True, db_index=True)
     servicePriorityNo = models.CharField(max_length=100, null=False, default='-1', db_index=True)
@@ -186,7 +198,6 @@ class ERServicePriority(ServicePriority):
 
 
 class NCStrategicPlan(models.Model):
-    financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100, db_index=True)
     fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
     strategicPlanNo = models.CharField(max_length=100)
     directionNo = models.CharField(max_length=100)
@@ -204,7 +215,6 @@ class NCStrategicPlan(models.Model):
 
 
 class Outcomes(models.Model):
-    financialYear = models.CharField(max_length=7, db_index=True)
     fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
     q1Input = models.TextField()
     q2Input = models.TextField(blank=True)
@@ -218,7 +228,6 @@ class Outcomes(models.Model):
         verbose_name_plural = 'outcomes'
 
 class ServicePriorityMappings(models.Model):
-    financialYear = models.CharField(choices=FINYEAR_CHOICES, max_length=100, db_index=True)
     fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
     costCentreNo = models.CharField(max_length=4)
     wildlifeManagement = models.CharField(max_length=100)
