@@ -72,7 +72,7 @@ TEMPLATES = [
 ]
 SITE_TITLE = 'Integrated Business Management System'
 SITE_ACRONYM = 'IBMS'
-APPLICATION_VERSION_NO = '2.5.0'
+APPLICATION_VERSION_NO = '2.6.0'
 ADMINS = ('asi@dbca.wa.gov.au',)
 MANAGERS = (
     ('Natasha Omelchuk', 'natasha.omelchuk@dbca.wa.gov.au', '9219 9099'),
@@ -91,7 +91,7 @@ IBM_SERVICE_PRIORITY_URI = env('IBM_SERVICE_PRIORITY_URI', '')
 IBM_RELOAD_URI = env('IBM_RELOAD_URI', '')
 IBM_DATA_AMEND_URI = env('IBM_DATA_AMEND_URI', '')
 HELP_URL = CONFLUENCE_URL
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None  # Required to allow end-of-month GLPivot bulk deletes.
 
 

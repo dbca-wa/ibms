@@ -11,6 +11,6 @@ xlrd==1.2.0
 xlutils==2.0.0
 xlwt==1.3.0
 openpyxl==2.6.2
-webtemplate-dbca==0.6.0
+git+git://github.com/dbca-wa/webtemplate@1.1.2
 mixer==6.1.3
 sentry-sdk==0.12.2
