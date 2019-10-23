@@ -67,6 +67,7 @@
 
     <div class="row">
         <!-- Sidebar -->
+        {% block sidebar %}
         <nav class="col-xs-12 col-sm-4 col-md-3 col-lg-2 bg-light sidebar" id="nav_sidebar">
             <div class="sidebar-sticky">
                 <ul class="nav flex-column">
@@ -116,6 +117,7 @@
                 </ul>
             </div>
         </nav>
+        {% endblock %}
 
         <!-- Main page content -->
         <div class="col-xs-12 col-sm-8 col-md-9 col-lg-10" id="div_page_content_inner">
