@@ -2,36 +2,20 @@
 
 {% block navbar_auth %}{% endblock %}
 
-{% block page_content %}
-<div class="col-xs-12">
-    <h4>Please log in with your Department username and password:</h4>
-    <form class="form-horizontal" action="" method="POST">
-        {% csrf_token %}
-        {% if form.errors %}
-        <div class="form-group">
-            <div class="col-xs-12 col-sm-8 col-md-4">
-                <div class="alert alert-danger">Sorry, that's not a valid username or password.</div>
-            </div>
-        </div>
-        {% endif %}
-        <div class="form-group">
-            <label for="username" class="col-xs-12 col-sm-2 col-md-1 control-label">Username:</label>
-            <div class="col-xs-12 col-sm-6 col-md-3">
-                <input type="text" class="form-control" name="username" value="" id="username">
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="password" class="col-xs-12 col-sm-2 col-md-1  control-label">Password:</label>
-            <div class="col-xs-12 col-sm-6 col-md-3">
-                <input type="password" class="form-control" name="password" value="" id="password">
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="col-xs-12 col-sm-offset-2 col-md-offset-1">
-                <button type="submit" class="btn btn-default">Log in</button>
-            </div>
-        </div>
-        <input type="hidden" name="next" value="{{ next }}" />
-    </form>
-</div>
+{% block sidebar %}{% endblock %}
+
+{% block page_content_inner %}
+<h4>Please log in with your Department username and password:</h4>
+<form method="post">
+    {% csrf_token %}
+    <div id="div_id_username" class="form-group">
+        <label for="id_username" class="col-form-label requiredField">Username<span class="asteriskField">*</span></label>
+        <input type="text" name="username" required id="id_username" class="textinput textInput form-control" autofocus>
+    </div>
+    <div id="div_id_password" class="form-group">
+        <label for="id_password" class="col-form-label  requiredField">Password<span class="asteriskField">*</span> </label>
+        <input type="password" name="password" required id="id_password" class="textinput textInput form-control">
+    </div>
+    <button type="submit" class="btn btn-primary">Log in</button>
+</form>
 {% endblock %}

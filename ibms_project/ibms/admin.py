@@ -51,6 +51,10 @@ class IBMDataAdmin(ModelAdmin):
     search_fields = ('fy__financialYear', 'ibmIdentifier', 'budgetArea', 'corporatePlanNo', 'strategicPlanNo')
     list_display = ('fy', 'ibmIdentifier', 'budgetArea', 'corporatePlanNo', 'strategicPlanNo')
     list_filter = ('fy__financialYear', 'costCentre', 'budgetArea', 'service', 'corporatePlanNo')
+    readonly_fields = (
+        'fy', 'ibmIdentifier', 'budgetArea', 'projectSponsor', 'corporatePlanNo', 'strategicPlanNo',
+        'regionalSpecificInfo', 'servicePriorityID', 'annualWPInfo', 'costCentre', 'account', 'service',
+        'activity', 'project', 'job')
     actions = [
         export_as_csv_action(
             translations=[
@@ -65,6 +69,7 @@ class IBMDataAdmin(ModelAdmin):
 
 @register(GLPivDownload)
 class GLPivDownloadAdmin(ModelAdmin):
+    date_hierarchy = 'download_period'
     search_fields = (
         'fy__financialYear', 'costCentre', 'account', 'service', 'activity', 'ccName', 'shortCode',
         'shortCodeName', 'gLCode', 'codeID')

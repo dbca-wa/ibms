@@ -3,16 +3,11 @@ from ibms.models import GLPivDownload
 
 
 def get_download_period():
-    # Handle edge case (for testing)
     if not GLPivDownload.objects.exists():
         return datetime.today()
-    try:
-        date_list = GLPivDownload.objects.order_by("-id")[:1000].values_list("downloadPeriod")
-        dates = [datetime.strptime(date[0], "%d/%m/%Y") for date in date_list]
-        dates.sort()
-        return dates[-1].date()
-    except ValueError:
-        return 'ERROR - GL Pivot Download date values are not valid (please correct and re-upload)'
+    elif not GLPivDownload.objects.filter(download_period__isnull=False).exists():
+        return datetime.today()
+    return GLPivDownload.objects.order_by('-download_period').first().download_period
 
 
 def breadcrumb_trail(links, sep=' > '):
