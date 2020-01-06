@@ -1,4 +1,5 @@
 import csv
+from datetime import datetime
 from django.db import transaction
 import xlwt
 
@@ -181,9 +182,13 @@ def import_to_glpivotdownload(fileName, fy):
     rdr, file, fileName = csvload(fileName)
     glpiv = []
     for row in rdr:
+        try:
+            download_period = datetime.strptime(row[0], "%d/%m/%Y")
+        except:
+            download_period = None
         glpiv.append(
             GLPivDownload(
-                fy=fy, downloadPeriod=row[0], costCentre=row[1],
+                fy=fy, download_period=download_period, downloadPeriod=row[0], costCentre=row[1],
                 account=row[2], service=row[3], activity=row[4], resource=row[5],
                 project=row[6], job=row[7], shortCode=row[8], shortCodeName=row[9],
                 gLCode=row[10], ptdActual=row[11], ptdBudget=row[12], ytdActual=row[13],
