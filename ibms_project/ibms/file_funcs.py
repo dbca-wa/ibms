@@ -66,7 +66,7 @@ def validate_file(file, fileType):
 
 
 def validate_corporatestrategydata_hdr(rdr):
-    retval = False
+    retVal = False
     row = next(rdr)
     if len(row) == COLS_CORPORATE_PLAN_DATA:
         sBad = ''
@@ -237,7 +237,7 @@ def validate_glpivotdownload_hdr(rdr):
 
 
 def validate_general_servicepriority_hdr(rdr):
-    retval = False
+    retVal = False
     row = next(rdr)
     if len(row) == COLS_GENERAL_SERVICE_PRIORITY:
         sBad = ''
@@ -271,7 +271,7 @@ def validate_general_servicepriority_hdr(rdr):
 
 
 def validate_er_servicepriority_hdr(rdr):
-    retval = False
+    retVal = False
     row = next(rdr)
     if len(row) == COLS_ER_SERVICE_PRIORITY:
         sBad = ''
@@ -306,7 +306,7 @@ def validate_er_servicepriority_hdr(rdr):
 
 
 def validate_sfm_servicepriority_hdr(rdr):
-    retval = False
+    retVal = False
     row = next(rdr)
     if len(row) == COLS_SFM_SERVICE_PRIORITY:
         sBad = ''
@@ -343,7 +343,7 @@ def validate_sfm_servicepriority_hdr(rdr):
 
 
 def validate_pvs_servicepriority_hdr(rdr):
-    retval = False
+    retVal = False
     row = next(rdr)
     if len(row) == COLS_PVS_SERVICE_PRIORITY:
         sBad = ''
@@ -382,7 +382,7 @@ def validate_pvs_servicepriority_hdr(rdr):
 
 
 def validate_nc_servicepriority_hdr(rdr):
-    retval = False
+    retVal = False
     row = next(rdr)
     if len(row) == COLS_NC_SERVICE_PRIORITY:
         sBad = ''
@@ -464,6 +464,7 @@ def validate_nc_strategicplan_hdr(rdr):
                 len(row)))
 
     return retVal
+
 
 def validate_settings_service_priority_hdr(rdr):
     retVal = False
