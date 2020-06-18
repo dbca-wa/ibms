@@ -11,51 +11,40 @@
 {% endblock %}
 
 {% block navbar_links %}
-{% block navbar_auth %}
-{% if user.is_authenticated %}
-<li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-        {% firstof user.get_full_name user.email %} <span class="caret"></span>
-    </a>
-    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-        {% if user.is_staff %}
-        <a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a>
-        {% if superuser %}
-        <a class="dropdown-item" href="{% url 'clearglpivot' %}">Clear GL Pivot entries</a>
-        {% endif %}
-        <div class="dropdown-divider"></div>
-        {% endif %}
-        <a class="dropdown-item" href="{% url 'logout' %}">Log out</a>
-    </div>
-</li>
-{% else %}
-<li class="nav-item">
-    <a href="{% url 'login' %}">Log in</a>
-</li>
-{% endif %}
-{% endblock %}
+<ul class="navbar-nav">
+    {% block navbar_auth %}
+    {% if user.is_authenticated %}
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                {% firstof user.get_full_name user.email %} <span class="caret"></span>
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                {% if user.is_staff %}
+                <a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a>
+                {% if superuser %}
+                <a class="dropdown-item" href="{% url 'clearglpivot' %}">Clear GL Pivot entries</a>
+                {% endif %}
+                <div class="dropdown-divider"></div>
+                {% endif %}
+                <a class="dropdown-item" href="{% url 'logout' %}">Log out</a>
+            </div>
+        </li>
+        {% else %}
+        <li class="nav-item">
+            <a href="{% url 'login' %}">Log in</a>
+        </li>
+    {% endif %}
+    {% endblock %}
+</ul>
 {% endblock %}
 
 {% block page_content %}
-<main role="main" class="flex-shrink-0">
 <div class="container-fluid">
-    {% comment %}
-    <!-- Breadcrumbs -->
-    {% if breadcrumb_trail %}
-    <div class="row d-none d-sm-block">
-        <div class="col-sm-12">
-            <ol class="breadcrumb">
-                {{ breadcrumb_trail|safe }}
-            </ol>
-        </div>
-    </div>
-    {% endif %}
-    {% endcomment %}
 
     <!-- Messages  -->
     {% if messages %}
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col">
             {% for message in messages %}
             <div class="alert{% if message.tags %} alert-{{ message.tags }}{% endif %}">
                 {{ message|safe }}
@@ -125,7 +114,6 @@
         </div>
     </div><!-- /.row -->
 </div><!-- /.container-fluid -->
-</main>
 {% endblock %}
 
 {% block page_footer %}

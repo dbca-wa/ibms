@@ -17,3 +17,5 @@ logs/
 *.dump
 *.db
 *.sqlite3
+
+.python-version
