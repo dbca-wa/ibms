@@ -1,13 +1,13 @@
 # Prepare the base environment.
-FROM python:3.7-slim-buster as builder_base_ibms
+FROM python:3.7.8-slim-buster as builder_base_ibms
 MAINTAINER asi@dbca.wa.gov.au
 RUN apt-get update -y \
   && apt-get upgrade -y \
-  && apt-get install --no-install-recommends -y wget git libmagic-dev gcc binutils libproj-dev gdal-bin python3-dev proj-bin \
+  && apt-get install --no-install-recommends -y wget python3-dev \
   && rm -rf /var/lib/apt/lists/* \
   && pip install --upgrade pip
 
-# Install Python libs from requirements.txt.
+# Install Python libs from pyproject.toml.
 FROM builder_base_ibms as python_libs_ibms
 WORKDIR /app
 ENV POETRY_VERSION=1.0.5
