@@ -11,14 +11,14 @@
 {% endblock %}
 
 {% block navbar_links %}
-<ul class="navbar-nav">
+<ul class="navbar-nav ml-auto">
     {% block navbar_auth %}
     {% if user.is_authenticated %}
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                 {% firstof user.get_full_name user.email %} <span class="caret"></span>
             </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                 {% if user.is_staff %}
                 <a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a>
                 {% if superuser %}

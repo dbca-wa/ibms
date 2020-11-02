@@ -12,6 +12,5 @@ def standard(request):
         'site_acronym': settings.SITE_ACRONYM,
         'application_version_no': settings.APPLICATION_VERSION_NO,
         'user_navbar': 'ibms/user_navbar_li.html',
-        'confluence_url': settings.CONFLUENCE_URL,
     }
     return context
