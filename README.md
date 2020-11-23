@@ -7,7 +7,7 @@ Conservation and Environment.
 # Installation
 
 The recommended way to set up this project for development is using
-[Poetry}(https://python-poetry.org/docs/) to install and manage a virtual Python
+[Poetry](https://python-poetry.org/docs/) to install and manage a virtual Python
 environment. With Poetry installed, change into the project directory and run:
 
     poetry install
