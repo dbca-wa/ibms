@@ -96,14 +96,8 @@ class GLPivDownload(models.Model):
         """Overide save() to parse string date to a Python date.
         """
         if self.downloadPeriod:
-            try:
-                self.download_period = datetime.strptime(self.downloadPeriod, "%d/%m/%Y")
-            except Exception as e:
-                if settings.SENTRY_SDK:
-                    from sentry_sdk import capture_exception
-                    capture_exception(e)
-                    self.download_period = None
-        super(GLPivDownload, self).save(force_insert, force_update)
+            self.download_period = datetime.strptime(self.downloadPeriod, "%d/%m/%Y")
+        super().save(force_insert, force_update)
 
 
 class CorporateStrategy(models.Model):

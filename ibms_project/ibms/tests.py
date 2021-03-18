@@ -1,3 +1,4 @@
+from datetime import date
 from django.urls import reverse
 from django.test import TestCase
 from django.test.client import Client
@@ -127,7 +128,6 @@ class IbmsViewsTest(IbmsTestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-
     def test_ibms_admin_views(self):
         """Test that the Django ibms app admin works
         """
@@ -140,7 +140,11 @@ class IbmsViewsTest(IbmsTestCase):
         # For this, we need a few dozen dummy records.
         for i in range(20):
             ibmdata = mixer.blend(IBMData)
-            mixer.blend(GLPivDownload, codeID=ibmdata.ibmIdentifier[0:29])
+            mixer.blend(
+                GLPivDownload,
+                codeID=ibmdata.ibmIdentifier[0:29],
+                downloadPeriod=date.today().strftime('%d/%m/%Y')
+            )
 
         self.client.login(username='admin', password='test')
         for endpoint in [

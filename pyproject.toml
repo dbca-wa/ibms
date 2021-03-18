@@ -21,10 +21,10 @@ xlutils = "2.0.0"
 xlwt = "1.3.0"
 openpyxl = "2.6.4"
 webtemplate-dbca = "1.3.0"
+mixer = "^6.1.3"
 
 [tool.poetry.dev-dependencies]
-mixer = "^6.1.3"
-ipython = "^7.15.0"
+ipython = "^7.20.0"
 ipdb = "^0.13.2"
 
 [build-system]
