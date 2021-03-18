@@ -5,7 +5,7 @@ COLS_COSTCENTRES = 1
 
 
 def process_upload_file(fileName, fileType, fy):
-    import sfm_db_funcs
+    from sfm import sfm_db_funcs
     if fileType == 'sfmmetrics':
         sfm_db_funcs.import_to_sfmmetrics(fileName, fy)
     elif fileType == 'costcentres':
