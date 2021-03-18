@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ibms"
-version = "2.6.0"
+version = "2.6.4"
 description = "Integrated Business Management System corporate application"
 authors = ["Ashley Felton <ashley.felton@dbca.wa.gov.au>"]
 license = "Apache-2.0"
