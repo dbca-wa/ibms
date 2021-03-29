@@ -1,10 +1,9 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.edit import FormView
@@ -22,23 +21,17 @@ from ibms.report import (
     service_priority_report, download_report)
 from ibms.utils import get_download_period, breadcrumb_trail
 
-T = 'IBMS'
 
-
-class SiteHomeView(TemplateView):
+class SiteHomeView(LoginRequiredMixin, TemplateView):
     """Static template view for the site homepage.
     """
     template_name = 'site_home.html'
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(SiteHomeView, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(SiteHomeView, self).get_context_data(**kwargs)
         if self.request.user.is_superuser:
             context['superuser'] = True
-        context['page_title'] = T
+        context['page_title'] = settings.SITE_ACRONYM
         context['title'] = 'HOME'
         links = [(None, 'Home')]
         context['breadcrumb_trail'] = breadcrumb_trail(links)
@@ -46,14 +39,10 @@ class SiteHomeView(TemplateView):
         return context
 
 
-class IbmsFormView(FormView):
+class IbmsFormView(LoginRequiredMixin, FormView):
     """Base FormView class, to set common context variables.
     """
     template_name = 'ibms/form.html'
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(IbmsFormView, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(IbmsFormView, self).get_context_data(**kwargs)
@@ -70,7 +59,7 @@ class ClearGLPivotView(IbmsFormView):
 
     def get_context_data(self, **kwargs):
         context = super(ClearGLPivotView, self).get_context_data(**kwargs)
-        context['page_title'] = ' | '.join([T, 'Clear GL Pivot entries'])
+        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Clear GL Pivot entries'])
         context['title'] = 'CLEAR GL PIVOT ENTRIES'
         links = [
             (reverse('site_home'), 'Home'),
@@ -115,7 +104,7 @@ class UploadView(IbmsFormView):
 
     def get_context_data(self, **kwargs):
         context = super(UploadView, self).get_context_data(**kwargs)
-        context['page_title'] = ' | '.join([T, 'Upload'])
+        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Upload'])
         context['title'] = 'UPLOAD'
         links = [
             (reverse('site_home'), 'Home'),
@@ -173,7 +162,7 @@ class DownloadView(IbmsFormView):
 
     def get_context_data(self, **kwargs):
         context = super(DownloadView, self).get_context_data(**kwargs)
-        context['page_title'] = ' | '.join([T, 'Download'])
+        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Download'])
         context['title'] = 'DOWNLOAD'
         links = [
             (reverse('site_home'), 'Home'),
@@ -206,7 +195,7 @@ class ReloadView(IbmsFormView):
 
     def get_context_data(self, **kwargs):
         context = super(ReloadView, self).get_context_data(**kwargs)
-        context['page_title'] = ' | '.join([T, 'Reload'])
+        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Reload'])
         context['title'] = 'RELOAD'
         links = [
             (reverse('site_home'), 'Home'),
@@ -254,7 +243,7 @@ class CodeUpdateView(IbmsFormView):
 
     def get_context_data(self, **kwargs):
         context = super(CodeUpdateView, self).get_context_data(**kwargs)
-        context['page_title'] = ' | '.join([T, 'Code update'])
+        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Code update'])
         context['title'] = 'CODE UPDATE'
         links = [
             (reverse('site_home'), 'Home'),
@@ -340,7 +329,7 @@ class DataAmendmentView(IbmsFormView):
 
     def get_context_data(self, **kwargs):
         context = super(DataAmendmentView, self).get_context_data(**kwargs)
-        context['page_title'] = ' | '.join([T, 'Data amendment'])
+        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Data amendment'])
         context['title'] = 'DATA AMENDMENT'
         links = [
             (reverse('site_home'), 'Home'),
@@ -403,7 +392,7 @@ class ServicePriorityDataView(IbmsFormView):
             ServicePriorityDataView,
             self).get_context_data(
             **kwargs)
-        context['page_title'] = ' | '.join([T, 'Service Priority data'])
+        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Service Priority data'])
         context['title'] = 'SERVICE PRIORITY DATA'
         links = [
             (reverse('site_home'), 'Home'),
@@ -478,7 +467,7 @@ class ServicePriorityMappingsJSON(JSONResponseMixin, BaseDetailView):
         try:
             for fieldname in self.fieldname.split(', '):
                 self.model._meta.get_field(fieldname)
-        except:
+        except ValueError:
             return HttpResponseBadRequest(
                 'Invalid field name: {0}'.format(self.fieldname))
         r = self.model.objects.all()
@@ -490,7 +479,7 @@ class ServicePriorityMappingsJSON(JSONResponseMixin, BaseDetailView):
         r = r.distinct()
         try:
             res = r.get()
-        except:
+        except self.model.DoesNotExist:
             return HttpResponse('Query returns empty.')
         for fieldname in self.fieldname.split(', '):
             choice_val = getattr(res, fieldname)
@@ -514,7 +503,7 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
         # HTTPResponseBadRequest response.
         try:
             self.model._meta.get_field(self.fieldname)
-        except:
+        except self.model.FieldDoesNotExist:
             return HttpResponseBadRequest('Invalid field name: {0}'.format(self.fieldname))
         r = self.model.objects.all()
         if request.GET.get('financialYear', None):
@@ -525,12 +514,12 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
         try:
             if request.GET.get('regionBranch', None) and self.model._meta.get_field('regionBranch'):
                 r = r.filter(regionBranch=request.GET['regionBranch'])
-        except:
+        except self.model.FieldDoesNotExist:
             pass
         try:
             if request.GET.get('service', None) and self.model._meta.get_field('service'):
                 r = r.filter(costCentre=request.GET['service'])
-        except:
+        except self.model.FieldDoesNotExist:
             pass
         # If we're not after PKs, then we need to reduce the qs to distinct values.
         if not self.return_pk:

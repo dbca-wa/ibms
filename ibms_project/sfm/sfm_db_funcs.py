@@ -3,20 +3,20 @@ from ibms.db_funcs import csvload, saverow, validateCharField
 from sfm.models import Quarter, CostCentre, SFMMetric, FinancialYear, MeasurementValue, MeasurementType
 
 
-def import_to_sfmmetrics(fileName, finyear):
-    rdr, file, fileName = csvload(fileName)
+def import_to_sfmmetrics(fileName, fy):
+    reader, file, fileName = csvload(fileName)
     try:
         i = 1
-        for row in rdr:
+        for row in reader:
             data = {
-                "fy": finyear,
+                "fy": fy,
                 "servicePriorityNo": validateCharField('servicePriorityNo', 20, row[0]),
                 "metricID": validateCharField('metricID', 20, row[1]),
                 "descriptor": str(row[2]),
                 "example": str(row[3])
             }
             query = {
-                "fy": finyear,
+                "fy": fy,
                 "servicePriorityNo": str(row[0]),
                 "metricID": str(row[1])
             }
@@ -30,11 +30,11 @@ def import_to_sfmmetrics(fileName, finyear):
         raise Exception('Row {0}:{1}\nPlease import servicePriorityNo into IBMData before proceeding, otherwise database integrity will be compromised.'.format(i, row[0]))
 
 
-def import_to_costcentres(fileName, finyear):
-    rdr, file, fileName = csvload(fileName)
+def import_to_costcentres(fileName, fy):
+    reader, file, fileName = csvload(fileName)
     try:
         i = 1
-        for row in rdr:
+        for row in reader:
             data = {
                 "costCentre": validateCharField('servicePriorityNo', 4, row[0]),
             }
@@ -49,6 +49,13 @@ def import_to_costcentres(fileName, finyear):
         file.close()
         os.remove(fileName)
         raise Exception('Row {0}:{1}\nhas invalid data. Unable to import - '.format(i, row[0]))
+
+
+def import_measurementvalues(fileName, fy):
+    # TODO
+    # NOTE: delete the import_to_measurement_value method below when done.
+    reader, file, fileName = csvload(fileName)
+    return
 
 
 def import_to_measurement_value(sfmdata, sfmvals):

@@ -6,13 +6,6 @@ from sfm.models import Quarter, CostCentre, SFMMetric, FinancialYear
 from sfm.fields import (QtrModelChoiceField, SFMMetricModelChoiceField,
                      SFMCostCentreModelChoiceField)
 
-FILE_CHOICES = (
-    ('', '--Please Select--'),
-    ('sfmmetrics', 'SFM Metrics'),
-    ('costcentres', 'Cost Centres'),
-)
-
-
 class FMOutputsForm(HelperForm):
     financial_year = forms.ModelChoiceField(
         label='Financial Year', required=True,
@@ -74,6 +67,12 @@ class FMOutputsForm(HelperForm):
 
 
 class FMUploadForm(HelperForm):
+    FILE_CHOICES = (
+        ('', '--Please Select--'),
+        ('sfmmetrics', 'SFM Metrics'),
+        ('costcentres', 'Cost Centres'),
+        ('measurementvalues', 'Measurement values')
+    )
     financial_year = forms.ModelChoiceField(
         queryset=FinancialYear.objects.all().order_by('financialYear'),
         required=True)

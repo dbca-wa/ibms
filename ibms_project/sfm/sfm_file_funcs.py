@@ -4,28 +4,33 @@ COLS_SFM_METRICS = 4
 COLS_COSTCENTRES = 1
 
 
-def process_upload_file(fileName, fileType, fy):
+def process_upload_file(file_name, fileType, fy):
     from sfm import sfm_db_funcs
     if fileType == 'sfmmetrics':
-        sfm_db_funcs.import_to_sfmmetrics(fileName, fy)
+        sfm_db_funcs.import_to_sfmmetrics(file_name, fy)
     elif fileType == 'costcentres':
-        sfm_db_funcs.import_to_costcentres(fileName, fy)
+        sfm_db_funcs.import_to_costcentres(file_name, fy)
+    elif fileType == 'measurementvalues':
+        # TODO: this import function is not complete yet.
+        sfm_db_funcs.import_measurementvalues(file_name, fy)
     else:
         raise Exception('func: process_upload_file : file type ' + fileType + ' unknown')
 
 
 def validate_file(file, fileType):
-    rdr = csv.reader(file, dialect='excel')
+    reader = csv.reader(file, dialect='excel')
     if fileType == 'sfmmetrics':
-        return validate_sfmmetrics_hdr(rdr)
+        return validate_sfmmetrics_hdr(reader)
     if fileType == 'costcentres':
-        return validate_costcentre_hdr(rdr)
+        return validate_costcentre_hdr(reader)
+    if fileType == 'measurementvalues':
+        return validate_measurementvalues_hdr(reader)
     else:
         raise Exception("Attempting to validate and unknown file type of " + fileType)
 
 
-def validate_sfmmetrics_hdr(rdr):
-    row = next(rdr)
+def validate_sfmmetrics_hdr(reader):
+    row = next(reader)
     if len(row) == COLS_SFM_METRICS:
         sBad = ''
         if row[0].strip() != 'servicePriorityNo':
@@ -44,8 +49,8 @@ def validate_sfmmetrics_hdr(rdr):
     return retVal
 
 
-def validate_costcentre_hdr(rdr):
-    row = next(rdr)
+def validate_costcentre_hdr(reader):
+    row = next(reader)
     if len(row) == COLS_COSTCENTRES:
         sBad = ''
         if row[0].strip() != 'costCentre':
@@ -58,3 +63,8 @@ def validate_costcentre_hdr(rdr):
         raise Exception('The number of columns in the CSV file do not match the required column count :\nExpects ' + str(COLS_COSTCENTRES) + ' met ' + str(len(row)))
 
     return retVal
+
+
+def validate_measurementvalues_hdr(reader):
+    # TODO
+    return True

@@ -1,11 +1,10 @@
 from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.utils.decorators import method_decorator
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.edit import FormView
 import json
@@ -13,7 +12,7 @@ import os
 from openpyxl import load_workbook
 import tempfile
 
-from ibms.views import JSONResponseMixin, T
+from ibms.views import JSONResponseMixin
 from ibms.utils import get_download_period, breadcrumb_trail
 from sfm.forms import FMUploadForm, FMOutputReportForm, FMOutputsForm
 from sfm.models import SFMMetric, MeasurementType, MeasurementValue
@@ -21,21 +20,13 @@ from sfm.report import outputs_report
 from sfm.sfm_file_funcs import process_upload_file, validate_file
 
 
-class ProtectedFormView(FormView):
-    """Base FormView class, to required authentication.
-    """
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(ProtectedFormView, self).dispatch(*args, **kwargs)
-
-
-class FMOutputsView(ProtectedFormView):
+class FMOutputsView(LoginRequiredMixin, FormView):
     template_name = 'sfm/outputs.html'
     form_class = FMOutputsForm
 
     def get_context_data(self, **kwargs):
         context = super(FMOutputsView, self).get_context_data(**kwargs)
-        context['page_title'] = ' | '.join([T, 'FM Outputs'])
+        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'FM Outputs'])
         context['download_period'] = get_download_period()
         context['title'] = 'FM Outputs'
         links = [(reverse('site_home'), 'Home'), (None, 'FM Outputs')]
@@ -67,7 +58,7 @@ class FMOutputsView(ProtectedFormView):
         return super(FMOutputsView, self).form_valid(form)
 
 
-class FMUploadView(ProtectedFormView):
+class FMUploadView(LoginRequiredMixin, FormView):
     template_name = 'ibms/form.html'
     form_class = FMUploadForm
 
@@ -78,7 +69,7 @@ class FMUploadView(ProtectedFormView):
 
     def get_context_data(self, **kwargs):
         context = super(FMUploadView, self).get_context_data(**kwargs)
-        context['page_title'] = ' | '.join([T, 'FM Upload'])
+        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'FM Upload'])
         context['download_period'] = get_download_period()
         context['title'] = 'FM Upload'
         links = [(reverse('site_home'), 'Home'), (None, 'FM Output Report')]
@@ -100,16 +91,12 @@ class FMUploadView(ProtectedFormView):
         for chunk in form.cleaned_data['upload_file'].chunks():
             t.write(chunk.decode('utf-8', 'ignore').encode())
         t.flush()
-        # We have to open the uploaded file in text mode to parse it.
+        # NOTE: we have to open the uploaded file in non-binary mode to parse it.
         file = open(t.name, 'r')
         file_type = form.cleaned_data['upload_file_type']
         if validate_file(file, file_type):
-            temp = tempfile.NamedTemporaryFile(delete=True)
-            for chunk in form.cleaned_data['upload_file'].chunks():
-                temp.write(chunk)
-            temp.flush()
             fy = form.cleaned_data['financial_year']
-            process_upload_file(temp.name, file_type, fy)
+            process_upload_file(file.name, file_type, fy)
             messages.success(self.request, 'FM upload values updated successfully.')
         else:
             messages.error(
@@ -118,13 +105,13 @@ class FMUploadView(ProtectedFormView):
         return super(FMUploadView, self).form_valid(form)
 
 
-class FMOutputReport(ProtectedFormView):
+class FMOutputReport(LoginRequiredMixin, FormView):
     template_name = 'sfm/output_report.html'
     form_class = FMOutputReportForm
 
     def get_context_data(self, **kwargs):
         context = super(FMOutputReport, self).get_context_data(**kwargs)
-        context['page_title'] = ' | '.join([T, 'FM Output Report'])
+        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'FM Output Report'])
         context['download_period'] = get_download_period()
         context['title'] = 'FM Output Report'
         links = [(reverse('site_home'), 'Home'), (None, 'FM Output Report')]
