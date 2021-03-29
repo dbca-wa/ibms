@@ -1,6 +1,6 @@
 from django.contrib.admin import register, ModelAdmin
 from ibms.admin import export_as_csv_action
-from .models import CostCentre, FinancialYear, SFMMetric, MeasurementType, Quarter, MeasurementValue, Outcomes
+from .models import CostCentre, FinancialYear, SFMMetric, Quarter, MeasurementValue, Outcomes
 
 
 @register(CostCentre)
@@ -30,14 +30,6 @@ class SFMMetricAdmin(ModelAdmin):
             fields=['fy', 'servicePriorityNo', 'metricID', 'descriptor', 'example'])]
 
 
-@register(MeasurementType)
-class MeasurementTypeAdmin(ModelAdmin):
-    search_fields = ['unit']
-    list_display = ['unit']
-    list_filter = ['unit']
-    actions = [export_as_csv_action(translations=['unit'], fields=['unit'])]
-
-
 @register(Quarter)
 class QuarterAdmin(ModelAdmin):
     search_fields = ['fy', 'quarter', 'description']
@@ -51,13 +43,13 @@ class QuarterAdmin(ModelAdmin):
 
 @register(MeasurementValue)
 class MeasurementValueAdmin(ModelAdmin):
-    search_fields = ['sfmMetric__metricID', 'quarter__financialYear__financialYear', 'costCentre__costCentre']
-    list_display = ['quarter', 'sfmMetric', 'measurementType', 'costCentre', 'value']
-    list_filter = ['quarter', 'sfmMetric', 'measurementType', 'costCentre']
+    search_fields = ['sfmMetric__metricID', 'quarter__financialYear__financialYear', 'costCentre__costCentre', 'comment']
+    list_display = ['quarter', 'costCentre', 'sfmMetric', 'planned', 'status']
+    list_filter = ['quarter', 'costCentre', 'status', 'sfmMetric']
     actions = [
         export_as_csv_action(
-            translations=['quarter', 'sfmMetric', 'measurementType', 'costCentre', 'value', 'comment'],
-            fields=['quarter', 'sfmMetric', 'measurementType', 'costCentre', 'value', 'comment'])]
+            translations=['quarter', 'costCentre', 'sfmMetric', 'planned', 'status', 'comment'],
+            fields=['quarter', 'costCentre', 'sfmMetric', 'planned', 'status', 'comment'])]
 
 
 @register(Outcomes)
