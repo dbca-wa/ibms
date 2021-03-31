@@ -46,10 +46,11 @@ class MeasurementValueAdmin(ModelAdmin):
     search_fields = ['sfmMetric__metricID', 'quarter__financialYear__financialYear', 'costCentre__costCentre', 'comment']
     list_display = ['quarter', 'costCentre', 'sfmMetric', 'planned', 'status']
     list_filter = ['quarter', 'costCentre', 'status', 'sfmMetric']
+    readonly_fields = ('measurementType', 'value')
     actions = [
         export_as_csv_action(
-            translations=['quarter', 'costCentre', 'sfmMetric', 'planned', 'status', 'comment'],
-            fields=['quarter', 'costCentre', 'sfmMetric', 'planned', 'status', 'comment'])]
+            translations=['quarter', 'costCentre', 'sfmMetric', 'planned', 'status', 'comment', 'measurementType', 'value'],
+            fields=['quarter', 'costCentre', 'sfmMetric', 'planned', 'status', 'comment', 'measurementType', 'value'])]
 
 
 @register(Outcomes)
