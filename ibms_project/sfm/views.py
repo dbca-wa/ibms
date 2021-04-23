@@ -2,11 +2,14 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.forms.models import model_to_dict
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic.detail import BaseDetailView
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import FormView
+from django.views.generic.detail import BaseDetailView
 import json
 import os
 from openpyxl import load_workbook
@@ -15,7 +18,7 @@ import tempfile
 from ibms.views import JSONResponseMixin
 from ibms.utils import get_download_period, breadcrumb_trail
 from sfm.forms import FMUploadForm, FMOutputReportForm, FMOutputsForm
-from sfm.models import SFMMetric, MeasurementType, MeasurementValue
+from sfm.models import Quarter, CostCentre, SFMMetric, MeasurementType, MeasurementValue
 from sfm.report import outputs_report
 from sfm.sfm_file_funcs import process_upload_file, validate_file
 
@@ -148,25 +151,49 @@ class MeasurementValueJSON(JSONResponseMixin, BaseDetailView):
     """Utility view to return MeasurementValue object values as JSON,
     based upon the passed-in filter values.
     """
-    def get(self, request, *args, **kwargs):
-        r = MeasurementValue.objects.all()
-        if request.GET.get('quarter', None):
-            r = r.filter(quarter=request.GET['quarter'])
-        if request.GET.get('costCentre', None):
-            r = r.filter(costCentre=request.GET['costCentre'])
-        if request.GET.get('sfmMetric', None):
-            metric = SFMMetric.objects.get(pk=request.GET['sfmMetric']).__dict__
-            metric.pop('_state')
-            r = r.filter(sfmMetric__id=metric['id'])
-        else:
-            metric = dict()
-        if request.GET.get('measurementType', None):
-            r = r.filter(measurementType=request.GET['measurementType'])
+    http_method_names = ["get", "post"]
 
-        values = []
-        for i in r:
-            d = i.__dict__
-            d.pop('_state')  # Remove the _state key value from the dict.
-            values.append(d)
-        context = {'sfmMetric': metric, 'measurementValues': values}
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        metric = None
+        measure = None
+
+        if 'quarter' in request.GET and 'costCentre' in request.GET and 'sfmMetric' in request.GET:
+            quarter = Quarter.objects.get(pk=request.GET['quarter'])
+            cc = CostCentre.objects.get(pk=request.GET['costCentre'])
+            metric = SFMMetric.objects.get(pk=request.GET['sfmMetric'])
+
+            if MeasurementValue.objects.filter(quarter=quarter, costCentre=cc, sfmMetric=metric).exists():
+                # Find the measure
+                measures = MeasurementValue.objects.filter(quarter=quarter, costCentre=cc, sfmMetric=metric)
+                if measures.filter(value__isnull=False).exists():
+                    measure = measures.filter(value__isnull=False).first()
+                else:  # Just use the first object in the queryset.
+                    measure = measures.first()
+
+        if metric and measure:
+            context = {'sfmMetric': model_to_dict(metric), 'measurementValue': model_to_dict(measure)}
+        else:
+            context = {'sfmMetric': {}, 'measurementValue': {}}
         return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        if 'quarter' in request.POST and 'costCentre' in request.POST and 'sfmMetric' in request.POST:
+            quarter = Quarter.objects.get(pk=request.POST['quarter'])
+            cc = CostCentre.objects.get(pk=request.POST['costCentre'])
+            metric = SFMMetric.objects.get(pk=request.POST['sfmMetric'])
+            measure, created = MeasurementValue.objects.get_or_create(quarter=quarter, costCentre=cc, sfmMetric=metric)
+            if 'planned' in request.POST:
+                measure.planned = request.POST['planned'] == 'true'
+            if 'status' in request.POST:
+                measure.status = request.POST['status']
+            if 'comment' in request.POST:
+                measure.comment = request.POST['comment']
+            measure.save()
+
+            return self.render_to_response({'success': True, 'created': created})
+        else:
+            return {}

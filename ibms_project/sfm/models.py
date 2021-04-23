@@ -60,10 +60,11 @@ class MeasurementValue(models.Model):
         CostCentre, verbose_name="cost centre", on_delete=models.PROTECT)
     sfmMetric = models.ForeignKey(
         SFMMetric, verbose_name="SFM metric", on_delete=models.PROTECT)
-    planned = models.BooleanField(null=True)
+    planned = models.BooleanField(null=True, verbose_name="action planned")
     status = models.CharField(max_length=64, choices=STATUS_CHOICES, null=True, blank=True)
     measurementType = models.ForeignKey(
-        MeasurementType, null=True, blank=True, on_delete=models.PROTECT, help_text="Deprecated field")
+        MeasurementType, null=True, blank=True, on_delete=models.PROTECT,
+        verbose_name="measurement type", help_text="Deprecated field")
     value = models.FloatField(null=True, blank=True, help_text="Deprecated field")
     comment = models.TextField(null=True)
 

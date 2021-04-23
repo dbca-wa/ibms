@@ -2,27 +2,35 @@ from django import forms
 from crispy_forms.layout import Submit, Layout, HTML, Div
 
 from ibms.forms import HelperForm
-from sfm.models import Quarter, CostCentre, SFMMetric, FinancialYear
-from sfm.fields import (QtrModelChoiceField, SFMMetricModelChoiceField,
-                     SFMCostCentreModelChoiceField)
+from sfm.models import Quarter, CostCentre, SFMMetric, FinancialYear, MeasurementValue
+from sfm.fields import (
+    QtrModelChoiceField, SFMMetricModelChoiceField, SFMCostCentreModelChoiceField,
+)
+
 
 class FMOutputsForm(HelperForm):
     financial_year = forms.ModelChoiceField(
-        label='Financial Year', required=True,
+        label='Financial Year',
         queryset=FinancialYear.objects.all().order_by('financialYear'))
     quarter = QtrModelChoiceField(
-        label='Quarter', queryset=Quarter.objects.all(), required=True)
+        label='Quarter', queryset=Quarter.objects.none())
     cost_centre = forms.ModelChoiceField(
-        label='Cost Centre', required=True,
+        label='Cost Centre',
         queryset=CostCentre.objects.all().order_by('costCentre'))
     sfm_metric_id = SFMMetricModelChoiceField(
         label='Metric ID #',
-        queryset=SFMMetric.objects.all().order_by('metricID'))
-    # Measurement value fields
-    quantity = forms.FloatField(label='Number (#)', min_value=0, required=False)
-    percentage = forms.FloatField(label='Percentage (%)', min_value=0, required=False)
-    hectare = forms.FloatField(label='Hectares (ha)', min_value=0, required=False)
-    kilometer = forms.FloatField(label='Kilometers (km)', min_value=0, required=False)
+        queryset=SFMMetric.objects.none().order_by('metricID'))
+    planned = forms.ChoiceField(
+        label='Action planned?',
+        widget=forms.RadioSelect,
+        choices=[('true', 'Yes'), ('false', 'No')],
+        required=False,
+    )
+    status = forms.ChoiceField(
+        choices=MeasurementValue.STATUS_CHOICES,
+        widget=forms.RadioSelect,
+        required=False,
+    )
     comment = forms.CharField(widget=forms.Textarea, required=False)
 
     def __init__(self, *args, **kwargs):
@@ -32,37 +40,48 @@ class FMOutputsForm(HelperForm):
             Div(
                 Div(
                     HTML('Please select ALL the fields below:'),
-                    css_class='col-sm-12 col-md-9 col-lg-6 alert alert-info'),
-                css_class='row'),
+                    css_class='col-sm-12 col-md-9 col-lg-6 alert alert-info',
+                ),
+                css_class='row',
+            ),
             # These divs is used by JS on the template.
             Div(
                 'financial_year', 'quarter', 'cost_centre', 'sfm_metric_id',
-                css_id='id_filter_fields'),
+                css_id='id_filter_fields',
+            ),
             Div(
                 Div(
-                    HTML('''<span class="glyphicon glyphicon-info-sign"></span>&nbsp;
-                        <span id="id_descriptor_text"></span>'''),
-                    css_class='col-sm-12 col-md-9 col-lg-6 alert alert-warning'),
-                css_class='row', css_id='id_descriptor_row'),
-            Div(
+                    Div(
+                        HTML('''<span class="glyphicon glyphicon-info-sign"></span>&nbsp;
+                            <span id="id_descriptor_text"></span>'''),
+                        css_class='col-sm-12 col-md-9 col-lg-6 alert alert-warning',
+                    ),
+                    css_class='row', css_id='id_descriptor_row',
+                ),
                 Div(
-                    HTML('Input required output values below:'),
-                    css_class='col-sm-12 col-md-9 col-lg-6 alert alert-info'),
-                css_class='row', css_id='id_measurement_fields'),
-            Div(
+                    Div(
+                        HTML('Input required output values below:'),
+                        css_class='row col-sm-12 col-md-9 col-lg-6 alert alert-info',
+                    ),
+                    Div(
+                        'planned', 'status', 'comment',
+                    ),
+                    css_id='id_measurement_fields',
+                ),
                 Div(
-                    'quantity', 'percentage', 'hectare', 'kilometer', 'comment',
-                    css_class='row'),
-                 css_id='id_measurement_fields'),
-            Div(
+                    Div(
+                        HTML('''<span class="glyphicon glyphicon-info-sign"></span>&nbsp;
+                        Example: <span id="id_example_text"></span>'''),
+                        css_class='col-sm-12 col-md-9 col-lg-6 alert alert-warning',
+                    ),
+                    css_class='row', css_id='id_example_row',
+                ),
                 Div(
-                    HTML('''<span class="glyphicon glyphicon-info-sign"></span>&nbsp;
-                    Example: <span id="id_example_text"></span>'''),
-                    css_class='col-sm-12 col-md-9 col-lg-6 alert alert-warning'),
-                css_class='row', css_id='id_example_row'),
-            Div(
-                Submit(name='save', value='Save Output Values'),
-                css_class='col-sm-offset-4 col-md-offset-3 col-lg-offset-2'),
+                    Submit(name='save', value='Save Output Values'),
+                    css_class='col-sm-offset-4 col-md-offset-3 col-lg-offset-2',
+                ),
+                css_id='id_input_div',
+            ),
         )
 
 
