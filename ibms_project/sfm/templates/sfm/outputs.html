@@ -14,7 +14,6 @@
 
     // Utility function to update Quarter select field when financial year changes.
     function updateQuarter(finYear) {
-        $("select#id_quarter")[0].disabled = true;
         $.ajax({
             type: "GET",
             url: "{% url 'ajax_quarter' %}",
@@ -26,14 +25,13 @@
                 for (i in data.choices) {
                     select.options.add(new Option(data.choices[i][1], data.choices[i][0]));
                 }
+                select.disabled = false;
             }
         });
-        $("select#id_quarter")[0].disabled = false;
     };
 
     // Utility function to update Metric ID select field when financial year changes.
     function updateSfmMetricId(finYear) {
-        $("select#id_sfm_metric_id")[0].disabled = true;
         $.ajax({
             type: "GET",
             url: "{% url 'ajax_sfmmetric_metricid' %}",
@@ -45,9 +43,9 @@
                 for (i in data.choices) {
                     select.options.add(new Option(data.choices[i][1], data.choices[i][0]));
                 }
+                select.disabled = false;
             }
         });
-        $("select#id_sfm_metric_id")[0].disabled = false;
     };
 
     // Utility function to query for MeasurementValue object values.
@@ -148,6 +146,8 @@
         // If the Financial Year select list changes, update the options for quarter and metric ID.
         $("select#id_financial_year").change(function() {
             $("div#id_input_div").hide();
+            $("select#id_quarter")[0].disabled = true;
+            $("select#id_sfm_metric_id")[0].disabled = true;
             finYear = $("select#id_financial_year").val();
             updateQuarter(finYear);
             updateSfmMetricId(finYear);
