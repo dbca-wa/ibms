@@ -140,10 +140,8 @@ def saverow(model, data, query):
     # Alternatively, just create a new object with ``data``.
     if model.objects.filter(**query).exists():
         # We won't bother raising an exception if there are multiple rows returned by the filter().
-        # We'll rely on any natural keys defined on the model to maintain
-        # database integrity.
+        # We'll rely on any natural keys defined on the model to maintain database integrity.
         obj = model.objects.filter(**query).update(**data)
-        return
     else:
         obj = model(**data)
         obj.save()
