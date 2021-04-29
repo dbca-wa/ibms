@@ -51,9 +51,9 @@ class Quarter(models.Model):
 
 class MeasurementValue(models.Model):
     STATUS_CHOICES = (
-        ("Not started", "Not started"),
-        ("In progress", "In progress"),
-        ("Completed", "Completed"),
+        ("not started", "Not started"),
+        ("in progress", "In progress"),
+        ("completed", "Completed"),
     )
     quarter = models.ForeignKey(Quarter, on_delete=models.PROTECT)
     costCentre = models.ForeignKey(
