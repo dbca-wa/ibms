@@ -219,8 +219,7 @@ class ReloadView(IbmsFormView):
         fm_sp = SFMServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data['fmChoice'])
 
         fpath = os.path.join(settings.STATIC_ROOT, 'excel', 'reload_base.xls')
-        excel_template = open_workbook(
-            fpath, formatting_info=True, on_demand=True)
+        excel_template = open_workbook(fpath, formatting_info=True, on_demand=True)
         book = copy(excel_template)
 
         # Style & populate the worksheet.
@@ -370,8 +369,7 @@ class DataAmendmentView(IbmsFormView):
 
         fpath = os.path.join(
             settings.STATIC_ROOT, 'excel', 'ibms_dataamend_base.xls')
-        excel_template = open_workbook(
-            fpath, formatting_info=True, on_demand=True)
+        excel_template = open_workbook(fpath, formatting_info=True, on_demand=True)
         book = copy(excel_template)
 
         # Style & populate the worksheet.
@@ -424,8 +422,7 @@ class ServicePriorityDataView(IbmsFormView):
 
         fpath = os.path.join(
             settings.STATIC_ROOT, 'excel', 'service_priority_base.xls')
-        excel_template = open_workbook(
-            fpath, formatting_info=True, on_demand=True)
+        excel_template = open_workbook(fpath, formatting_info=True, on_demand=True)
         book = copy(excel_template)
 
         # Style & populate the worksheet.
