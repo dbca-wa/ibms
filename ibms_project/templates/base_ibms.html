@@ -90,19 +90,19 @@
                     </li>
 
                     <h5 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                        <span>FM OUTPUT TOOLS</span>
+                        <span>OUTPUT TOOLS</span>
                     </h5>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'sfmoutcome' %}">FM Outputs</a>
+                        <a class="nav-link" href="{% url 'outcome-entry' %}">Output Entry</a>
                     </li>
                     {% if superuser %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'sfmupload' %}">FM Upload</a>
+                        <a class="nav-link" href="{% url 'output-upload' %}">Output Upload</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'output-report' %}">Output Report</a>
                     </li>
                     {% endif %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'sfmdownload' %}">FM Output Report</a>
-                    </li>
                 </ul>
             </div>
         </nav>

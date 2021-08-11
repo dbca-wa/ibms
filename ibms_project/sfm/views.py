@@ -16,24 +16,22 @@ from openpyxl import load_workbook
 import tempfile
 
 from ibms.views import JSONResponseMixin
-from ibms.utils import get_download_period, breadcrumb_trail
-from sfm.forms import FMUploadForm, FMOutputReportForm, FMOutputsForm
+from ibms.utils import get_download_period
+from sfm.forms import OutputEntryForm, OutputUploadForm, FMOutputReportForm
 from sfm.models import Quarter, CostCentre, SFMMetric, MeasurementType, MeasurementValue
 from sfm.report import outputs_report
 from sfm.sfm_file_funcs import process_upload_file, validate_file
 
 
-class FMOutputsView(LoginRequiredMixin, FormView):
+class OutputEntry(LoginRequiredMixin, FormView):
     template_name = 'sfm/outputs.html'
-    form_class = FMOutputsForm
+    form_class = OutputEntryForm
 
     def get_context_data(self, **kwargs):
-        context = super(FMOutputsView, self).get_context_data(**kwargs)
-        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'FM Outputs'])
+        context = super(OutputEntry, self).get_context_data(**kwargs)
+        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Output Entry'])
         context['download_period'] = get_download_period()
-        context['title'] = 'FM Outputs'
-        links = [(reverse('site_home'), 'Home'), (None, 'FM Outputs')]
-        context['breadcrumb_trail'] = breadcrumb_trail(links)
+        context['title'] = 'Output Entry'
         if self.request.user.is_superuser:
             context['superuser'] = True
         # Context variable to allow mapping of MeasurementType fields.
@@ -42,7 +40,7 @@ class FMOutputsView(LoginRequiredMixin, FormView):
         return context
 
     def get_success_url(self):
-        return reverse('sfmoutcome')
+        return reverse('outcome-entry')
 
     def form_valid(self, form):
         d = form.cleaned_data
@@ -58,32 +56,30 @@ class FMOutputsView(LoginRequiredMixin, FormView):
             mv.save()
 
         messages.success(self.request, 'Output values updated successfully.')
-        return super(FMOutputsView, self).form_valid(form)
+        return super(OutputEntry, self).form_valid(form)
 
 
-class FMUploadView(LoginRequiredMixin, FormView):
+class OutputUpload(LoginRequiredMixin, FormView):
     template_name = 'ibms/form.html'
-    form_class = FMUploadForm
+    form_class = OutputUploadForm
 
     def get(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return redirect(reverse('sfmupload'))
-        return super(FMUploadView, self).get(request, *args, **kwargs)
+            return redirect(reverse('output-upload'))
+        return super(OutputUpload, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(FMUploadView, self).get_context_data(**kwargs)
-        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'FM Upload'])
+        context = super(OutputUpload, self).get_context_data(**kwargs)
+        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Output Upload'])
         context['download_period'] = get_download_period()
-        context['title'] = 'FM Upload'
-        links = [(reverse('site_home'), 'Home'), (None, 'FM Output Report')]
-        context['breadcrumb_trail'] = breadcrumb_trail(links)
-        context['sfmupload_page'] = True
+        context['title'] = 'Output Upload'
+        context['output-upload_page'] = True
         if self.request.user.is_superuser:
             context['superuser'] = True
         return context
 
     def get_success_url(self):
-        return reverse('sfmupload')
+        return reverse('output-upload')
 
     def form_valid(self, form):
         # Uploaded CSVs may contain characters with oddball encodings.
@@ -100,26 +96,23 @@ class FMUploadView(LoginRequiredMixin, FormView):
         if validate_file(file, file_type):
             fy = form.cleaned_data['financial_year']
             process_upload_file(file.name, file_type, fy)
-            messages.success(self.request, 'FM upload values updated successfully.')
+            messages.success(self.request, 'Output upload values updated successfully.')
         else:
             messages.error(
                 self.request,
                 'This file appears to be of an incorrect type. Please choose a {} file.'.format(file_type))
-        return super(FMUploadView, self).form_valid(form)
+        return super(OutputUpload, self).form_valid(form)
 
 
-class FMOutputReport(LoginRequiredMixin, FormView):
+class OutputReport(LoginRequiredMixin, FormView):
     template_name = 'sfm/output_report.html'
     form_class = FMOutputReportForm
 
     def get_context_data(self, **kwargs):
-        context = super(FMOutputReport, self).get_context_data(**kwargs)
-        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'FM Output Report'])
+        context = super(OutputReport, self).get_context_data(**kwargs)
+        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Output Report'])
         context['download_period'] = get_download_period()
-        context['title'] = 'FM Output Report'
-        links = [(reverse('site_home'), 'Home'), (None, 'FM Output Report')]
-        context['breadcrumb_trail'] = breadcrumb_trail(links)
-        context['sfmdownload_page'] = True
+        context['title'] = 'Output Report'
         if self.request.user.is_superuser:
             context['superuser'] = True
         return context

@@ -1,12 +1,12 @@
 from django.urls import path
 from ibms.views import IbmsModelFieldJSON
 from sfm.models import Quarter, SFMMetric
-from sfm.views import FMUploadView, FMOutputReport, FMOutputsView, MeasurementValueJSON
+from sfm.views import OutputEntry, OutputUpload, OutputReport, MeasurementValueJSON
 
 urlpatterns = [
-    path('fm/', FMOutputsView.as_view(), name='sfmoutcome'),
-    path('fm-upload/', FMUploadView.as_view(), name='sfmupload'),
-    path('fm-download/', FMOutputReport.as_view(), name='sfmdownload'),
+    path('output-entry/', OutputEntry.as_view(), name='outcome-entry'),
+    path('ouput-upload/', OutputUpload.as_view(), name='output-upload'),
+    path('output-report/', OutputReport.as_view(), name='output-report'),
     # AJAX model field endpoints.
     path('ajax/quarter/', IbmsModelFieldJSON.as_view(model=Quarter, fieldname='description', return_pk=True), name='ajax_quarter'),
     path('ajax/outcome/financial-year/', IbmsModelFieldJSON.as_view(model=Quarter, fieldname='quarter', return_pk=True), name='ajax_outcome_financialyear'),

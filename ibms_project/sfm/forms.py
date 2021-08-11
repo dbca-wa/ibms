@@ -8,7 +8,7 @@ from sfm.fields import (
 )
 
 
-class FMOutputsForm(HelperForm):
+class OutputEntryForm(HelperForm):
     financial_year = forms.ModelChoiceField(
         label='Financial Year',
         queryset=FinancialYear.objects.all().order_by('financialYear'))
@@ -34,7 +34,7 @@ class FMOutputsForm(HelperForm):
     comment = forms.CharField(widget=forms.Textarea, required=False)
 
     def __init__(self, *args, **kwargs):
-        super(FMOutputsForm, self).__init__(*args, **kwargs)
+        super(OutputEntryForm, self).__init__(*args, **kwargs)
         # crispy_forms layout
         self.helper.layout = Layout(
             Div(
@@ -71,7 +71,7 @@ class FMOutputsForm(HelperForm):
                 Div(
                     Div(
                         HTML('''<span class="glyphicon glyphicon-info-sign"></span>&nbsp;
-                        Example: <span id="id_example_text"></span>'''),
+                        Ranking: <span id="id_example_text"></span>'''),
                         css_class='col-sm-12 col-md-9 col-lg-6 alert alert-warning',
                     ),
                     css_class='row', css_id='id_example_row',
@@ -85,7 +85,7 @@ class FMOutputsForm(HelperForm):
         )
 
 
-class FMUploadForm(HelperForm):
+class OutputUploadForm(HelperForm):
     FILE_CHOICES = (
         ('', '--Please Select--'),
         ('sfmmetrics', 'SFM Metrics'),
@@ -99,14 +99,14 @@ class FMUploadForm(HelperForm):
     upload_file = forms.FileField(label='Select file')
 
     def __init__(self, *args, **kwargs):
-        super(FMUploadForm, self).__init__(*args, **kwargs)
+        super(OutputUploadForm, self).__init__(*args, **kwargs)
         # crispy_forms layout
         self.helper.layout = Layout(
             'financial_year',
             'upload_file_type',
             'upload_file',
             Div(
-                Submit(name='sfmupload', value='Upload'),
+                Submit(name='output-upload', value='Upload'),
                 css_class='col-sm-offset-4 col-md-offset-3 col-lg-offset-2')
         )
 

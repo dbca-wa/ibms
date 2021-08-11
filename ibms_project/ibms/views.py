@@ -19,7 +19,7 @@ from ibms.models import IBMData, GLPivDownload, NCServicePriority, PVSServicePri
 from ibms.report import (
     reload_report, code_update_report, data_amend_report,
     service_priority_report, download_report)
-from ibms.utils import get_download_period, breadcrumb_trail
+from ibms.utils import get_download_period
 
 
 class SiteHomeView(LoginRequiredMixin, TemplateView):
@@ -33,8 +33,6 @@ class SiteHomeView(LoginRequiredMixin, TemplateView):
             context['superuser'] = True
         context['page_title'] = settings.SITE_ACRONYM
         context['title'] = 'HOME'
-        links = [(None, 'Home')]
-        context['breadcrumb_trail'] = breadcrumb_trail(links)
         context['managers'] = settings.MANAGERS
         return context
 
@@ -61,10 +59,6 @@ class ClearGLPivotView(IbmsFormView):
         context = super(ClearGLPivotView, self).get_context_data(**kwargs)
         context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Clear GL Pivot entries'])
         context['title'] = 'CLEAR GL PIVOT ENTRIES'
-        links = [
-            (reverse('site_home'), 'Home'),
-            (None, 'Clear GL Pivot entries')]
-        context['breadcrumb_trail'] = breadcrumb_trail(links)
         return context
 
     def get(self, request, *args, **kwargs):
@@ -106,10 +100,6 @@ class UploadView(IbmsFormView):
         context = super(UploadView, self).get_context_data(**kwargs)
         context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Upload'])
         context['title'] = 'UPLOAD'
-        links = [
-            (reverse('site_home'), 'Home'),
-            (None, 'Upload')]
-        context['breadcrumb_trail'] = breadcrumb_trail(links)
         return context
 
     def get_success_url(self):
@@ -164,10 +154,6 @@ class DownloadView(IbmsFormView):
         context = super(DownloadView, self).get_context_data(**kwargs)
         context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Download'])
         context['title'] = 'DOWNLOAD'
-        links = [
-            (reverse('site_home'), 'Home'),
-            (None, 'Download')]
-        context['breadcrumb_trail'] = breadcrumb_trail(links)
         return context
 
     def get_success_url(self):
@@ -197,10 +183,6 @@ class ReloadView(IbmsFormView):
         context = super(ReloadView, self).get_context_data(**kwargs)
         context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Reload'])
         context['title'] = 'RELOAD'
-        links = [
-            (reverse('site_home'), 'Home'),
-            (None, 'Reload')]
-        context['breadcrumb_trail'] = breadcrumb_trail(links)
         return context
 
     def get_success_url(self):
@@ -244,10 +226,6 @@ class CodeUpdateView(IbmsFormView):
         context = super(CodeUpdateView, self).get_context_data(**kwargs)
         context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Code update'])
         context['title'] = 'CODE UPDATE'
-        links = [
-            (reverse('site_home'), 'Home'),
-            (None, 'Code update')]
-        context['breadcrumb_trail'] = breadcrumb_trail(links)
         return context
 
     def get_success_url(self):
@@ -330,10 +308,6 @@ class DataAmendmentView(IbmsFormView):
         context = super(DataAmendmentView, self).get_context_data(**kwargs)
         context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Data amendment'])
         context['title'] = 'DATA AMENDMENT'
-        links = [
-            (reverse('site_home'), 'Home'),
-            (None, 'Data amendment')]
-        context['breadcrumb_trail'] = breadcrumb_trail(links)
         return context
 
     def get_success_url(self):
@@ -392,10 +366,6 @@ class ServicePriorityDataView(IbmsFormView):
             **kwargs)
         context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Service Priority data'])
         context['title'] = 'SERVICE PRIORITY DATA'
-        links = [
-            (reverse('site_home'), 'Home'),
-            (None, 'Service priority data')]
-        context['breadcrumb_trail'] = breadcrumb_trail(links)
         return context
 
     def get_success_url(self):
