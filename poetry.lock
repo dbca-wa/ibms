@@ -90,7 +90,7 @@ static3 = "*"
 
 [[package]]
 name = "django"
-version = "3.2.3"
+version = "3.2.4"
 description = "A high-level Python Web framework that encourages rapid development and clean, pragmatic design."
 category = "main"
 optional = false
@@ -507,7 +507,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "af7b9af45c2d63c16255df07cf2af7c3eea0631981fb7912c4e54d874fd4bd31"
+content-hash = "532953444c7ff72498ce974720aa4ca315b2c58c053c6ea01cf07234ed3366df"
 
 [metadata.files]
 appnope = [
@@ -548,8 +548,8 @@ dj-static = [
     {file = "dj-static-0.0.6.tar.gz", hash = "sha256:032ec1c532617922e6e3e956d504a6fb1acce4fc1c7c94612d0fda21828ce8ef"},
 ]
 django = [
-    {file = "Django-3.2.3-py3-none-any.whl", hash = "sha256:7e0a1393d18c16b503663752a8b6790880c5084412618990ce8a81cc908b4962"},
-    {file = "Django-3.2.3.tar.gz", hash = "sha256:13ac78dbfd189532cad8f383a27e58e18b3d33f80009ceb476d7fcbfc5dcebd8"},
+    {file = "Django-3.2.4-py3-none-any.whl", hash = "sha256:ea735cbbbb3b2fba6d4da4784a0043d84c67c92f1fdf15ad6db69900e792c10f"},
+    {file = "Django-3.2.4.tar.gz", hash = "sha256:66c9d8db8cc6fe938a28b7887c1596e42d522e27618562517cc8929eb7e7f296"},
 ]
 django-crispy-forms = [
     {file = "django-crispy-forms-1.11.2.tar.gz", hash = "sha256:88efa857ce6111bd696cc4f74057539a3456102fe9c3a3ece8868e1e4579e70a"},
