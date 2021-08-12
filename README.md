@@ -42,4 +42,4 @@ Run console commands manually:
 
 To build a new Docker image from the `Dockerfile`:
 
-    docker image build -t dbcawa/ibms .
+    docker image build -t ghcr.io/dbca-wa/ibms .
