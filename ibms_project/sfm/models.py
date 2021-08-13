@@ -19,7 +19,20 @@ class FinancialYear(models.Model):
 
 
 class SFMMetric(models.Model):
+    REGION_CHOICES = [
+        ('Goldfields', 'Goldfields'),
+        ('Kimberley', 'Kimberley'),
+        ('Midwest', 'Midwest'),
+        ('Pilbara', 'Pilbara'),
+        ('South Coast', 'South Coast'),
+        ('South West', 'South West'),
+        ('Swan', 'Swan'),
+        ('Warren', 'Warren'),
+        ('Wheatbelt', 'Wheatbelt'),
+    ]
     fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT)
+    region = models.CharField(
+        max_length=100, choices=REGION_CHOICES, null=True, blank=True)
     servicePriorityNo = models.CharField(max_length=100, verbose_name="service priority number", null=False, blank=True, default="-1")
     metricID = models.TextField(verbose_name="metric ID", null=True, blank=True)
     descriptor = models.TextField(null=True, blank=True)

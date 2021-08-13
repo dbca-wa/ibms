@@ -477,6 +477,8 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
             r = r.filter(fy__financialYear=request.GET['financialYear'])
         if request.GET.get('costCentre', None):
             r = r.filter(costCentre=request.GET['costCentre'])
+        if request.GET.get('region', None):
+            r = r.filter(region=request.GET['region'])
         # Check for fields that may not exist on the model.
         try:
             if request.GET.get('regionBranch', None) and self.model._meta.get_field('regionBranch'):

@@ -21,13 +21,13 @@ class FinancialYearAdmin(ModelAdmin):
 
 @register(SFMMetric)
 class SFMMetricAdmin(ModelAdmin):
-    search_fields = ['fy__financialYear', 'servicePriorityNo', 'metricID']
-    list_display = ['fy', 'servicePriorityNo', 'metricID']
-    list_filter = ['fy', 'servicePriorityNo', 'metricID']
+    search_fields = ['fy__financialYear', 'region', 'servicePriorityNo', 'metricID']
+    list_display = ['fy', 'region', 'servicePriorityNo', 'metricID']
+    list_filter = ['fy', 'region', 'servicePriorityNo', 'metricID']
     actions = [
         export_as_csv_action(
-            translations=['financialYear', 'servicePriorityNo', 'metricID', 'descriptor', 'example'],
-            fields=['fy', 'servicePriorityNo', 'metricID', 'descriptor', 'example'])]
+            translations=['financialYear', 'region', 'servicePriorityNo', 'metricID', 'descriptor', 'example'],
+            fields=['fy', 'region', 'servicePriorityNo', 'metricID', 'descriptor', 'example'])]
 
 
 @register(Quarter)

@@ -17,6 +17,10 @@ class OutputEntryForm(HelperForm):
     cost_centre = forms.ModelChoiceField(
         label='Cost Centre',
         queryset=CostCentre.objects.all().order_by('costCentre'))
+    region = forms.ChoiceField(
+        choices=[(None, '---------')] + SFMMetric.REGION_CHOICES,
+        required=False,
+    )
     sfm_metric_id = SFMMetricModelChoiceField(
         label='Metric ID #',
         queryset=SFMMetric.objects.none().order_by('metricID'))
@@ -44,9 +48,9 @@ class OutputEntryForm(HelperForm):
                 ),
                 css_class='row',
             ),
-            # These divs is used by JS on the template.
+            # These divs are used by JS on the template.
             Div(
-                'financial_year', 'quarter', 'cost_centre', 'sfm_metric_id',
+                'financial_year', 'quarter', 'cost_centre', 'region', 'sfm_metric_id',
                 css_id='id_filter_fields',
             ),
             Div(
