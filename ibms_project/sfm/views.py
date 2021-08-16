@@ -24,7 +24,7 @@ from sfm.sfm_file_funcs import process_upload_file, validate_file
 
 
 class OutputEntry(LoginRequiredMixin, FormView):
-    template_name = 'sfm/outputs.html'
+    template_name = 'sfm/output_entry.html'
     form_class = OutputEntryForm
 
     def get_context_data(self, **kwargs):
