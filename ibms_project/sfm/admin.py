@@ -23,7 +23,7 @@ class FinancialYearAdmin(ModelAdmin):
 class SFMMetricAdmin(ModelAdmin):
     search_fields = ['fy__financialYear', 'region', 'servicePriorityNo', 'metricID']
     list_display = ['fy', 'region', 'servicePriorityNo', 'metricID']
-    list_filter = ['fy', 'region', 'servicePriorityNo', 'metricID']
+    list_filter = ['fy', 'region', 'servicePriorityNo']
     actions = [
         export_as_csv_action(
             translations=['financialYear', 'region', 'servicePriorityNo', 'metricID', 'descriptor', 'example'],

@@ -2,7 +2,7 @@ import csv
 from ibms.db_funcs import csvload, saverow, validateCharField
 from sfm.models import CostCentre, SFMMetric, MeasurementValue, Quarter
 
-COLS_SFM_METRICS = 4
+COLS_SFM_METRICS = 5
 COLS_COSTCENTRES = 1
 
 
@@ -14,15 +14,16 @@ def import_to_sfmmetrics(fileName, fy):
         for row in reader:
             data = {
                 "fy": fy,
-                "servicePriorityNo": validateCharField('servicePriorityNo', 20, row[0]),
-                "metricID": validateCharField('metricID', 20, row[1]),
-                "descriptor": str(row[2]),
-                "example": str(row[3])
+                "region": validateCharField('region', 30, row[0]),
+                "servicePriorityNo": validateCharField('servicePriorityNo', 20, row[1]),
+                "metricID": validateCharField('metricID', 20, row[2]),
+                "descriptor": str(row[3]),
+                "example": str(row[4])
             }
             query = {
                 "fy": fy,
-                "servicePriorityNo": str(row[0]),
-                "metricID": str(row[1])
+                "servicePriorityNo": str(row[1]),
+                "metricID": str(row[2])
             }
             saverow(SFMMetric, data, query)
             i += 1
@@ -121,18 +122,20 @@ def validate_sfmmetrics_header(reader):
     row = next(reader)
     if len(row) == COLS_SFM_METRICS:
         sBad = ''
-        if row[0].strip() != 'servicePriorityNo':
-            sBad += row[0] + ' : ' + 'servicePriorityNo\n'
-        if row[1].strip() != 'metricID':
-            sBad += row[1] + ' : ' + 'metricID\n'
-        if row[2].strip() != 'descriptor':
-            sBad += row[2] + ' : ' + 'descriptor\n'
+        if row[0].strip() != 'region':
+            sBad += row[0] + ' : ' + 'region\n'
+        if row[1].strip() != 'servicePriorityNo':
+            sBad += row[1] + ' : ' + 'servicePriorityNo\n'
+        if row[2].strip() != 'metricID':
+            sBad += row[2] + ' : ' + 'metricID\n'
+        if row[3].strip() != 'descriptor':
+            sBad += row[3] + ' : ' + 'descriptor\n'
         retVal = sBad == ''
 
         if not retVal:
             raise Exception('The column headings in the CSV file do not match the required headings\n{}'.format(sBad))
     else:
-        raise Exception('The number of columns in the CSV file do not match the required column count :\nExpects ' + str(COLS_SFM_METRICS) + ' met ' + str(len(row)))
+        raise Exception('The number of columns in the CSV file do not match the required column count :\nExpects {}, met {}'.format(COLS_SFM_METRICS, len(row)))
 
     return retVal
 

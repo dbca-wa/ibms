@@ -5,7 +5,7 @@ from sfm.views import OutputEntry, OutputUpload, OutputReport, MeasurementValueJ
 
 urlpatterns = [
     path('output-entry/', OutputEntry.as_view(), name='outcome-entry'),
-    path('ouput-upload/', OutputUpload.as_view(), name='output-upload'),
+    path('output-upload/', OutputUpload.as_view(), name='output-upload'),
     path('output-report/', OutputReport.as_view(), name='output-report'),
     # AJAX model field endpoints.
     path('ajax/quarter/', IbmsModelFieldJSON.as_view(model=Quarter, fieldname='description', return_pk=True), name='ajax_quarter'),
