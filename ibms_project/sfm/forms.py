@@ -2,7 +2,7 @@ from django import forms
 from crispy_forms.layout import Submit, Layout, HTML, Div
 
 from ibms.forms import HelperForm
-from sfm.models import Quarter, CostCentre, SFMMetric, FinancialYear, MeasurementValue
+from sfm.models import Quarter, CostCentre, SFMMetric, FinancialYear, MeasurementValue, REGION_CHOICES
 from sfm.fields import (
     QtrModelChoiceField, SFMMetricModelChoiceField, SFMCostCentreModelChoiceField,
 )
@@ -18,7 +18,7 @@ class OutputEntryForm(HelperForm):
         label='Cost Centre',
         queryset=CostCentre.objects.all().order_by('costCentre'))
     region = forms.ChoiceField(
-        choices=[(None, '---------')] + SFMMetric.REGION_CHOICES,
+        choices=[(None, '---------')] + REGION_CHOICES,
         required=False,
     )
     sfm_metric_id = SFMMetricModelChoiceField(
@@ -42,17 +42,22 @@ class OutputEntryForm(HelperForm):
         # crispy_forms layout
         self.helper.layout = Layout(
             Div(
-                Div(
-                    HTML('Please select ALL the fields below:'),
-                    css_class='col-sm-12 col-md-9 col-lg-6 alert alert-info',
-                ),
-                css_class='row',
+                HTML('Filter metric IDs by FY and (optionally) region:'),
+                css_class='col-sm-12 col-md-9 col-lg-6 alert alert-info',
             ),
-            # These divs are used by JS on the template.
             Div(
-                'financial_year', 'quarter', 'cost_centre', 'region', 'sfm_metric_id',
+                'financial_year', 'region',
                 css_id='id_filter_fields',
             ),
+            Div(
+                HTML('Select all the fields below to update output metric ID:'),
+                css_class='col-sm-12 col-md-9 col-lg-6 alert alert-info',
+            ),
+            Div(
+                'quarter', 'cost_centre', 'sfm_metric_id',
+                css_id='id_filter_fields',
+            ),
+            # These divs are used by JS on the template.
             Div(
                 Div(
                     Div(

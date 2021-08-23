@@ -468,36 +468,37 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
     def get(self, request, *args, **kwargs):
         # Sanity check: if the model hasn't got that field, return a
         # HTTPResponseBadRequest response.
-        try:
-            self.model._meta.get_field(self.fieldname)
-        except self.model.FieldDoesNotExist:
+        if not hasattr(self.model, self.fieldname):
             return HttpResponseBadRequest('Invalid field name: {0}'.format(self.fieldname))
-        r = self.model.objects.all()
+        qs = self.model.objects.all()
         if request.GET.get('financialYear', None):
-            r = r.filter(fy__financialYear=request.GET['financialYear'])
+            qs = qs.filter(fy__financialYear=request.GET['financialYear'])
         if request.GET.get('costCentre', None):
-            r = r.filter(costCentre=request.GET['costCentre'])
+            qs = qs.filter(costCentre=request.GET['costCentre'])
         if request.GET.get('region', None):
-            r = r.filter(region=request.GET['region'])
+            qs = qs.filter(region=request.GET['region'])
         # Check for fields that may not exist on the model.
         try:
             if request.GET.get('regionBranch', None) and self.model._meta.get_field('regionBranch'):
-                r = r.filter(regionBranch=request.GET['regionBranch'])
+                qs = qs.filter(regionBranch=request.GET['regionBranch'])
         except self.model.FieldDoesNotExist:
             pass
         try:
             if request.GET.get('service', None) and self.model._meta.get_field('service'):
-                r = r.filter(costCentre=request.GET['service'])
+                qs = qs.filter(costCentre=request.GET['service'])
         except self.model.FieldDoesNotExist:
             pass
         # If we're not after PKs, then we need to reduce the qs to distinct values.
         if not self.return_pk:
-            r = r.distinct(self.fieldname)
+            qs = qs.distinct(self.fieldname)
         choices = []
-        for i in r:
-            choice_val = getattr(i, self.fieldname)
+        for obj in qs:
+            if self.fieldname == "__str__":
+                choice_val = str(obj)
+            else:
+                choice_val = getattr(obj, self.fieldname)
             if self.return_pk:
-                choices.append([i.pk, choice_val])
+                choices.append([obj.pk, choice_val])
             else:
                 choices.append([choice_val, choice_val])
         choices.sort()

@@ -3,7 +3,7 @@
 {% block page_content_inner %}
 {{ block.super }}
 <div class="toast" id="saveConfirm" style="position: absolute; bottom: 0; right: 0;">
-	<div class="toast-body">
+	<div class="toast-body alert alert-success">
 		<div>Measurement value saved successfully.</div>
 	</div>
 </div>
@@ -30,8 +30,26 @@
         });
     };
 
+    // Utility function to update Cost Centre select field when Region changes.
+    function updateCostCentreList(region) {
+        $.ajax({
+            type: "GET",
+            url: "{% url 'ajax_costcentre' %}",
+            data: {'region': region},
+            success: function(data) {
+                select = $("select#id_cost_centre")[0];
+                select.options.length = 0;
+                select.options.add(new Option('---------', ''));
+                for (i in data.choices) {
+                    select.options.add(new Option(data.choices[i][1], data.choices[i][0]));
+                }
+                select.disabled = false;
+            }
+        });
+    };
+
     // Utility function to update Metric ID select field when financial year or region changes.
-    function updateSfmMetricId(finYear, region) {
+    function updateSfmMetricList(finYear, region) {
         params = {};
         if (finYear) {
             params.financialYear = finYear;
@@ -141,9 +159,12 @@
 
         // Disable some selects and the save button to start with.
         $("select#id_financial_year").val("");
+        $("select#id_region").val("");
+        $("select#id_quarter").val("");
         $("select#id_quarter")[0].disabled = true;
         $("select#id_cost_centre").val("");
-        $("select#id_region").val("");
+        $("select#id_cost_centre")[0].disabled = true;
+        $("select#id_sfm_metric_id").val("");
         $("select#id_sfm_metric_id")[0].disabled = true;
         $("div#id_input_div").hide();
         $("input#submit-id-save")[0].disabled = true;
@@ -153,19 +174,28 @@
             $("div#id_input_div").hide();
             $("select#id_quarter")[0].disabled = true;
             $("select#id_sfm_metric_id")[0].disabled = true;
+            $("select#id_cost_centre").val("");
+            $("select#id_cost_centre")[0].disabled = true;
             var finYear = $("select#id_financial_year").val();
-            var region = $("select#id_region").val();
-            updateQuarter(finYear);
-            updateSfmMetricId(finYear=finYear, region=region);
+            if (finYear) {
+                var region = $("select#id_region").val();
+                updateQuarter(finYear);
+                $("select#id_cost_centre")[0].disabled = false;
+                updateSfmMetricList(finYear=finYear, region=region);
+            }
         });
 
-        // If the Region select list changes, update the options for metric ID.
+        // If the Region select list changes, update the options for CC and metric ID.
         $("select#id_region").change(function() {
             $("div#id_input_div").hide();
+            $("select#id_cost_centre").val("");
+            $("select#id_cost_centre")[0].disabled = true;
+            $("select#id_sfm_metric_id").val("");
             $("select#id_sfm_metric_id")[0].disabled = true;
             var finYear = $("select#id_financial_year").val();
             var region = $("select#id_region").val();
-            updateSfmMetricId(finYear=finYear, region=region);
+            updateCostCentreList(region=region);
+            updateSfmMetricList(finYear=finYear, region=region);
         });
 
         // If any other select list changes, check if the measure fields should be updated.

@@ -3,7 +3,7 @@ from ibms.db_funcs import csvload, saverow, validateCharField
 from sfm.models import CostCentre, SFMMetric, MeasurementValue, Quarter
 
 COLS_SFM_METRICS = 5
-COLS_COSTCENTRES = 1
+COLS_COSTCENTRES = 3
 
 
 def import_to_sfmmetrics(fileName, fy):
@@ -14,7 +14,7 @@ def import_to_sfmmetrics(fileName, fy):
         for row in reader:
             data = {
                 "fy": fy,
-                "region": validateCharField('region', 30, row[0]),
+                "region": validateCharField('region', 100, row[0]),
                 "servicePriorityNo": validateCharField('servicePriorityNo', 20, row[1]),
                 "metricID": validateCharField('metricID', 20, row[2]),
                 "descriptor": str(row[3]),
@@ -40,10 +40,14 @@ def import_to_costcentres(fileName, fy):
         i = 1
         for row in reader:
             data = {
-                "costCentre": validateCharField('servicePriorityNo', 4, row[0]),
+                "costCentre": validateCharField("costCentre", 6, row[0]),
+                "name": validateCharField("name", 128, row[1]),
+                "region": validateCharField("region", 100, row[2]),
             }
             query = {
                 "costCentre": str(row[0]),
+                "name": str(row[1]),
+                "region": str(row[2]),
             }
             saverow(CostCentre, data, query)
             i += 1
@@ -135,7 +139,7 @@ def validate_sfmmetrics_header(reader):
         if not retVal:
             raise Exception('The column headings in the CSV file do not match the required headings\n{}'.format(sBad))
     else:
-        raise Exception('The number of columns in the CSV file do not match the required column count :\nExpects {}, met {}'.format(COLS_SFM_METRICS, len(row)))
+        raise Exception('The number of columns in the CSV file do not match the required column count :\nExpects {}, found {}'.format(COLS_SFM_METRICS, len(row)))
 
     return retVal
 
@@ -146,12 +150,16 @@ def validate_costcentre_header(reader):
         sBad = ''
         if row[0].strip() != 'costCentre':
             sBad += row[0] + ' : ' + 'costCentre\n'
+        if row[1].strip() != 'name':
+            sBad += row[1] + ' : ' + 'name\n'
+        if row[2].strip() != 'region':
+            sBad += row[2] + ' : ' + 'region\n'
         retVal = sBad == ''
 
         if not retVal:
-            raise Exception('The column headings in the CSV file do not match the required headings\n' + sBad)
+            raise Exception('The column headings in the CSV file do not match the required headings\n{}'.format(sBad))
     else:
-        raise Exception('The number of columns in the CSV file do not match the required column count :\nExpects ' + str(COLS_COSTCENTRES) + ' met ' + str(len(row)))
+        raise Exception('The number of columns in the CSV file do not match the required column count :\nExpects {}, found {}'.format(COLS_COSTCENTRES, len(row)))
 
     return retVal
 

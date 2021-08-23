@@ -1,6 +1,6 @@
 from django.urls import path
 from ibms.views import IbmsModelFieldJSON
-from sfm.models import Quarter, SFMMetric
+from sfm.models import Quarter, SFMMetric, CostCentre
 from sfm.views import OutputEntry, OutputUpload, OutputReport, MeasurementValueJSON
 
 urlpatterns = [
@@ -12,4 +12,5 @@ urlpatterns = [
     path('ajax/outcome/financial-year/', IbmsModelFieldJSON.as_view(model=Quarter, fieldname='quarter', return_pk=True), name='ajax_outcome_financialyear'),
     path('ajax/sfmmetric/metricid/', IbmsModelFieldJSON.as_view(model=SFMMetric, fieldname='metricID', return_pk=True), name='ajax_sfmmetric_metricid'),
     path('ajax/measurementvalue/', MeasurementValueJSON.as_view(), name='ajax_measurementvalue'),
+    path('ajax/costcentre/', IbmsModelFieldJSON.as_view(model=CostCentre, fieldname='__str__', return_pk=True), name='ajax_costcentre'),
 ]
