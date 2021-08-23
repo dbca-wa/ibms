@@ -5,10 +5,13 @@ from .models import CostCentre, FinancialYear, SFMMetric, Quarter, MeasurementVa
 
 @register(CostCentre)
 class CostCentreAdmin(ModelAdmin):
-    search_fields = ['costCentre', 'name']
-    list_display = ['__str__']
-    list_filter = ['costCentre', 'name']
-    actions = [export_as_csv_action(translations=['costCentre'], fields=['costCentre'])]
+    search_fields = ['costCentre', 'name', 'region']
+    list_display = ['costCentre', 'name', 'region']
+    list_filter = ['costCentre', 'region']
+    actions = [export_as_csv_action(
+        translations=['costCentre', 'name', 'region'],
+        fields=['costCentre', 'name', 'region']),
+    ]
 
 
 @register(FinancialYear)

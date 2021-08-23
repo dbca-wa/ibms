@@ -1,9 +1,23 @@
 from django.db import models
 
 
+REGION_CHOICES = [
+    ('Goldfields', 'Goldfields'),
+    ('Kimberley', 'Kimberley'),
+    ('Midwest', 'Midwest'),
+    ('Pilbara', 'Pilbara'),
+    ('South Coast', 'South Coast'),
+    ('South West', 'South West'),
+    ('Swan', 'Swan'),
+    ('Warren', 'Warren'),
+    ('Wheatbelt', 'Wheatbelt'),
+]
+
+
 class CostCentre(models.Model):
     costCentre = models.CharField(max_length=6, verbose_name="cost centre")
     name = models.CharField(max_length=128, null=True, blank=True)
+    region = models.CharField(max_length=100, choices=REGION_CHOICES, null=True, blank=True)
 
     def __str__(self):
         if self.name:
@@ -19,20 +33,8 @@ class FinancialYear(models.Model):
 
 
 class SFMMetric(models.Model):
-    REGION_CHOICES = [
-        ('Goldfields', 'Goldfields'),
-        ('Kimberley', 'Kimberley'),
-        ('Midwest', 'Midwest'),
-        ('Pilbara', 'Pilbara'),
-        ('South Coast', 'South Coast'),
-        ('South West', 'South West'),
-        ('Swan', 'Swan'),
-        ('Warren', 'Warren'),
-        ('Wheatbelt', 'Wheatbelt'),
-    ]
     fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT)
-    region = models.CharField(
-        max_length=100, choices=REGION_CHOICES, null=True, blank=True)
+    region = models.CharField(max_length=100, choices=REGION_CHOICES, null=True, blank=True)
     servicePriorityNo = models.CharField(max_length=100, verbose_name="service priority number", null=False, blank=True, default="-1")
     metricID = models.TextField(verbose_name="metric ID", null=True, blank=True)
     descriptor = models.TextField(null=True, blank=True)
