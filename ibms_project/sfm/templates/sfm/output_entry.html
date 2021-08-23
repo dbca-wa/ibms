@@ -172,7 +172,9 @@
         // If the Financial Year select list changes, update the options for quarter and metric ID.
         $("select#id_financial_year").change(function() {
             $("div#id_input_div").hide();
+            $("select#id_quarter").val("");
             $("select#id_quarter")[0].disabled = true;
+            $("select#id_sfm_metric_id").val("");
             $("select#id_sfm_metric_id")[0].disabled = true;
             $("select#id_cost_centre").val("");
             $("select#id_cost_centre")[0].disabled = true;
@@ -185,7 +187,7 @@
             }
         });
 
-        // If the Region select list changes, update the options for CC and metric ID.
+        // If the Region select list changes, update the options for cost centre and metric ID.
         $("select#id_region").change(function() {
             $("div#id_input_div").hide();
             $("select#id_cost_centre").val("");
