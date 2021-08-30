@@ -12,20 +12,15 @@ def import_to_sfmmetrics(fileName, fy):
     try:
         i = 1
         for row in reader:
-            data = {
-                "fy": fy,
-                "region": validateCharField('region', 100, row[0]),
-                "servicePriorityNo": validateCharField('servicePriorityNo', 20, row[1]),
-                "metricID": validateCharField('metricID', 20, row[2]),
-                "descriptor": str(row[3]),
-                "example": str(row[4])
-            }
-            query = {
-                "fy": fy,
-                "servicePriorityNo": str(row[1]),
-                "metricID": str(row[2])
-            }
-            saverow(SFMMetric, data, query)
+            metric, created = SFMMetric.objects.get_or_create(
+                fy=fy,
+                servicePriorityNo=row[1],
+                metricID=row[2],
+            )
+            metric.region = row[0]
+            metric.descriptor = row[3]
+            metric.example = row[4]
+            metric.save()
             i += 1
     except SFMMetric.DoesNotExist:
         raise Exception('Row {}:{}\nPlease import servicePriorityNo into IBMData before proceeding, otherwise database integrity will be compromised.'.format(i, row[0]))
@@ -33,25 +28,25 @@ def import_to_sfmmetrics(fileName, fy):
     return
 
 
-def import_to_costcentres(fileName, fy):
+def import_to_costcentres(fileName):
     reader, file, fileName = csvload(fileName)
 
     try:
         i = 1
         for row in reader:
-            data = {
-                "costCentre": validateCharField("costCentre", 6, row[0]),
-                "name": validateCharField("name", 128, row[1]),
-                "region": validateCharField("region", 100, row[2]),
-            }
-            query = {
-                "costCentre": str(row[0]),
-                "name": str(row[1]),
-                "region": str(row[2]),
-            }
-            saverow(CostCentre, data, query)
+            if CostCentre.objects.filter(costCentre=row[0]):
+                cc = CostCentre.objects.get(costCentre=row[0])
+                cc.name = row[1]
+                cc.region = row[2]
+                cc.save()
+            else:
+                CostCentre.objects.create(
+                    costCentre=row[0],
+                    name=row[1],
+                    region=row[2],
+                )
             i += 1
-    except CostCentre.DoesNotExist:
+    except:
         raise Exception('Row {}:{}\nhas invalid data. Unable to import.'.format(i, row))
 
     return
@@ -105,7 +100,7 @@ def process_upload_file(file_name, fileType, fy):
     if fileType == 'sfmmetrics':
         import_to_sfmmetrics(file_name, fy)
     elif fileType == 'costcentres':
-        import_to_costcentres(file_name, fy)
+        import_to_costcentres(file_name)
     elif fileType == 'measurementvalues':
         import_measurementvalues(file_name, fy)
 
