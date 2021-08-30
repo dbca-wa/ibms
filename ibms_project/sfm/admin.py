@@ -37,7 +37,7 @@ class SFMMetricAdmin(ModelAdmin):
 class QuarterAdmin(ModelAdmin):
     search_fields = ['fy__financialYear', 'quarter', 'description']
     list_display = ['fy', 'quarter', 'description']
-    list_filter = ['fy', 'quarter', 'description']
+    list_filter = ['fy', 'quarter']
     actions = [
         export_as_csv_action(
             translations=['financialYear', 'quarter', 'description'],

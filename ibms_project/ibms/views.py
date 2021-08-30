@@ -501,7 +501,6 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
                 choices.append([obj.pk, choice_val])
             else:
                 choices.append([choice_val, choice_val])
-        choices.sort()
         context = {'choices': choices}
         return self.render_to_response(context)
 
