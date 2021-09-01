@@ -1,0 +1,15 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ibms
+spec:
+  rules:
+  - host: ibms-uat.dbca.wa.gov.au
+    http:
+      paths:
+      - pathType: ImplementationSpecific
+        backend:
+          service:
+            name: ingress-ibms
+            port:
+              number: 8080
