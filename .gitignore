@@ -10,6 +10,7 @@ logs/
 *.swp
 *.swo
 .env
+.env*
 .coverage
 
 # Database/fixture dumps
