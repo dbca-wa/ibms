@@ -1,2 +1,4 @@
+namespace: ibms
 resources:
 - deployment.yaml
+- namespace.yaml

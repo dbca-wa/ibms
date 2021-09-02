@@ -1,19 +1,15 @@
 bases:
 - ../../base
-
+namespace: ibms
 nameSuffix: -uat
-
 secretGenerator:
 - name: ibms-env
   envs:
-  - .env.uat
-
+  - .env
 commonLabels:
   variant: uat
-
 resources:
 - service.yaml
 - ingress.yaml
-
 patchesStrategicMerge:
 - deployment_uat_patch.yaml
