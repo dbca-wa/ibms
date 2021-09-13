@@ -1,5 +1,5 @@
 import csv
-from ibms.db_funcs import csvload, saverow, validateCharField
+from ibms.db_funcs import csvload, saverow
 from sfm.models import CostCentre, SFMMetric, MeasurementValue, Quarter
 
 COLS_SFM_METRICS = 5
@@ -65,23 +65,18 @@ def import_measurementvalues(fileName, fy):
                 raise Exception('Quarter in row {}:{}\nnot found, unable to import.'.format(i, row))
 
             try:
-                cc = CostCentre.objects.get(costCentre=row[1].split("-")[0].strip())
-            except CostCentre.DoesNotExist:
-                raise Exception('CostCentre in row {}:{}\nnot found, unable to import.'.format(i, row))
-
-            try:
                 metric = SFMMetric.objects.get(fy=fy, metricID=row[2])
             except SFMMetric.DoesNotExist:
                 raise Exception('SFMMetric in row {}:{}\nnot found, unable to import.'.format(i, row))
 
             query = {
                 "quarter": quarter,
-                "costCentre": cc,
+                "region": row[1],
                 "sfmMetric": metric,
             }
             data = {
                 "quarter": quarter,
-                "costCentre": cc,
+                "region": row[1],
                 "sfmMetric": metric,
                 "planned": row[3] == 'TRUE' if row[3] else None,
                 "status": row[4].lower(),
@@ -164,8 +159,8 @@ def validate_measurementvalues_header(reader):
     sBad = ''
     if row[0].strip() != 'quarter':
         sBad += row[0] + ' : ' + 'quarter\n'
-    if row[1].strip() != 'costCentre':
-        sBad += row[1] + ' : ' + 'costCentre\n'
+    if row[1].strip() != 'region':
+        sBad += row[1] + ' : ' + 'region\n'
     if row[2].strip() != 'sfmMetric':
         sBad += row[2] + ' : ' + 'sfmMetric\n'
     if row[3].strip() != 'planned':
