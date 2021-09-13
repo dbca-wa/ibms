@@ -82,7 +82,8 @@ class MeasurementValue(models.Model):
     )
     quarter = models.ForeignKey(Quarter, on_delete=models.PROTECT)
     costCentre = models.ForeignKey(
-        CostCentre, verbose_name="cost centre", on_delete=models.PROTECT)
+        CostCentre, verbose_name="cost centre", on_delete=models.PROTECT, null=True, blank=True)
+    region = models.CharField(max_length=100, choices=REGION_CHOICES, null=True, blank=True)
     sfmMetric = models.ForeignKey(
         SFMMetric, verbose_name="SFM metric", on_delete=models.PROTECT)
     planned = models.BooleanField(null=True, verbose_name="action planned")

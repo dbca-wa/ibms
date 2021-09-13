@@ -18,7 +18,7 @@ import tempfile
 from ibms.views import JSONResponseMixin
 from ibms.utils import get_download_period
 from sfm.forms import OutputEntryForm, OutputUploadForm, FMOutputReportForm
-from sfm.models import Quarter, CostCentre, SFMMetric, MeasurementType, MeasurementValue
+from sfm.models import Quarter, SFMMetric, MeasurementType, MeasurementValue
 from sfm.report import outputs_report
 from sfm.sfm_file_funcs import process_upload_file, validate_file
 
@@ -154,14 +154,13 @@ class MeasurementValueJSON(JSONResponseMixin, BaseDetailView):
         metric = None
         measure = None
 
-        if 'quarter' in request.GET and 'costCentre' in request.GET and 'sfmMetric' in request.GET:
+        if 'quarter' in request.GET and 'region' in request.GET and 'sfmMetric' in request.GET:
             quarter = Quarter.objects.get(pk=request.GET['quarter'])
-            cc = CostCentre.objects.get(pk=request.GET['costCentre'])
             metric = SFMMetric.objects.get(pk=request.GET['sfmMetric'])
 
-            if MeasurementValue.objects.filter(quarter=quarter, costCentre=cc, sfmMetric=metric).exists():
+            if MeasurementValue.objects.filter(quarter=quarter, region=request.GET['region'], sfmMetric=metric).exists():
                 # Find the measure
-                measures = MeasurementValue.objects.filter(quarter=quarter, costCentre=cc, sfmMetric=metric)
+                measures = MeasurementValue.objects.filter(quarter=quarter, region=request.GET['region'], sfmMetric=metric)
                 if measures.filter(value__isnull=False).exists():
                     measure = measures.filter(value__isnull=False).first()
                 else:  # Just use the first object in the queryset.
@@ -174,11 +173,10 @@ class MeasurementValueJSON(JSONResponseMixin, BaseDetailView):
         return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
-        if 'quarter' in request.POST and 'costCentre' in request.POST and 'sfmMetric' in request.POST:
+        if 'quarter' in request.POST and 'region' in request.POST and 'sfmMetric' in request.POST:
             quarter = Quarter.objects.get(pk=request.POST['quarter'])
-            cc = CostCentre.objects.get(pk=request.POST['costCentre'])
             metric = SFMMetric.objects.get(pk=request.POST['sfmMetric'])
-            measure, created = MeasurementValue.objects.get_or_create(quarter=quarter, costCentre=cc, sfmMetric=metric)
+            measure, created = MeasurementValue.objects.get_or_create(quarter=quarter, region=request.POST['region'], sfmMetric=metric)
             if 'planned' in request.POST:
                 measure.planned = request.POST['planned'] == 'true'
             if 'status' in request.POST:

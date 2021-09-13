@@ -14,12 +14,9 @@ class OutputEntryForm(HelperForm):
         queryset=FinancialYear.objects.all().order_by('financialYear'))
     quarter = QtrModelChoiceField(
         label='Quarter', queryset=Quarter.objects.none())
-    cost_centre = forms.ModelChoiceField(
-        label='Cost Centre',
-        queryset=CostCentre.objects.all().order_by('costCentre'))
     region = forms.ChoiceField(
         choices=[(None, '---------')] + REGION_CHOICES,
-        required=False,
+        required=True,
     )
     sfm_metric_id = SFMMetricModelChoiceField(
         label='Metric ID #',
@@ -42,7 +39,7 @@ class OutputEntryForm(HelperForm):
         # crispy_forms layout
         self.helper.layout = Layout(
             Div(
-                HTML('Filter metric IDs by FY and (optionally) region:'),
+                HTML('Filter metric IDs by financial year and region:'),
                 css_class='col-sm-12 col-md-9 col-lg-6 alert alert-info',
             ),
             Div(
@@ -53,10 +50,7 @@ class OutputEntryForm(HelperForm):
                 HTML('Select all the fields below to update output metric ID:'),
                 css_class='col-sm-12 col-md-9 col-lg-6 alert alert-info',
             ),
-            Div(
-                'quarter', 'cost_centre', 'sfm_metric_id',
-                css_id='id_filter_fields',
-            ),
+            Div('quarter', 'sfm_metric_id', css_id='id_filter_fields'),
             # These divs are used by JS on the template.
             Div(
                 Div(
