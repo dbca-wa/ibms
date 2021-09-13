@@ -26,3 +26,18 @@ spec:
     targetPort: 8080
   selector:
     app: ibms
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ibms-db
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: default
+    port: 42
+    protocol: TCP
+    targetPort: 42
+  selector:
+    workloadselector: ibms-db
