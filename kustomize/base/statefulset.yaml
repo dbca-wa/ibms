@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ibms-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      workloadselector: ibms-db
+  serviceName: ibms-db
+  template:
+    metadata:
+      labels:
+        workloadselector: ibms-db
+    spec:
+      initContainers:
+      - name: ibms-db-init
+        image: busybox
+        args:
+        - /bin/sh
+        - -c
+        - mkdir -p /data/data; mkdir -p /data/archivedir; chown -R 999:999 /data
+        volumeMounts:
+        - mountPath: /data
+          name: ibms-db-data
+      restartPolicy: Always
+      volumes:
+      - name: ibms-db-data
+        persistentVolumeClaim:
+          claimName: ibms-db-data
+      containers:
+      - name: ibms-db
+        image: postgis/postgis:13-3.1
+        args:
+        - -c
+        - max_connections=1000
+        - -c
+        - archive_mode=on
+        - -c
+        - archive_command=find /archivedir -mtime +7 -delete; lzma -c %p > /archivedir/%f.lzma
+        env:
+        - name: POSTGRES_USER
+          value: ibms
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: ibms-db-data
+          subPath: data
+        - mountPath: /archivedir
+          name: ibms-db-data
+          subPath: archivedir
+  updateStrategy:
+    type: RollingUpdate

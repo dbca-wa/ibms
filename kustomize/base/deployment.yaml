@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: ibms
-        image: dbcawa/ibms
+        image: ghcr.io/dbca-wa/ibms
         imagePullPolicy: IfNotPresent
         env:
         - name: ALLOWED_DOMAINS
