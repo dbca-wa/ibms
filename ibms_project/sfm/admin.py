@@ -57,14 +57,14 @@ class MeasurementValueAdmin(ModelAdmin):
             if self.value():
                 return queryset.filter(quarter__fy__pk=self.value())
 
-    search_fields = ['sfmMetric__metricID', 'quarter__fy__financialYear', 'costCentre__costCentre', 'comment']
-    list_display = ['quarter', 'costCentre', 'sfmMetric', 'planned', 'status']
-    list_filter = [FYFilter, 'quarter', 'costCentre', 'status', 'sfmMetric']
+    search_fields = ['sfmMetric__metricID', 'region', 'quarter__fy__financialYear', 'costCentre__costCentre', 'comment']
+    list_display = ['quarter', 'region', 'sfmMetric', 'planned', 'status']
+    list_filter = [FYFilter, 'quarter', 'region', 'status', 'sfmMetric']
     readonly_fields = ('measurementType', 'value')
     actions = [
         export_as_csv_action(
-            translations=['quarter', 'costCentre', 'sfmMetric', 'planned', 'status', 'comment', 'measurementType', 'value'],
-            fields=['quarter', 'costCentre', 'sfmMetric', 'planned', 'status', 'comment', 'measurementType', 'value'])]
+            translations=['quarter', 'region', 'sfmMetric', 'planned', 'status', 'comment', 'measurementType', 'value'],
+            fields=['quarter', 'region', 'sfmMetric', 'planned', 'status', 'comment', 'measurementType', 'value'])]
 
 
 @register(Outcomes)
