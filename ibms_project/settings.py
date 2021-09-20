@@ -31,6 +31,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_extensions',
     'crispy_forms',
+    'crispy_bootstrap5',
     'webtemplate_dbca',
     'ibms',
     'sfm',
@@ -87,7 +88,6 @@ IBM_CODE_UPDATER_URI = env('IBM_CODE_UPDATER_URI', '')
 IBM_SERVICE_PRIORITY_URI = env('IBM_SERVICE_PRIORITY_URI', '')
 IBM_RELOAD_URI = env('IBM_RELOAD_URI', '')
 IBM_DATA_AMEND_URI = env('IBM_DATA_AMEND_URI', '')
-CRISPY_TEMPLATE_PACK = 'bootstrap4'
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None  # Required to allow end-of-month GLPivot bulk deletes.
 CSV_FILE_LIMIT = env('CSV_FILE_LIMIT', 100000000)
 
@@ -167,3 +167,7 @@ LOGGING = {
         },
     }
 }
+
+# django-crispy-forms config
+CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
+CRISPY_TEMPLATE_PACK = 'bootstrap5'

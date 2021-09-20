@@ -1,12 +1,17 @@
 {% extends "ibms/form.html" %}
 
 {% block page_content_inner %}
-{{ block.super }}
-<div class="toast" id="saveConfirm" style="position: absolute; bottom: 0; right: 0;">
-	<div class="toast-body alert alert-success">
-		<div>Measurement value saved successfully.</div>
-	</div>
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+  <div id="saveConfirm" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          Measurement value saved successfully.
+        </div>
+      </div>
+  </div>
 </div>
+
+{{ block.super }}
 {% endblock %}
 
 {% block extra_js %}
@@ -122,7 +127,9 @@
             url: "{% url 'ajax_measurementvalue' %}",
             data: data,
             success: function(data) {
-                $("#saveConfirm").toast('show');
+                var toastElement = document.getElementById('saveConfirm');
+                var toast = new bootstrap.Toast(toastElement);
+                toast.show();
             }
         });
     }
@@ -130,10 +137,6 @@
     // ------------------------------------
     // Onready functions.
     $(function() {
-        // Configure the toast notification popup.
-        $("#saveConfirm").toast({
-            delay: 2000,
-        });
 
         // Disable the form submit default behaviour.
         $("form").submit(function (event) {
