@@ -41,6 +41,6 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-dev --no-interaction --no-ansi
       - name: Run tests
-        run: python app/manage.py test app/
+        run: python manage.py test
         env:
           DATABASE_URL: postgis://postgres@localhost:5432/github_actions
