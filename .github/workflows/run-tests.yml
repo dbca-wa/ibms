@@ -52,4 +52,4 @@ jobs:
       - name: Run tests
         run: python manage.py test
         env:
-          DATABASE_URL: postgis://postgres@localhost:5432/github_actions
+          DATABASE_URL: postgis://postgres:postgres@localhost:5432/github_actions
