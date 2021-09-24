@@ -1,19 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  labels:
-    app: ibms
-  name: ibms
+  name: ibms-deployment
 spec:
-  selector:
-    matchLabels:
-      app: ibms
   strategy:
     type: RollingUpdate
   template:
-    metadata:
-      labels:
-        app: ibms
     spec:
       containers:
       - name: ibms

@@ -1,17 +1,10 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: ibms-db
+  name: ibms-db-statefulset
 spec:
   replicas: 1
-  selector:
-    matchLabels:
-      workloadselector: ibms-db
-  serviceName: ibms-db
   template:
-    metadata:
-      labels:
-        workloadselector: ibms-db
     spec:
       initContainers:
       - name: ibms-db-init

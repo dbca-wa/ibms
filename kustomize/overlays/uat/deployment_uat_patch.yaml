@@ -1,9 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ibms
+  name: ibms-deployment
+  labels:
+    app: ibms-uat
 spec:
+  selector:
+    matchLabels:
+      app: ibms-uat
   template:
+    metadata:
+      labels:
+        app: ibms-uat
     spec:
       containers:
       - name: ibms
