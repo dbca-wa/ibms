@@ -23,7 +23,7 @@ spec:
           claimName: ibms-db-data
       containers:
       - name: ibms-db
-        image: postgis/postgis:13-3.1
+        image: postgres:13-alpine
         args:
         - -c
         - max_connections=1000

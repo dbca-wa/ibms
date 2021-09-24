@@ -1,6 +1,5 @@
 namespace: ibms
 resources:
 - deployment.yaml
-- namespace.yaml
 - persistentvolumeclaim.yaml
 - statefulset.yaml
