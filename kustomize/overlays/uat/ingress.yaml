@@ -8,7 +8,7 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "false"
 spec:
   rules:
-  - host: ibms-test.dbca.wa.gov.au
+  - host: ibms-uat.dbca.wa.gov.au
     http:
       paths:
       - path: /
