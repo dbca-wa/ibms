@@ -11,7 +11,7 @@ spec:
       - name: ibms
         env:
         - name: ALLOWED_DOMAINS
-          value: "*"
+          value: ".dbca.wa.gov.au"
         - name: EMAIL_HOST
           value: "smtp.lan.fyi"
         - name: IBM_CODE_UPDATER_URI
@@ -24,4 +24,22 @@ spec:
           value: "https://static.dbca.wa.gov.au/pages/ibms-service-priority-data.html"
         - name: TZ
           value: "Australia/Perth"
+        livenessProbe:
+          httpGet:
+            path: /liveness
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 3
+          periodSeconds: 3
+          failureThreshold: 3
+          timeoutSeconds: 2
+        readinessProbe:
+          httpGet:
+            path: /readiness
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 3
+          periodSeconds: 3
+          failureThreshold: 3
+          timeoutSeconds: 2
       restartPolicy: Always
