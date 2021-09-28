@@ -41,5 +41,12 @@ spec:
         - mountPath: /archivedir
           name: ibms-db-data
           subPath: archivedir
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "25m"
+          limits:
+            memory: "4096Mi"
+            cpu: "1000m"
   updateStrategy:
     type: RollingUpdate

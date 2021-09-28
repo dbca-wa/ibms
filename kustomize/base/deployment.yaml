@@ -24,6 +24,13 @@ spec:
           value: "https://static.dbca.wa.gov.au/pages/ibms-service-priority-data.html"
         - name: TZ
           value: "Australia/Perth"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "25m"
+          limits:
+            memory: "4096Mi"
+            cpu: "1000m"
         livenessProbe:
           httpGet:
             path: /liveness
