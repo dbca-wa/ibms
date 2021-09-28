@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
       - name: ibms
-        imagePullPolicy: Always
+        image: dbcawa/ibms:2.6.5
+        imagePullPolicy: IfNotPresent
         env:
         - name: IBMS_URL
           value: "https://ibms-aks.dbca.wa.gov.au"
