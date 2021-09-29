@@ -1,0 +1,192 @@
+{% extends "ibms/form.html" %}
+
+{% block page_content_inner %}
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+  <div id="saveConfirm" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          Measurement value saved successfully.
+        </div>
+      </div>
+  </div>
+</div>
+
+{{ block.super }}
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript">
+
+    // Utility function to update Quarter select field when financial year changes.
+    function updateQuarter(finYear) {
+        $.ajax({
+            type: "GET",
+            url: "{% url 'ajax_quarter' %}",
+            data: {"financialYear": finYear},
+            success: function(data) {
+                select = $("select#id_quarter")[0];
+                select.options.length = 0;
+                select.options.add(new Option('---------', ''));
+                for (i in data.choices) {
+                    select.options.add(new Option(data.choices[i][1], data.choices[i][0]));
+                }
+                select.disabled = false;
+            }
+        });
+    };
+
+    // Utility function to update Metric ID select field when financial year or region changes.
+    function updateSfmMetricList(finYear, region) {
+        params = {};
+        if (finYear) {
+            params.financialYear = finYear;
+        }
+        if (region) {
+            params.region = region;
+        }
+        $.ajax({
+            type: "GET",
+            url: "{% url 'ajax_sfmmetric_metricid' %}",
+            data: params,
+            success: function(data) {
+                select = $("select#id_sfm_metric_id")[0];
+                select.options.length = 0;
+                select.options.add(new Option('---------', ''));
+                for (i in data.choices) {
+                    select.options.add(new Option(data.choices[i][1], data.choices[i][0]));
+                }
+                select.disabled = false;
+            }
+        });
+    };
+
+    // Utility function to query for MeasurementValue object values.
+    function updateMeasurementValue(quarter, region, sfmMetric) {
+        $.ajax({
+            type: "GET",
+            url: "{% url 'ajax_measurementvalue' %}",
+            data: {
+                "quarter": quarter,
+                "region": region,
+                "sfmMetric": sfmMetric
+            },
+            success: function(data) {
+                $("span#id_descriptor_text").text(data.sfmMetric.descriptor);
+                $("span#id_example_text").text(data.sfmMetric.example);
+                $("input:radio[name=planned]").val([data.measurementValue.planned]);
+                $("input:radio[name=status]").val([data.measurementValue.status]);
+                $("textarea#id_comment").val(data.measurementValue.comment);
+            }
+        });
+    };
+
+    // Check if all select lists have values selected.
+    // If so, query for any existing measure and insert that into the input fields.
+    // If not, call clearInputValues().
+    function checkValues() {
+        var finYear = $("select#id_financial_year").val();
+        var quarter = $("select#id_quarter").val();
+        var region = $("select#id_region").val();
+        var sfmMetric = $("select#id_sfm_metric_id").val();
+
+        // If all the select lists contain a value, we can display the measurement value input fields.
+        if (finYear && quarter && region && sfmMetric) {
+            updateMeasurementValue(quarter, region, sfmMetric);
+            $("div#id_input_div").show();
+            $("input#submit-id-save").removeAttr("disabled");
+        } else {
+            // If they don't all contain a value, ensure that the measurement value input fields
+            // are cleared and hidden.
+            clearInputValues();
+            $("div#id_input_div").hide();
+            $("input#submit-id-save").attr("disabled", "disabled");
+        }
+    };
+
+    // Clear description and input field values.
+    function clearInputValues() {
+        $("span#id_descriptor_text").text("");
+        $("input:radio[name=planned]").prop("checked", false);
+        $("input:radio[name=status]").prop("checked", false);
+        $("textarea#id_comment").val("");
+        $("span#id_example_text").text("");
+    };
+
+    function saveMeasure() {
+        var data = {
+            finYear: $("select#id_financial_year").val(),
+            quarter: $("select#id_quarter").val(),
+            region: $("select#id_region").val(),
+            sfmMetric: $("select#id_sfm_metric_id").val(),
+            planned: $("input:radio[name=planned]:checked").val() == "true",
+            status: $("input:radio[name=status]:checked").val(),
+            comment: $("textarea#id_comment").val(),
+        };
+        $.ajax({
+            type: "POST",
+            url: "{% url 'ajax_measurementvalue' %}",
+            data: data,
+            success: function(data) {
+                var toastElement = document.getElementById('saveConfirm');
+                var toast = new bootstrap.Toast(toastElement);
+                toast.show();
+            }
+        });
+    }
+
+    // ------------------------------------
+    // Onready functions.
+    $(function() {
+
+        // Disable the form submit default behaviour.
+        $("form").submit(function (event) {
+            event.preventDefault();
+            // Post the values to the ajax endpoint.
+            saveMeasure();
+        });
+
+        // Disable some selects and the save button to start with.
+        $("select#id_financial_year").val("");
+        $("select#id_region").val("");
+        $("select#id_quarter").val("");
+        $("select#id_quarter")[0].disabled = true;
+        $("select#id_sfm_metric_id").val("");
+        $("select#id_sfm_metric_id")[0].disabled = true;
+        $("div#id_input_div").hide();
+        $("input#submit-id-save")[0].disabled = true;
+
+        // If the Financial Year select list changes, update the options for quarter and metric ID.
+        $("select#id_financial_year").change(function() {
+            $("div#id_input_div").hide();
+            $("select#id_quarter").val("");
+            $("select#id_quarter")[0].disabled = true;
+            $("select#id_sfm_metric_id").val("");
+            $("select#id_sfm_metric_id")[0].disabled = true;
+            var finYear = $("select#id_financial_year").val();
+            if (finYear) {
+                var region = $("select#id_region").val();
+                updateQuarter(finYear);
+                updateSfmMetricList(finYear=finYear, region=region);
+            }
+        });
+
+        // If the Region select list changes, update the options for metric ID.
+        $("select#id_region").change(function() {
+            $("div#id_input_div").hide();
+            $("select#id_sfm_metric_id").val("");
+            $("select#id_sfm_metric_id")[0].disabled = true;
+            var finYear = $("select#id_financial_year").val();
+            var region = $("select#id_region").val();
+            updateSfmMetricList(finYear=finYear, region=region);
+        });
+
+        // If any other select list changes, check if the measure fields should be updated.
+        $(".select:not(#id_financial_year)").change(function() {
+            $("div#id_input_div").hide();
+            $("input#submit-id-save").attr("disabled", "disabled");
+            clearInputValues();
+            checkValues();
+        });
+    });
+</script>
+{% endblock %}

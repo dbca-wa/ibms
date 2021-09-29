@@ -1,8 +1,12 @@
 {% extends "base_ibms.html" %}
 
 {% block page_content %}
-<div class="col-xs-12">
-    <h4>You are now logged out.</h4>
-    <p><a href="{% url 'login' %}">Log in again</a></p>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col">
+            <h4>You are now logged out.</h4>
+            <p><a href="{% url 'login' %}">Log in again</a></p>
+        </div>
+    </div>
 </div>
 {% endblock %}

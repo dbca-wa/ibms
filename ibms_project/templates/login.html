@@ -1,20 +1,18 @@
 {% extends "base_ibms.html" %}
 
-{% block navbar_auth %}{% endblock %}
-
 {% block sidebar %}{% endblock %}
 
 {% block page_content_inner %}
 <h4>Please log in with your Department username and password:</h4>
 <form method="post">
     {% csrf_token %}
-    <div id="div_id_username" class="form-group">
-        <label for="id_username" class="col-form-label requiredField">Username<span class="asteriskField">*</span></label>
-        <input type="text" name="username" required id="id_username" class="textinput textInput form-control" autofocus>
+    <div id="div_id_username" class="mb-3">
+        <label for="id_username" class="form-label">Username<span class="asteriskField">*</span></label>
+        <input class="form-control" name="username" required id="id_username" autofocus>
     </div>
-    <div id="div_id_password" class="form-group">
-        <label for="id_password" class="col-form-label  requiredField">Password<span class="asteriskField">*</span> </label>
-        <input type="password" name="password" required id="id_password" class="textinput textInput form-control">
+    <div id="div_id_password" class="mb-3">
+        <label for="id_password" class="form-label">Password<span class="asteriskField">*</span> </label>
+        <input type="password" class="form-control" name="password" required id="id_password">
     </div>
     <button type="submit" class="btn btn-primary">Log in</button>
 </form>

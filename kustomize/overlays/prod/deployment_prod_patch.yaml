@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ibms-deployment
+  labels:
+    app: ibms-prod
+spec:
+  selector:
+    matchLabels:
+      app: ibms-prod
+  template:
+    metadata:
+      labels:
+        app: ibms-prod
+    spec:
+      containers:
+      - name: ibms
+        image: dbcawa/ibms:2.6.5
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: IBMS_URL
+          value: "https://ibms-aks.dbca.wa.gov.au"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: ibms-env-prod
+              key: DATABASE_URL
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ibms-env-prod
+              key: SECRET_KEY

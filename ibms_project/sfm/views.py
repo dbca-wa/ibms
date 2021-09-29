@@ -1,45 +1,37 @@
 from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.forms.models import model_to_dict
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.views.generic.detail import BaseDetailView
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import FormView
+from django.views.generic.detail import BaseDetailView
 import json
 import os
 from openpyxl import load_workbook
 import tempfile
 
-from ibms.views import JSONResponseMixin, T
-from ibms.utils import get_download_period, breadcrumb_trail
-from sfm.forms import FMUploadForm, FMOutputReportForm, FMOutputsForm
-from sfm.models import SFMMetric, MeasurementType, MeasurementValue
+from ibms.views import JSONResponseMixin
+from ibms.utils import get_download_period
+from sfm.forms import OutputEntryForm, OutputUploadForm, FMOutputReportForm
+from sfm.models import Quarter, SFMMetric, MeasurementType, MeasurementValue
 from sfm.report import outputs_report
 from sfm.sfm_file_funcs import process_upload_file, validate_file
 
 
-class ProtectedFormView(FormView):
-    """Base FormView class, to required authentication.
-    """
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(ProtectedFormView, self).dispatch(*args, **kwargs)
-
-
-class FMOutputsView(ProtectedFormView):
-    template_name = 'sfm/outputs.html'
-    form_class = FMOutputsForm
+class OutputEntry(LoginRequiredMixin, FormView):
+    template_name = 'sfm/output_entry.html'
+    form_class = OutputEntryForm
 
     def get_context_data(self, **kwargs):
-        context = super(FMOutputsView, self).get_context_data(**kwargs)
-        context['page_title'] = ' | '.join([T, 'FM Outputs'])
+        context = super(OutputEntry, self).get_context_data(**kwargs)
+        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Output Entry'])
         context['download_period'] = get_download_period()
-        context['title'] = 'FM Outputs'
-        links = [(reverse('site_home'), 'Home'), (None, 'FM Outputs')]
-        context['breadcrumb_trail'] = breadcrumb_trail(links)
+        context['title'] = 'Output Entry'
         if self.request.user.is_superuser:
             context['superuser'] = True
         # Context variable to allow mapping of MeasurementType fields.
@@ -48,7 +40,7 @@ class FMOutputsView(ProtectedFormView):
         return context
 
     def get_success_url(self):
-        return reverse('sfmoutcome')
+        return reverse('outcome-entry')
 
     def form_valid(self, form):
         d = form.cleaned_data
@@ -64,32 +56,30 @@ class FMOutputsView(ProtectedFormView):
             mv.save()
 
         messages.success(self.request, 'Output values updated successfully.')
-        return super(FMOutputsView, self).form_valid(form)
+        return super(OutputEntry, self).form_valid(form)
 
 
-class FMUploadView(ProtectedFormView):
+class OutputUpload(LoginRequiredMixin, FormView):
     template_name = 'ibms/form.html'
-    form_class = FMUploadForm
+    form_class = OutputUploadForm
 
     def get(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return redirect(reverse('sfmupload'))
-        return super(FMUploadView, self).get(request, *args, **kwargs)
+            return redirect(reverse('output-upload'))
+        return super(OutputUpload, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(FMUploadView, self).get_context_data(**kwargs)
-        context['page_title'] = ' | '.join([T, 'FM Upload'])
+        context = super(OutputUpload, self).get_context_data(**kwargs)
+        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Output Upload'])
         context['download_period'] = get_download_period()
-        context['title'] = 'FM Upload'
-        links = [(reverse('site_home'), 'Home'), (None, 'FM Output Report')]
-        context['breadcrumb_trail'] = breadcrumb_trail(links)
-        context['sfmupload_page'] = True
+        context['title'] = 'Output Upload'
+        context['output-upload_page'] = True
         if self.request.user.is_superuser:
             context['superuser'] = True
         return context
 
     def get_success_url(self):
-        return reverse('sfmupload')
+        return reverse('output-upload')
 
     def form_valid(self, form):
         # Uploaded CSVs may contain characters with oddball encodings.
@@ -100,36 +90,29 @@ class FMUploadView(ProtectedFormView):
         for chunk in form.cleaned_data['upload_file'].chunks():
             t.write(chunk.decode('utf-8', 'ignore').encode())
         t.flush()
-        # We have to open the uploaded file in text mode to parse it.
+        # NOTE: we have to open the uploaded file in non-binary mode to parse it.
         file = open(t.name, 'r')
         file_type = form.cleaned_data['upload_file_type']
         if validate_file(file, file_type):
-            temp = tempfile.NamedTemporaryFile(delete=True)
-            for chunk in form.cleaned_data['upload_file'].chunks():
-                temp.write(chunk)
-            temp.flush()
             fy = form.cleaned_data['financial_year']
-            process_upload_file(temp.name, file_type, fy)
-            messages.success(self.request, 'FM upload values updated successfully.')
+            process_upload_file(file.name, file_type, fy)
+            messages.success(self.request, 'Output upload values updated successfully.')
         else:
             messages.error(
                 self.request,
                 'This file appears to be of an incorrect type. Please choose a {} file.'.format(file_type))
-        return super(FMUploadView, self).form_valid(form)
+        return super(OutputUpload, self).form_valid(form)
 
 
-class FMOutputReport(ProtectedFormView):
+class OutputReport(LoginRequiredMixin, FormView):
     template_name = 'sfm/output_report.html'
     form_class = FMOutputReportForm
 
     def get_context_data(self, **kwargs):
-        context = super(FMOutputReport, self).get_context_data(**kwargs)
-        context['page_title'] = ' | '.join([T, 'FM Output Report'])
+        context = super(OutputReport, self).get_context_data(**kwargs)
+        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Output Report'])
         context['download_period'] = get_download_period()
-        context['title'] = 'FM Output Report'
-        links = [(reverse('site_home'), 'Home'), (None, 'FM Output Report')]
-        context['breadcrumb_trail'] = breadcrumb_trail(links)
-        context['sfmdownload_page'] = True
+        context['title'] = 'Output Report'
         if self.request.user.is_superuser:
             context['superuser'] = True
         return context
@@ -161,25 +144,47 @@ class MeasurementValueJSON(JSONResponseMixin, BaseDetailView):
     """Utility view to return MeasurementValue object values as JSON,
     based upon the passed-in filter values.
     """
-    def get(self, request, *args, **kwargs):
-        r = MeasurementValue.objects.all()
-        if request.GET.get('quarter', None):
-            r = r.filter(quarter=request.GET['quarter'])
-        if request.GET.get('costCentre', None):
-            r = r.filter(costCentre=request.GET['costCentre'])
-        if request.GET.get('sfmMetric', None):
-            metric = SFMMetric.objects.get(pk=request.GET['sfmMetric']).__dict__
-            metric.pop('_state')
-            r = r.filter(sfmMetric__id=metric['id'])
-        else:
-            metric = dict()
-        if request.GET.get('measurementType', None):
-            r = r.filter(measurementType=request.GET['measurementType'])
+    http_method_names = ["get", "post"]
 
-        values = []
-        for i in r:
-            d = i.__dict__
-            d.pop('_state')  # Remove the _state key value from the dict.
-            values.append(d)
-        context = {'sfmMetric': metric, 'measurementValues': values}
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        metric = None
+        measure = None
+
+        if 'quarter' in request.GET and 'region' in request.GET and 'sfmMetric' in request.GET:
+            quarter = Quarter.objects.get(pk=request.GET['quarter'])
+            metric = SFMMetric.objects.get(pk=request.GET['sfmMetric'])
+
+            if MeasurementValue.objects.filter(quarter=quarter, region=request.GET['region'], sfmMetric=metric).exists():
+                # Find the measure
+                measures = MeasurementValue.objects.filter(quarter=quarter, region=request.GET['region'], sfmMetric=metric)
+                if measures.filter(value__isnull=False).exists():
+                    measure = measures.filter(value__isnull=False).first()
+                else:  # Just use the first object in the queryset.
+                    measure = measures.first()
+
+        if metric and measure:
+            context = {'sfmMetric': model_to_dict(metric), 'measurementValue': model_to_dict(measure)}
+        else:
+            context = {'sfmMetric': {}, 'measurementValue': {}}
         return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        if 'quarter' in request.POST and 'region' in request.POST and 'sfmMetric' in request.POST:
+            quarter = Quarter.objects.get(pk=request.POST['quarter'])
+            metric = SFMMetric.objects.get(pk=request.POST['sfmMetric'])
+            measure, created = MeasurementValue.objects.get_or_create(quarter=quarter, region=request.POST['region'], sfmMetric=metric)
+            if 'planned' in request.POST:
+                measure.planned = request.POST['planned'] == 'true'
+            if 'status' in request.POST:
+                measure.status = request.POST['status']
+            if 'comment' in request.POST:
+                measure.comment = request.POST['comment']
+            measure.save()
+
+            return self.render_to_response({'success': True, 'created': created})
+        else:
+            return {}

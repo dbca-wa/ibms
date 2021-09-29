@@ -1,14 +1,17 @@
-from django.contrib.admin import register, ModelAdmin
+from django.contrib.admin import register, ModelAdmin, SimpleListFilter
 from ibms.admin import export_as_csv_action
-from .models import CostCentre, FinancialYear, SFMMetric, MeasurementType, Quarter, MeasurementValue, Outcomes
+from .models import CostCentre, FinancialYear, SFMMetric, Quarter, MeasurementValue, Outcomes
 
 
 @register(CostCentre)
 class CostCentreAdmin(ModelAdmin):
-    search_fields = ['costCentre', 'name']
-    list_display = ['__str__']
-    list_filter = ['costCentre', 'name']
-    actions = [export_as_csv_action(translations=['costCentre'], fields=['costCentre'])]
+    search_fields = ['costCentre', 'name', 'region']
+    list_display = ['costCentre', 'name', 'region']
+    list_filter = ['costCentre', 'region']
+    actions = [export_as_csv_action(
+        translations=['costCentre', 'name', 'region'],
+        fields=['costCentre', 'name', 'region']),
+    ]
 
 
 @register(FinancialYear)
@@ -21,28 +24,20 @@ class FinancialYearAdmin(ModelAdmin):
 
 @register(SFMMetric)
 class SFMMetricAdmin(ModelAdmin):
-    search_fields = ['fy', 'servicePriorityNo', 'metricID']
-    list_display = ['fy', 'servicePriorityNo', 'metricID']
-    list_filter = ['fy', 'servicePriorityNo', 'metricID']
+    search_fields = ['fy__financialYear', 'region', 'servicePriorityNo', 'metricID']
+    list_display = ['fy', 'region', 'servicePriorityNo', 'metricID']
+    list_filter = ['fy', 'region', 'servicePriorityNo']
     actions = [
         export_as_csv_action(
-            translations=['financialYear', 'servicePriorityNo', 'metricID', 'descriptor', 'example'],
-            fields=['fy', 'servicePriorityNo', 'metricID', 'descriptor', 'example'])]
-
-
-@register(MeasurementType)
-class MeasurementTypeAdmin(ModelAdmin):
-    search_fields = ['unit']
-    list_display = ['unit']
-    list_filter = ['unit']
-    actions = [export_as_csv_action(translations=['unit'], fields=['unit'])]
+            translations=['financialYear', 'region', 'servicePriorityNo', 'metricID', 'descriptor', 'example'],
+            fields=['fy', 'region', 'servicePriorityNo', 'metricID', 'descriptor', 'example'])]
 
 
 @register(Quarter)
 class QuarterAdmin(ModelAdmin):
-    search_fields = ['fy', 'quarter', 'description']
+    search_fields = ['fy__financialYear', 'quarter', 'description']
     list_display = ['fy', 'quarter', 'description']
-    list_filter = ['fy', 'quarter', 'description']
+    list_filter = ['fy', 'quarter']
     actions = [
         export_as_csv_action(
             translations=['financialYear', 'quarter', 'description'],
@@ -51,18 +46,30 @@ class QuarterAdmin(ModelAdmin):
 
 @register(MeasurementValue)
 class MeasurementValueAdmin(ModelAdmin):
-    search_fields = ['sfmMetric__metricID', 'quarter__financialYear__financialYear', 'costCentre__costCentre']
-    list_display = ['quarter', 'sfmMetric', 'measurementType', 'costCentre', 'value']
-    list_filter = ['quarter', 'sfmMetric', 'measurementType', 'costCentre']
+    class FYFilter(SimpleListFilter):
+        title = 'financial year'
+        parameter_name = 'fy'
+
+        def lookups(self, request, model_admin):
+            return [(fy.pk, fy.financialYear) for fy in FinancialYear.objects.all()]
+
+        def queryset(self, request, queryset):
+            if self.value():
+                return queryset.filter(quarter__fy__pk=self.value())
+
+    search_fields = ['sfmMetric__metricID', 'region', 'quarter__fy__financialYear', 'costCentre__costCentre', 'comment']
+    list_display = ['quarter', 'region', 'sfmMetric', 'planned', 'status']
+    list_filter = [FYFilter, 'quarter', 'region', 'status', 'sfmMetric']
+    readonly_fields = ('measurementType', 'value')
     actions = [
         export_as_csv_action(
-            translations=['quarter', 'sfmMetric', 'measurementType', 'costCentre', 'value', 'comment'],
-            fields=['quarter', 'sfmMetric', 'measurementType', 'costCentre', 'value', 'comment'])]
+            translations=['quarter', 'region', 'sfmMetric', 'planned', 'status', 'comment', 'measurementType', 'value'],
+            fields=['quarter', 'region', 'sfmMetric', 'planned', 'status', 'comment', 'measurementType', 'value'])]
 
 
 @register(Outcomes)
 class OutcomesAdmin(ModelAdmin):
-    search_fields = ['costCentre', 'comment']
+    search_fields = ['costCentre__costCentre', 'costCentre__name', 'comment']
     list_display = ['costCentre', 'comment']
     list_filter = ['costCentre']
     actions = [export_as_csv_action(translations=['costCentre', 'comment'], fields=['costCentre', 'comment'])]

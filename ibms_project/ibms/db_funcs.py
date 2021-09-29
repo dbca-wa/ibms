@@ -1,5 +1,7 @@
+import codecs
 import csv
 from datetime import datetime
+from django.conf import settings
 from django.db import transaction
 import xlwt
 
@@ -8,7 +10,11 @@ from ibms.models import (
     ERServicePriority, GeneralServicePriority, PVSServicePriority, SFMServicePriority,
     ServicePriorityMappings)
 
-CSV_FILE_LIMIT = 100000000
+
+def validateCharField(fieldName, fieldLen, data):
+    if (len(data.strip()) > fieldLen):
+        raise Exception('Field ' + fieldName + ' cannot be truncated')
+    return data.strip()
 
 
 def export_ibms_data(response, fy):
@@ -121,8 +127,8 @@ def export_ibms_data(response, fy):
 
 
 def csvload(fileName):
-    csvfile = open(fileName, 'r')
-    csv.field_size_limit(CSV_FILE_LIMIT)
+    csvfile = codecs.open(fileName, encoding="utf-8", errors="ignore")
+    csv.field_size_limit(settings.CSV_FILE_LIMIT)
     rdr = csv.reader(csvfile, dialect='excel', quotechar=str('"'))
     if not csv.Sniffer().has_header(csvfile.readline()):
         rdr.seek(0)
@@ -134,13 +140,11 @@ def saverow(model, data, query):
     # Alternatively, just create a new object with ``data``.
     if model.objects.filter(**query).exists():
         # We won't bother raising an exception if there are multiple rows returned by the filter().
-        # We'll rely on any natural keys defined on the model to maintain
-        # database integrity.
+        # We'll rely on any natural keys defined on the model to maintain database integrity.
         obj = model.objects.filter(**query).update(**data)
-        return
     else:
         obj = model(**data)
-    obj.save()
+        obj.save()
 
 
 def import_to_ibmdata(fileName, fy):
@@ -184,7 +188,7 @@ def import_to_glpivotdownload(fileName, fy):
     for row in rdr:
         try:
             download_period = datetime.strptime(row[0], "%d/%m/%Y")
-        except:
+        except ValueError:
             download_period = None
         glpiv.append(
             GLPivDownload(
@@ -205,23 +209,19 @@ def import_to_glpivotdownload(fileName, fy):
 
 def import_to_corporate_strategy(fileName, fy):
     rdr, file, fileName = csvload(fileName)
-    try:
-        for row in rdr:
-            data = {
-                "fy": fy,
-                "corporateStrategyNo": validateCharField('corporateStrategyNo', 10, row[0]),
-                "description1": str(row[1]),
-                "description2": str(row[2])
-            }
-            query = {
-                "fy": fy,
-                "corporateStrategyNo": str(row[0])
-            }
-            saverow(CorporateStrategy, data, query)
-        file.close()
-    except:
-        file.close()
-        raise
+    for row in rdr:
+        data = {
+            "fy": fy,
+            "corporateStrategyNo": validateCharField('corporateStrategyNo', 10, row[0]),
+            "description1": str(row[1]),
+            "description2": str(row[2])
+        }
+        query = {
+            "fy": fy,
+            "corporateStrategyNo": str(row[0])
+        }
+        saverow(CorporateStrategy, data, query)
+    file.close()
 
 
 def import_to_nc_strategic_plan(fileName, fy):
@@ -258,175 +258,136 @@ def import_to_nc_strategic_plan(fileName, fy):
 
 def import_to_pvs_service_priority(fileName, fy):
     rdr, file, fileName = csvload(fileName)
-    try:
-        for row in rdr:
+    for row in rdr:
 
-            data = {
-                "fy": fy,
-                "categoryID": validateCharField('categoryID', 30, row[0]),
-                "servicePriorityNo": validateCharField('servicePriorityNo', 100, row[1]),
-                "strategicPlanNo": validateCharField('strategicPlanNo', 100, row[2]),
-                "corporateStrategyNo": row[3],
-                "servicePriority1": str(row[4]),
-                "description": str(row[5]),
-                "pvsExampleAnnWP": str(row[6]),
-                "pvsExampleActNo": str(row[7])
-            }
+        data = {
+            "fy": fy,
+            "categoryID": validateCharField('categoryID', 30, row[0]),
+            "servicePriorityNo": validateCharField('servicePriorityNo', 100, row[1]),
+            "strategicPlanNo": validateCharField('strategicPlanNo', 100, row[2]),
+            "corporateStrategyNo": row[3],
+            "servicePriority1": str(row[4]),
+            "description": str(row[5]),
+            "pvsExampleAnnWP": str(row[6]),
+            "pvsExampleActNo": str(row[7])
+        }
 
-            query = {
-                "fy": fy,
-                "servicePriorityNo": str(row[1])
-            }
-            saverow(PVSServicePriority, data, query)
+        query = {
+            "fy": fy,
+            "servicePriorityNo": str(row[1])
+        }
+        saverow(PVSServicePriority, data, query)
 
-        file.close()
-    except:
-        file.close()
-        raise
+    file.close()
 
 
 def import_to_sfm_service_priority(fileName, fy):
     rdr, file, fileName = csvload(fileName)
-    try:
-        for row in rdr:
-            data = {
-                "fy": fy,
-                "categoryID": validateCharField('categoryID', 30, row[0]),
-                "regionBranch": validateCharField('regionBranch', 20, row[1]),
-                "servicePriorityNo": validateCharField('servicePriorityNo', 20, row[2]),
-                "strategicPlanNo": validateCharField('strategicPlanNo', 20, row[3]),
-                "corporateStrategyNo": row[4],
-                "description": str(row[5]),
-                "description2": str(row[6])
-            }
-            query = {
-                "fy": fy,
-                "servicePriorityNo": validateCharField('servicePriorityNo', 20, row[2])}
-            saverow(SFMServicePriority, data, query)
+    for row in rdr:
+        data = {
+            "fy": fy,
+            "categoryID": validateCharField('categoryID', 30, row[0]),
+            "regionBranch": validateCharField('regionBranch', 20, row[1]),
+            "servicePriorityNo": validateCharField('servicePriorityNo', 20, row[2]),
+            "strategicPlanNo": validateCharField('strategicPlanNo', 20, row[3]),
+            "corporateStrategyNo": row[4],
+            "description": str(row[5]),
+            "description2": str(row[6])
+        }
+        query = {
+            "fy": fy,
+            "servicePriorityNo": validateCharField('servicePriorityNo', 20, row[2])}
+        saverow(SFMServicePriority, data, query)
 
-        file.close()
-
-    except:
-        file.close()
-        raise
+    file.close()
 
 
 def import_to_er_service_priority(fileName, fy):
     rdr, file, fileName = csvload(fileName)
-    try:
-        for row in rdr:
-            data = {
-                "fy": fy,
-                "categoryID": validateCharField('categoryID', 30, row[0]),
-                "servicePriorityNo": validateCharField('servicePriorityNo', 10, row[1]),
-                "strategicPlanNo": validateCharField('strategicPlanNo', 10, row[2]),
-                "corporateStrategyNo": row[3],
-                "classification": str(row[4]),
-                "description": str(row[5])
-            }
-            query = {
-                "fy": fy,
-                "servicePriorityNo": str(row[1])
-            }
-            saverow(ERServicePriority, data, query)
+    for row in rdr:
+        data = {
+            "fy": fy,
+            "categoryID": validateCharField('categoryID', 30, row[0]),
+            "servicePriorityNo": validateCharField('servicePriorityNo', 10, row[1]),
+            "strategicPlanNo": validateCharField('strategicPlanNo', 10, row[2]),
+            "corporateStrategyNo": row[3],
+            "classification": str(row[4]),
+            "description": str(row[5])
+        }
+        query = {
+            "fy": fy,
+            "servicePriorityNo": str(row[1])
+        }
+        saverow(ERServicePriority, data, query)
 
-        file.close()
-
-    except:
-        file.close()
-        raise
+    file.close()
 
 
 def import_to_general_service_priority(fileName, fy):
     rdr, file, fileName = csvload(fileName)
-    try:
-        for row in rdr:
-            try:
-                data = {
-                    "fy": fy,
-                    "categoryID": validateCharField('categoryID', 30, row[0]),
-                    "servicePriorityNo": validateCharField('servicePriorityNo', 20, row[1]),
-                    "strategicPlanNo": validateCharField('strategicPlanNo', 20, row[2]),
-                    "corporateStrategyNo": row[3],
-                    "description": str(row[4]),
-                    "description2": str(row[5])
-                }
-                query = {
-                    "fy": fy,
-                    "servicePriorityNo": str(row[1])
-                }
+    for row in rdr:
+        data = {
+            "fy": fy,
+            "categoryID": validateCharField('categoryID', 30, row[0]),
+            "servicePriorityNo": validateCharField('servicePriorityNo', 20, row[1]),
+            "strategicPlanNo": validateCharField('strategicPlanNo', 20, row[2]),
+            "corporateStrategyNo": row[3],
+            "description": str(row[4]),
+            "description2": str(row[5])
+        }
+        query = {
+            "fy": fy,
+            "servicePriorityNo": str(row[1])
+        }
 
-                saverow(GeneralServicePriority, data, query)
+        saverow(GeneralServicePriority, data, query)
 
-            except:
-                raise
-
-        file.close()
-    except:
-        file.close()
-        raise
+    file.close()
 
 
 def import_to_nc_service_priority(fileName, fy):
     rdr, file, fileName = csvload(fileName)
-    try:
-        for row in rdr:
-            data = {
-                "fy": fy,
-                "categoryID": validateCharField('categoryID', 30, row[0]),
-                "servicePriorityNo": validateCharField('servicePriorityNo', 100, row[1]),
-                "strategicPlanNo": validateCharField('strategicPlanNo', 100, row[2]),
-                "corporateStrategyNo": validateCharField('corporateStrategyNo', 100, row[3]),
-                "assetNo": validateCharField('AssetNo', 5, row[4]),
-                "asset": str(row[5]),
-                "targetNo": validateCharField('Asset', 30, row[6]),
-                "target": str(row[7]),
-                "actionNo": str(row[8]),
-                "action": str(row[9]),
-                "mileNo": validateCharField('MileNo', 30, row[10]),
-                "milestone": str(row[11])
-            }
-            query = {
-                "fy": fy,
-                "servicePriorityNo": str(row[1])
-            }
-            saverow(NCServicePriority, data, query)
+    for row in rdr:
+        data = {
+            "fy": fy,
+            "categoryID": validateCharField('categoryID', 30, row[0]),
+            "servicePriorityNo": validateCharField('servicePriorityNo', 100, row[1]),
+            "strategicPlanNo": validateCharField('strategicPlanNo', 100, row[2]),
+            "corporateStrategyNo": validateCharField('corporateStrategyNo', 100, row[3]),
+            "assetNo": validateCharField('AssetNo', 5, row[4]),
+            "asset": str(row[5]),
+            "targetNo": validateCharField('Asset', 30, row[6]),
+            "target": str(row[7]),
+            "actionNo": str(row[8]),
+            "action": str(row[9]),
+            "mileNo": validateCharField('MileNo', 30, row[10]),
+            "milestone": str(row[11])
+        }
+        query = {
+            "fy": fy,
+            "servicePriorityNo": str(row[1])
+        }
+        saverow(NCServicePriority, data, query)
 
-        file.close()
-    except:
-        file.close()
-        raise
+    file.close()
 
 
 def import_to_service_priority_mappings(fileName, fy):
     rdr, file, fileName = csvload(fileName)
-    try:
-        query = {
-            "fy": fy
+    query_results = ServicePriorityMappings.objects.filter(fy=fy)
+    if query_results.exists():
+        query_results.delete()
+    for row in rdr:
+        data = {
+            "fy": fy,
+            "costCentreNo": validateCharField('costCentreNo', 4, row[0]),
+            "wildlifeManagement": validateCharField('wildlifeManagement', 100, row[1]),
+            "parksManagement": validateCharField('parksManagement', 100, row[2]),
+            "forestManagement": validateCharField('forestManagement', 100, row[3])
         }
-        query_results = ServicePriorityMappings.objects.filter(**query)
-        if query_results.exists():
-            query_results.delete()
-        for row in rdr:
-            data = {
-                "fy": fy,
-                "costCentreNo": validateCharField('costCentreNo', 4, row[0]),
-                "wildlifeManagement": validateCharField('wildlifeManagement', 100, row[1]),
-                "parksManagement": validateCharField('parksManagement', 100, row[2]),
-                "forestManagement": validateCharField('forestManagement', 100, row[3])
-            }
-            obj = ServicePriorityMappings(**data)
-            obj.save()
-        file.close()
-    except:
-        file.close()
-        raise
-
-
-def validateCharField(fieldName, fieldLen, data):
-    if (len(data.strip()) > fieldLen):
-        raise Exception('Field ' + fieldName + ' cannot be truncated')
-    return data.strip()
+        obj = ServicePriorityMappings(**data)
+        obj.save()
+    file.close()
 
 
 def download_ibms_data(glrows):
@@ -667,11 +628,11 @@ def download_ibms_data(glrows):
         xlrow[3] = int(xlrow[3])  # costCentre
         try:
             xlrow[8] = int(xlrow[8])  # project
-        except:
+        except ValueError:
             pass
         try:
             xlrow[9] = int(xlrow[9])  # job
-        except:
+        except ValueError:
             pass
 
         for col, cell in enumerate(xlrow):

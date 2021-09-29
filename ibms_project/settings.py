@@ -23,6 +23,7 @@ INTERNAL_IPS = ['127.0.0.1', '::1']
 ROOT_URLCONF = 'ibms_project.urls'
 WSGI_APPLICATION = 'ibms_project.wsgi.application'
 INSTALLED_APPS = (
+    'whitenoise.runserver_nostatic',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -31,12 +32,15 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_extensions',
     'crispy_forms',
+    'crispy_bootstrap5',
     'webtemplate_dbca',
     'ibms',
     'sfm',
 )
 MIDDLEWARE = [
+    'ibms_project.middleware.HealthCheckMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -72,7 +76,7 @@ TEMPLATES = [
 ]
 SITE_TITLE = 'Integrated Business Management System'
 SITE_ACRONYM = 'IBMS'
-APPLICATION_VERSION_NO = '2.6.4'
+APPLICATION_VERSION_NO = '2.7.0'
 ADMINS = ('asi@dbca.wa.gov.au',)
 MANAGERS = (
     ('Natasha Omelchuk', 'natasha.omelchuk@dbca.wa.gov.au', '9219 9099'),
@@ -87,8 +91,8 @@ IBM_CODE_UPDATER_URI = env('IBM_CODE_UPDATER_URI', '')
 IBM_SERVICE_PRIORITY_URI = env('IBM_SERVICE_PRIORITY_URI', '')
 IBM_RELOAD_URI = env('IBM_RELOAD_URI', '')
 IBM_DATA_AMEND_URI = env('IBM_DATA_AMEND_URI', '')
-CRISPY_TEMPLATE_PACK = 'bootstrap4'
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None  # Required to allow end-of-month GLPivot bulk deletes.
+CSV_FILE_LIMIT = env('CSV_FILE_LIMIT', 100000000)
 
 
 # Database configuration
@@ -107,6 +111,8 @@ MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (os.path.join(PROJECT_DIR, 'static'), )
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+WHITENOISE_ROOT = STATIC_ROOT
 
 
 # Internationalisation.
@@ -166,3 +172,7 @@ LOGGING = {
         },
     }
 }
+
+# django-crispy-forms config
+CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
+CRISPY_TEMPLATE_PACK = 'bootstrap5'
