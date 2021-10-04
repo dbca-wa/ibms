@@ -1,4 +1,4 @@
-# IBMS Kubernetes Kustomize overlay coniguration
+# IBMS Kubernetes Kustomize overlay configuration
 
 Declarative management of IBMS Kubernetes objects using Kustomize.
 
