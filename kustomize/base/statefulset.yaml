@@ -6,6 +6,11 @@ spec:
   replicas: 1
   template:
     spec:
+      restartPolicy: Always
+      volumes:
+      - name: ibms-pg14-data
+        persistentVolumeClaim:
+          claimName: ibms-pg14-data
       initContainers:
       - name: ibms-db-init
         image: postgres:14-alpine
@@ -16,11 +21,6 @@ spec:
         volumeMounts:
         - mountPath: /data
           name: ibms-pg14-data
-      restartPolicy: Always
-      volumes:
-      - name: ibms-pg14-data
-        persistentVolumeClaim:
-          claimName: ibms-pg14-data
       containers:
       - name: ibms-db
         image: postgres:14-alpine
