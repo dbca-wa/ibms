@@ -8,11 +8,11 @@ spec:
     spec:
       initContainers:
       - name: ibms-db-init
-        image: busybox
-        args:
-        - /bin/sh
+        image: postgres:14-alpine
+        command:
+        - /bin/bash
         - -c
-        - mkdir -p /data/data; mkdir -p /data/archivedir; chown -R 999:999 /data
+        - mkdir -p /data/data; mkdir -p /data/archivedir; chown -R postgres:postgres /data
         volumeMounts:
         - mountPath: /data
           name: ibms-pg14-data
