@@ -1,4 +1,4 @@
-# IBMS Kubernetes Kustomize overlay coniguration
+# IBMS Kubernetes Kustomize overlay configuration
 
 Declarative management of IBMS Kubernetes objects using Kustomize.
 
@@ -7,7 +7,6 @@ Declarative management of IBMS Kubernetes objects using Kustomize.
 Within an overlay directory, create a `.env` file to contain required secret
 values in the format KEY=value (i.e. `overlays/uat/.env`). Required values:
 
-    POSTGRES_PASSWORD=value
     DATABASE_URL=value
     SECRET_KEY=value
 

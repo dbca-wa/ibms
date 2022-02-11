@@ -13,5 +13,3 @@ resources:
 - ingress.yaml
 patchesStrategicMerge:
 - deployment_prod_patch.yaml
-- statefulset_prod_patch.yaml
-- persistentvolumeclaim_prod_patch.yaml
