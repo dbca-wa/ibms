@@ -12,11 +12,15 @@ sys.path.insert(0, PROJECT_DIR)
 
 # Settings defined in environment variables.
 DEBUG = env('DEBUG', False)
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 SECRET_KEY = env('SECRET_KEY', 'PlaceholderSecretKey')
 CSRF_COOKIE_SECURE = env('CSRF_COOKIE_SECURE', False)
 SESSION_COOKIE_SECURE = env('SESSION_COOKIE_SECURE', False)
+SECURE_SSL_REDIRECT = env('SECURE_SSL_REDIRECT', False)
+SECURE_REFERRER_POLICY = env('SECURE_REFERRER_POLICY', None)
+SECURE_HSTS_SECONDS = env('SECURE_HSTS_SECONDS', 0)
 if not DEBUG:
-    ALLOWED_HOSTS = env('ALLOWED_DOMAINS', '').split(',')
+    ALLOWED_HOSTS = env('ALLOWED_DOMAINS', 'localhost').split(',')
 else:
     ALLOWED_HOSTS = ['*']
 INTERNAL_IPS = ['127.0.0.1', '::1']
