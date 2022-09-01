@@ -83,7 +83,7 @@ SITE_ACRONYM = 'IBMS'
 APPLICATION_VERSION_NO = '2.7.0'
 ADMINS = ('asi@dbca.wa.gov.au',)
 MANAGERS = (
-    ('Natasha Omelchuk', 'natasha.omelchuk@dbca.wa.gov.au', '9219 9099'),
+    ('Zen Wee', 'zen.wee@dbca.wa.gov.au', '9219 9928'),
     ('Graham Holmes', 'graham.holmes@dbca.wa.gov.au', '9881 9212'),
     ('Neil Clancy', 'neil.clancy@dbca.wa.gov.au', '9219 9926'),
 )
