@@ -80,7 +80,7 @@ TEMPLATES = [
 ]
 SITE_TITLE = 'Integrated Business Management System'
 SITE_ACRONYM = 'IBMS'
-APPLICATION_VERSION_NO = '2.7.0'
+APPLICATION_VERSION_NO = '2.7.2'
 ADMINS = ('asi@dbca.wa.gov.au',)
 MANAGERS = (
     ('Zen Wee', 'zen.wee@dbca.wa.gov.au', '9219 9928'),
