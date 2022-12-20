@@ -24,34 +24,50 @@ jobs:
           - 5432:5432
         options: --mount type=tmpfs,destination=/var/lib/postgresql/data --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: Checkout
-        uses: actions/checkout@v2
+      #----------------------------------------------
+      # Checkout repo and set up Python
+      #----------------------------------------------
+      - name: Check out repository
+        uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
+        id: setup-python
         with:
-          python-version: 3.9.6
-      - name: Install poetry
-        uses: snok/install-poetry@v1.2.0
+          python-version: '3.9'
+      #----------------------------------------------
+      # Install & configure Poetry
+      #----------------------------------------------
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
         with:
-          version: 1.1.8
           virtualenvs-create: true
           virtualenvs-in-project: true
+          installer-parallel: true
+      #----------------------------------------------
+      # Load cached venv if cache exists
+      #----------------------------------------------
       - name: Load cached venv
         id: cached-poetry-dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      #----------------------------------------------
+      # Install dependencies if cache does not exist
+      #----------------------------------------------
       - name: Install dependencies
-        run: poetry install
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      - name: Run DB migrations
-        run: |
-          source .venv/bin/activate
-          python manage.py migrate
+        run: poetry install --no-interaction --no-root
+      #----------------------------------------------
+      # Install project dependencies
+      #----------------------------------------------
+      - name: Install project dependencies
+        run: poetry install --no-interaction
+      #----------------------------------------------
+      # Run unit tests
+      #----------------------------------------------
       - name: Run tests
         run: |
-          source .venv/bin/activate
+          python manage.py migrate
           python manage.py collectstatic
           python manage.py test
