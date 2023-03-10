@@ -202,13 +202,13 @@ class ReloadView(IbmsFormView):
 
         fpath = os.path.join(settings.STATIC_ROOT, 'excel', 'reload_base.xls')
         excel_template = open_workbook(fpath, formatting_info=True, on_demand=True)
-        book = copy(excel_template)
+        workbook = copy(excel_template)
 
         # Style & populate the worksheet.
-        reload_report(book, ibm, nc_sp, pvs_sp, fm_sp, gl)
+        reload_report(workbook, ibm, nc_sp, pvs_sp, fm_sp, gl)
         response = HttpResponse(content_type='application/vnd.ms-excel')
         response['Content-Disposition'] = 'attachment; filename=ibms_reloads.xls'
-        book.save(response)  # Save the worksheet contents to the response.
+        workbook.save(response)  # Save the worksheet contents to the response.
 
         return response
 
@@ -286,12 +286,12 @@ class CodeUpdateView(IbmsFormView):
         # Style & populate the workbook.
         fpath = os.path.join(settings.STATIC_ROOT, 'excel', 'ibms_codeupdate_base.xls')
         excel_template = open_workbook(fpath, formatting_info=True, on_demand=True)
-        book = copy(excel_template)
-        code_update_report(excel_template, book, gl, gl_codeids, nc_sp, pvs_sp, fm_sp, ibm)
+        workbook = copy(excel_template)
+        code_update_report(excel_template, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_sp, ibm)
 
         response = HttpResponse(content_type='application/vnd.ms-excel')
         response['Content-Disposition'] = 'attachment; filename=ibms_exceptions.xls'
-        book.save(response)  # Save the Excel workbook contents to the response.
+        workbook.save(response)  # Save the Excel workbook contents to the response.
         return response
 
 
@@ -344,14 +344,14 @@ class DataAmendmentView(IbmsFormView):
         fpath = os.path.join(
             settings.STATIC_ROOT, 'excel', 'ibms_dataamend_base.xls')
         excel_template = open_workbook(fpath, formatting_info=True, on_demand=True)
-        book = copy(excel_template)
+        workbook = copy(excel_template)
 
         # Style & populate the worksheet.
-        data_amend_report(book, gl, ibm, nc_sp, pvs_sp, fm_sp, ibm_filtered)
+        data_amend_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp, ibm_filtered)
 
         response = HttpResponse(content_type='application/vnd.ms-excel')
         response['Content-Disposition'] = 'attachment; filename=ibms_dataamendment.xls'
-        book.save(response)  # Save the worksheet contents to the response.
+        workbook.save(response)  # Save the worksheet contents to the response.
         return response
 
 
@@ -393,14 +393,14 @@ class ServicePriorityDataView(IbmsFormView):
         fpath = os.path.join(
             settings.STATIC_ROOT, 'excel', 'service_priority_base.xls')
         excel_template = open_workbook(fpath, formatting_info=True, on_demand=True)
-        book = copy(excel_template)
+        workbook = copy(excel_template)
 
         # Style & populate the worksheet.
-        service_priority_report(book, gl, ibm, nc_sp, pvs_sp, fm_sp)
+        service_priority_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp)
 
         response = HttpResponse(content_type='application/vnd.ms-excel')
         response['Content-Disposition'] = 'attachment; filename=serviceprioritydata.xls'
-        book.save(response)  # Save the worksheet contents to the response.
+        workbook.save(response)  # Save the worksheet contents to the response.
 
         return response
 
