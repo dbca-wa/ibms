@@ -257,16 +257,16 @@ class CodeUpdateView(IbmsFormView):
             if form.cleaned_data['report_type'] == 'dj0':
                 gl = gl.filter(activity='DJ0')
                 gl = gl.filter(service__in=[42, 43, 75])
-                gl = gl.filter(account__in=[1, 2, 4])
+                gl = gl.filter(account__in=[1, 2, 4, 42])
             else:  # Non-DJ0.
                 gl = gl.exclude(activity='DJ0')
-                gl = gl.filter(account__in=[1, 2])
+                gl = gl.filter(account__in=[1, 2, 42])
         else:
             # Business rule: for CC 531 only, include accounts 1, 2 & 6.
             if cc and cc == '531':
-                gl = gl.filter(account__in=[1, 2, 6])
+                gl = gl.filter(account__in=[1, 2, 6, 42])
             else:
-                gl = gl.filter(account__in=[1, 2])
+                gl = gl.filter(account__in=[1, 2, 42])
             gl = gl.exclude(activity='DJ0', service__in=[42, 43, 75])
 
         # Filter by codeID: EXCLUDE objects with a codeID that matches any
