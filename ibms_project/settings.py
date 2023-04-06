@@ -80,7 +80,7 @@ TEMPLATES = [
 ]
 SITE_TITLE = 'Integrated Business Management System'
 SITE_ACRONYM = 'IBMS'
-APPLICATION_VERSION_NO = '2.7.3'
+APPLICATION_VERSION_NO = '2.7.4'
 ADMINS = ('asi@dbca.wa.gov.au',)
 MANAGERS = (
     ('Zen Wee', 'zen.wee@dbca.wa.gov.au', '9219 9928'),
@@ -150,25 +150,20 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'console': {'format': '%(asctime)s %(name)-12s %(message)s'},
-        'verbose': {'format': '%(asctime)s %(levelname)-8s %(message)s'},
+        'console': {'format': '%(asctime)s %(levelname)-8s %(message)s'},
     },
     'handlers': {
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
             'formatter': 'console'
         },
     },
     'loggers': {
-        'django': {
+        '': {
             'handlers': ['console'],
-			'propagate': True,
-        },
-        'django.request': {
-            'handlers': ['console'],
-            'level': 'WARNING',
-			'propagate': False,
+            'level': 'DEBUG' if DEBUG else 'INFO',
         },
         'ibms': {
             'handlers': ['console'],

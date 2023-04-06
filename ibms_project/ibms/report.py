@@ -149,8 +149,7 @@ def data_amend_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp, ibm_filtered):
 
 
 def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_sp, ibm):
-    """This report reads from the readonly workbook in order to perform some
-    cell processing.
+    """This report reads from the readonly workbook in order to perform some cell processing.
     """
     # Sheet 1
     sheet = workbook.get_sheet(0)
