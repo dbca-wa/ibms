@@ -469,8 +469,10 @@ def download_report(glrows, response):
         "wildfire",
         "expenseRevenue",
         "fireActivities",
-        "mPRACategory")
+        "mPRACategory",
+    )
 
+    # Get a queryset of all IBMData objects.
     ibmrows = IBMData.objects.values(
         "ibmIdentifier",
         "fy",
@@ -480,23 +482,19 @@ def download_report(glrows, response):
         "strategicPlanNo",
         "regionalSpecificInfo",
         "servicePriorityID",
-        "annualWPInfo")
-    ibmdict = dict(
-        ((r["ibmIdentifier"] +
-          "_" +
-          r["fy"],
-            r) for r in ibmrows))
+        "annualWPInfo",
+    )
+
+    # Construct a dict of IBMData objects, keys being a natural key of <ibmIdentifier>_<fy>
+    ibmdict = dict([(r["ibmIdentifier"] + "_" + r["fy"], r) for r in ibmrows])
 
     csrows = CorporateStrategy.objects.values(
         "corporateStrategyNo",
         "fy",
         "description1",
-        "description2")
-    csdict = dict(
-        ((r["corporateStrategyNo"] +
-          "_" +
-          r["fy"],
-            r) for r in csrows))
+        "description2",
+    )
+    csdict = dict([(r["corporateStrategyNo"] + "_" + r["fy"], r) for r in csrows])
 
     ncrows = NCStrategicPlan.objects.values(
         "strategicPlanNo",
@@ -507,27 +505,16 @@ def download_report(glrows, response):
         "Aim1",
         "Aim2",
         "ActionNo",
-        "Action")
-    ncdict = dict(
-        ((r["strategicPlanNo"] +
-          "_" +
-          r["fy"],
-            r) for r in ncrows))
+        "Action",
+    )
+    ncdict = dict([(r["strategicPlanNo"] + "_" + r["fy"], r) for r in ncrows])
 
     spdict = dict()
-    ncsprows = NCServicePriority.objects.values_list(
-        "servicePriorityNo", "fy", "action", "milestone")
-    sfmsprows = SFMServicePriority.objects.values_list(
-        "servicePriorityNo", "fy", "description", "description2")
-    pvssprows = PVSServicePriority.objects.values_list(
-        "servicePriorityNo",
-        "fy",
-        "servicePriority1",
-        "description")
-    gensprows = GeneralServicePriority.objects.values_list(
-        "servicePriorityNo", "fy", "description", "description2")
-    ersprows = ERServicePriority.objects.values_list(
-        "servicePriorityNo", "fy", "classification", "description")
+    ncsprows = NCServicePriority.objects.values_list("servicePriorityNo", "fy", "action", "milestone")
+    sfmsprows = SFMServicePriority.objects.values_list("servicePriorityNo", "fy", "description", "description2")
+    pvssprows = PVSServicePriority.objects.values_list("servicePriorityNo", "fy", "servicePriority1", "description")
+    gensprows = GeneralServicePriority.objects.values_list("servicePriorityNo", "fy", "description", "description2")
+    ersprows = ERServicePriority.objects.values_list("servicePriorityNo", "fy", "classification", "description")
 
     # order important
     for sprows in [ncsprows, sfmsprows, pvssprows, gensprows, ersprows]:
@@ -611,61 +598,61 @@ def download_report(glrows, response):
                     row["fy"],
                     dict()))
         if "servicePriorityID" in outputdict.keys():
-            d1, d2 = spdict.get(
-                outputdict["servicePriorityID"] + "_" + row["fy"], ("", "", "", ""))[2:]
+            d1, d2 = spdict.get(outputdict["servicePriorityID"] + "_" + row["fy"], ("", "", "", ""))[2:]
             outputdict.update({"d1": d1, "d2": d2})
         xlrow = list()
         for key in [
-                "codeID",
-                "fy",
-                "downloadPeriod",
-                "costCentre",
-                "account",
-                "service",
-                "activity",
-                "resource",
-                "project",
-                "job",
-                "shortCode",
-                "shortCodeName",
-                "gLCode",
-                "ptdActual",
-                "ptdBudget",
-                "ytdActual",
-                "ytdBudget",
-                "fybudget",
-                "ytdVariance",
-                "ccName",
-                "serviceName",
-                "jobName",
-                "resNameNo",
-                "actNameNo",
-                "projNameNo",
-                "regionBranch",
-                "division",
-                "resourceCategory",
-                "wildfire",
-                "expenseRevenue",
-                "fireActivities",
-                "mPRACategory",
-                "budgetArea",
-                "projectSponsor",
-                "corporatePlanNo",
-                "strategicPlanNo",
-                "regionalSpecificInfo",
-                "servicePriorityID",
-                "annualWPInfo",
-                "description1",
-                "description2",
-                "directionNo",
-                "direction",
-                "AimNo",
-                "Aim1",
-                "Aim2",
-                "ActionNo",
-                "Action",
-                "d1",
-                "d2"]:
+            "codeID",
+            "fy",
+            "downloadPeriod",
+            "costCentre",
+            "account",
+            "service",
+            "activity",
+            "resource",
+            "project",
+            "job",
+            "shortCode",
+            "shortCodeName",
+            "gLCode",
+            "ptdActual",
+            "ptdBudget",
+            "ytdActual",
+            "ytdBudget",
+            "fybudget",
+            "ytdVariance",
+            "ccName",
+            "serviceName",
+            "jobName",
+            "resNameNo",
+            "actNameNo",
+            "projNameNo",
+            "regionBranch",
+            "division",
+            "resourceCategory",
+            "wildfire",
+            "expenseRevenue",
+            "fireActivities",
+            "mPRACategory",
+            "budgetArea",
+            "projectSponsor",
+            "corporatePlanNo",
+            "strategicPlanNo",
+            "regionalSpecificInfo",
+            "servicePriorityID",
+            "annualWPInfo",
+            "description1",
+            "description2",
+            "directionNo",
+            "direction",
+            "AimNo",
+            "Aim1",
+            "Aim2",
+            "ActionNo",
+            "Action",
+            "d1",
+            "d2",
+        ]:
             xlrow.append(outputdict.get(key, ""))
 
         # Conditionally cast some string values as ints.
