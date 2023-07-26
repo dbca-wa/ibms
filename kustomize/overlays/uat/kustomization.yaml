@@ -1,15 +1,18 @@
-bases:
-- ../../base
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
 namespace: ibms
 nameSuffix: -uat
 secretGenerator:
-- name: ibms-env
-  envs:
+- envs:
   - .env
-commonLabels:
-  variant: uat
+  name: ibms-env
 resources:
+- ../../base
 - service.yaml
 - ingress.yaml
-patchesStrategicMerge:
-- deployment_uat_patch.yaml
+labels:
+- includeSelectors: true
+  pairs:
+    variant: uat
+patches:
+- path: deployment_uat_patch.yaml
