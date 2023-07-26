@@ -8,13 +8,13 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "false"
 spec:
   rules:
-  - host: ibms-aks.dbca.wa.gov.au
+  - host: ibms.dbca.wa.gov.au
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: ingress-ibms-prod
+            name: ibms-clusterip-prod
             port:
               number: 8080
