@@ -669,3 +669,255 @@ def download_report(glrows, response):
         writer.writerow(xlrow)
 
     return response
+
+
+def download_enhanced_report(glrows, response):
+    """Convenience function to write a CSV to a passed-in HTTPResponse.
+    """
+    rows = glrows.values(
+        "codeID",
+        "fy",
+        "downloadPeriod",
+        "costCentre",
+        "account",
+        "service",
+        "activity",
+        "resource",
+        "project",
+        "job",
+        "shortCode",
+        "shortCodeName",
+        "gLCode",
+        "ptdActual",
+        "ptdBudget",
+        "ytdActual",
+        "ytdBudget",
+        "fybudget",
+        "ytdVariance",
+        "ccName",
+        "serviceName",
+        "jobName",
+        "resNameNo",
+        "actNameNo",
+        "projNameNo",
+        "regionBranch",
+        "division",
+        "resourceCategory",
+        "wildfire",
+        "expenseRevenue",
+        "fireActivities",
+        "mPRACategory",
+    )
+
+    # Get a queryset of all IBMData objects.
+    ibmrows = IBMData.objects.values(
+        "ibmIdentifier",
+        "fy",
+        "budgetArea",
+        "projectSponsor",
+        "corporatePlanNo",
+        "strategicPlanNo",
+        "regionalSpecificInfo",
+        "servicePriorityID",
+        "annualWPInfo",
+        "priorityActionNo",
+        "priorityLevel",
+        "marineKMI",
+        "regionProject",
+        "regionDescription",
+    )
+
+    # Construct a dict of IBMData objects, keys being a natural key of <ibmIdentifier>_<fy>
+    ibmdict = dict([(r["ibmIdentifier"] + "_" + r["fy"], r) for r in ibmrows])
+
+    csrows = CorporateStrategy.objects.values(
+        "corporateStrategyNo",
+        "fy",
+        "description1",
+        "description2",
+    )
+    csdict = dict([(r["corporateStrategyNo"] + "_" + r["fy"], r) for r in csrows])
+
+    ncrows = NCStrategicPlan.objects.values(
+        "strategicPlanNo",
+        "fy",
+        "directionNo",
+        "direction",
+        "AimNo",
+        "Aim1",
+        "Aim2",
+        "ActionNo",
+        "Action",
+    )
+    ncdict = dict([(r["strategicPlanNo"] + "_" + r["fy"], r) for r in ncrows])
+
+    spdict = dict()
+    ncsprows = NCServicePriority.objects.values_list("servicePriorityNo", "fy", "action", "milestone")
+    sfmsprows = SFMServicePriority.objects.values_list("servicePriorityNo", "fy", "description", "description2")
+    pvssprows = PVSServicePriority.objects.values_list("servicePriorityNo", "fy", "servicePriority1", "description")
+    gensprows = GeneralServicePriority.objects.values_list("servicePriorityNo", "fy", "description", "description2")
+    ersprows = ERServicePriority.objects.values_list("servicePriorityNo", "fy", "classification", "description")
+
+    # order important
+    for sprows in [ncsprows, sfmsprows, pvssprows, gensprows, ersprows]:
+        spdict.update(dict(((r[0] + "_" + r[1], r) for r in sprows)))
+
+    writer = csv.writer(response)
+    headers = [
+        "IBMS ID",
+        "Financial Year",
+        "Download Period",
+        "Cost Centre",
+        "Account",
+        "Service",
+        "Activity",
+        "Resource",
+        "Project",
+        "Job",
+        "Short Code",
+        "Short Code Name",
+        "GL Code",
+        "ptd Actual",
+        "ptd Budget",
+        "ytd Actual",
+        "ytd Budget",
+        "fy Budget",
+        "ytd Variance",
+        "cc Name",
+        "Service Name",
+        "Job Name",
+        "Res Name No",
+        "Act Name No",
+        "Proj Name No",
+        "Region/Branch",
+        "Division",
+        "Resource Category",
+        "Wildfire",
+        "Expense Revenue",
+        "Fire Activities",
+        "mPRACategory",
+        "Budget Area",
+        "Project Sponsor",
+        "Corporate Strategy No",
+        "Strategic Plan No",
+        "Regional Specific Info",
+        "Service Priority No",
+        "Annual Works Plan",
+        "Corp Strategy Description 1",
+        "Corp Strategy Description 2",
+        "Nat Cons Strategic Direction No",
+        "Nat Cons Strat Direction Desc",
+        "Nat Cons Strat Plan Aim No",
+        "Nat Cons Strat Plan Aim Desc 1",
+        "Nat Cons Strat Plan Aim Desc 2",
+        "Nat Cons Strat Plan Action No",
+        "Nat Cons Strat Plan Action Description",
+        "Service Priority Description 1",
+        "Service Priority Description 2",
+        "Priority Action No",
+        "Priority Level",
+        "Marine KPI",
+        "Region Project",
+        "Region Description",
+    ]
+
+    writer.writerow(headers)
+
+    for row_num, row in enumerate(rows, 1):
+        outputdict = row
+        outputdict.update(
+            ibmdict.get(
+                row["codeID"] + "_" + row["fy"], dict()
+            )
+        )
+        if "corporatePlanNo" in outputdict.keys():
+            outputdict.update(
+                csdict.get(
+                    outputdict["corporatePlanNo"] +
+                    "_" +
+                    row["fy"],
+                    dict()))
+        if "strategicPlanNo" in outputdict.keys():
+            outputdict.update(
+                ncdict.get(
+                    outputdict["strategicPlanNo"] +
+                    "_" +
+                    row["fy"],
+                    dict()))
+        if "servicePriorityID" in outputdict.keys():
+            d1, d2 = spdict.get(outputdict["servicePriorityID"] + "_" + row["fy"], ("", "", "", ""))[2:]
+            outputdict.update({"d1": d1, "d2": d2})
+        xlrow = list()
+        for key in [
+            "codeID",
+            "fy",
+            "downloadPeriod",
+            "costCentre",
+            "account",
+            "service",
+            "activity",
+            "resource",
+            "project",
+            "job",
+            "shortCode",
+            "shortCodeName",
+            "gLCode",
+            "ptdActual",
+            "ptdBudget",
+            "ytdActual",
+            "ytdBudget",
+            "fybudget",
+            "ytdVariance",
+            "ccName",
+            "serviceName",
+            "jobName",
+            "resNameNo",
+            "actNameNo",
+            "projNameNo",
+            "regionBranch",
+            "division",
+            "resourceCategory",
+            "wildfire",
+            "expenseRevenue",
+            "fireActivities",
+            "mPRACategory",
+            "budgetArea",
+            "projectSponsor",
+            "corporatePlanNo",
+            "strategicPlanNo",
+            "regionalSpecificInfo",
+            "servicePriorityID",
+            "annualWPInfo",
+            "description1",
+            "description2",
+            "directionNo",
+            "direction",
+            "AimNo",
+            "Aim1",
+            "Aim2",
+            "ActionNo",
+            "Action",
+            "d1",
+            "d2",
+            "priorityActionNo",
+            "priorityLevel",
+            "marineKMI",
+            "regionProject",
+            "regionDescription",
+        ]:
+            xlrow.append(outputdict.get(key, ""))
+
+        # Conditionally cast some string values as ints.
+        xlrow[3] = int(xlrow[3])  # costCentre
+        try:
+            xlrow[8] = int(xlrow[8])  # project
+        except:
+            pass
+        try:
+            xlrow[9] = int(xlrow[9])  # job
+        except:
+            pass
+
+        writer.writerow(xlrow)
+
+    return response

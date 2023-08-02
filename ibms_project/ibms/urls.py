@@ -1,12 +1,15 @@
 from django.urls import path
 from ibms.models import GLPivDownload, IBMData, ServicePriorityMappings
-from ibms.views import (DownloadView, UploadView, ReloadView, CodeUpdateView,
-                        ServicePriorityDataView, DataAmendmentView, ClearGLPivotView,
-                        IbmsModelFieldJSON, ServicePriorityMappingsJSON )
+from ibms.views import (
+    DownloadView, DownloadEnhancedView, UploadView, ReloadView, CodeUpdateView,
+    ServicePriorityDataView, DataAmendmentView, ClearGLPivotView,
+    IbmsModelFieldJSON, ServicePriorityMappingsJSON,
+)
 
 urlpatterns = [
     path('upload/', UploadView.as_view(), name='upload'),
     path('download/', DownloadView.as_view(), name='download'),
+    path('download-enhanced/', DownloadEnhancedView.as_view(), name='download_enhanced'),
     path('reload/', ReloadView.as_view(), name='reload'),
     path('code-update/', CodeUpdateView.as_view(), name='code_update'),
     path('service-priority-data/', ServicePriorityDataView.as_view(), name='serviceprioritydata'),

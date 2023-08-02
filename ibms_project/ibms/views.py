@@ -18,7 +18,8 @@ from ibms.file_funcs import validate_file, process_upload_file
 from ibms.models import IBMData, GLPivDownload, NCServicePriority, PVSServicePriority, SFMServicePriority
 from ibms.report import (
     reload_report, code_update_report, data_amend_report,
-    service_priority_report, download_report)
+    service_priority_report, download_report, download_enhanced_report,
+)
 from ibms.utils import get_download_period
 
 
@@ -172,6 +173,33 @@ class DownloadView(IbmsFormView):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=ibms_data_download.csv'
         response = download_report(glrows, response)  # Write CSV data.
+        return response
+
+
+class DownloadEnhancedView(DownloadView):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = ' | '.join([settings.SITE_ACRONYM, 'Enhanced Download'])
+        context['title'] = 'ENHANCED DOWNLOAD'
+        return context
+
+    def get_success_url(self):
+        return reverse('download_enhanced')
+
+    def form_valid(self, form):
+        d = form.cleaned_data
+        glrows = GLPivDownload.objects.filter(fy=d['financial_year'])
+        if d.get('cost_centre', None):
+            glrows = glrows.filter(costCentre=d['cost_centre'])
+        elif d.get('region', None):
+            glrows = glrows.filter(regionBranch=d['region'])
+        elif d.get('division', None):
+            glrows = glrows.filter(division=d['division'])
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=ibms_data_enhanced_download.csv'
+        response = download_enhanced_report(glrows, response)  # Write CSV data.
         return response
 
 
