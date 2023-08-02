@@ -1,5 +1,4 @@
 from datetime import datetime
-from django.conf import settings
 from django.db import models
 from sfm.models import FinancialYear
 
@@ -19,24 +18,27 @@ FINYEAR_CHOICES = (
 
 
 class IBMData(models.Model):
-    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
-    ibmIdentifier = models.CharField(
-        max_length=100,
-        verbose_name='IBMId',
-        help_text='IBM Identifier')
-    budgetArea = models.CharField(max_length=100, db_index=True)
-    projectSponsor = models.CharField(max_length=100, db_index=True)
-    corporatePlanNo = models.CharField(max_length=100, db_index=True)
-    strategicPlanNo = models.CharField(max_length=100, db_index=True)
-    regionalSpecificInfo = models.TextField()
-    servicePriorityID = models.CharField(max_length=100)
-    annualWPInfo = models.TextField()
-    costCentre = models.CharField(max_length=4, null=True, blank=True, db_index=True)
+    fy = models.ForeignKey(
+        FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name='financial year')
+    ibmIdentifier = models.CharField(max_length=100, verbose_name='IBM identifer')
+    budgetArea = models.CharField(max_length=100, db_index=True, verbose_name='budget area')
+    projectSponsor = models.CharField(max_length=100, db_index=True, verbose_name='project sponsor')
+    corporatePlanNo = models.CharField(max_length=100, db_index=True, verbose_name='corporate plan no')
+    strategicPlanNo = models.CharField(max_length=100, db_index=True, verbose_name='strategic plan no')
+    regionalSpecificInfo = models.TextField(verbose_name='regional specific info')
+    servicePriorityID = models.CharField(max_length=100, verbose_name='service priority ID')
+    annualWPInfo = models.TextField(verbose_name='annual WP info')
+    costCentre = models.CharField(max_length=4, null=True, blank=True, db_index=True, verbose_name='cost centre')
     account = models.IntegerField(null=True, blank=True)
     service = models.IntegerField(null=True, blank=True, db_index=True)
     activity = models.CharField(max_length=4, null=True, blank=True)
     project = models.CharField(max_length=6, null=True, blank=True)
     job = models.CharField(max_length=6, null=True, blank=True)
+    priorityActionNo = models.TextField(null=True, verbose_name='priority action no')
+    priorityLevel = models.TextField(null=True, verbose_name='priority level')
+    marineKMI = models.TextField(null=True, verbose_name='marine KPI')
+    regionProject = models.TextField(null=True, verbose_name='region project')
+    regionDescription = models.TextField(null=True, verbose_name='region description')
 
     def __str__(self):
         return self.ibmIdentifier
@@ -48,43 +50,44 @@ class IBMData(models.Model):
 
 
 class GLPivDownload(models.Model):
-    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
+    fy = models.ForeignKey(
+        FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name='financial year')
     download_period = models.DateField(blank=True, null=True)
     downloadPeriod = models.CharField(max_length=10)
-    costCentre = models.CharField(max_length=4, db_index=True)
+    costCentre = models.CharField(max_length=4, db_index=True, verbose_name='cost centre')
     account = models.IntegerField(db_index=True)
     service = models.IntegerField(db_index=True)
     activity = models.CharField(max_length=4, db_index=True)
     resource = models.IntegerField(db_index=True)
     project = models.CharField(max_length=6)
     job = models.CharField(max_length=6)
-    shortCode = models.CharField(max_length=20)
-    shortCodeName = models.CharField(max_length=200)
-    gLCode = models.CharField(max_length=30)
-    ptdActual = models.DecimalField(max_digits=10, decimal_places=2)
+    shortCode = models.CharField(max_length=20, verbose_name='short code')
+    shortCodeName = models.CharField(max_length=200, verbose_name='short code name')
+    gLCode = models.CharField(max_length=30, verbose_name='GL code')
+    ptdActual = models.DecimalField(max_digits=10, decimal_places=2,)
     ptdBudget = models.DecimalField(max_digits=10, decimal_places=2)
     ytdActual = models.DecimalField(max_digits=10, decimal_places=2)
     ytdBudget = models.DecimalField(max_digits=10, decimal_places=2)
     fybudget = models.DecimalField(max_digits=12, decimal_places=2)
     ytdVariance = models.DecimalField(max_digits=10, decimal_places=2)
-    ccName = models.CharField(max_length=100)
-    serviceName = models.CharField(max_length=100)
-    activityName = models.CharField(max_length=100)
-    resourceName = models.CharField(max_length=100)
-    projectName = models.CharField(max_length=100)
-    jobName = models.CharField(max_length=100)
+    ccName = models.CharField(max_length=100, verbose_name='CC name')
+    serviceName = models.CharField(max_length=100, verbose_name='service name')
+    activityName = models.CharField(max_length=100, verbose_name='activity name')
+    resourceName = models.CharField(max_length=100, verbose_name='resource name')
+    projectName = models.CharField(max_length=100, verbose_name='project name')
+    jobName = models.CharField(max_length=100, verbose_name='job name')
     codeID = models.CharField(
-        max_length=30, db_index=True,
+        max_length=30, db_index=True, verbose_name='code ID',
         help_text="This should match an IBMData object's IBMIdentifier field.")
     resNameNo = models.CharField(max_length=100)
     actNameNo = models.CharField(max_length=100)
     projNameNo = models.CharField(max_length=100)
-    regionBranch = models.CharField(max_length=100, db_index=True)
+    regionBranch = models.CharField(max_length=100, db_index=True, verbose_name='region branch')
     division = models.CharField(max_length=100, db_index=True)
-    resourceCategory = models.CharField(max_length=100)
+    resourceCategory = models.CharField(max_length=100, verbose_name='resource category')
     wildfire = models.CharField(max_length=30)
-    expenseRevenue = models.CharField(max_length=7)
-    fireActivities = models.CharField(max_length=50)
+    expenseRevenue = models.CharField(max_length=7, verbose_name='expense revenue')
+    fireActivities = models.CharField(max_length=50, verbose_name='fire activities')
     mPRACategory = models.CharField(max_length=100)
 
     class Meta:
@@ -101,8 +104,9 @@ class GLPivDownload(models.Model):
 
 
 class CorporateStrategy(models.Model):
-    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
-    corporateStrategyNo = models.CharField(max_length=100)
+    fy = models.ForeignKey(
+        FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name='financial year')
+    corporateStrategyNo = models.CharField(max_length=100, verbose_name='corporate strategy no')
     description1 = models.TextField(null=True)
     description2 = models.TextField(null=True)
 
@@ -112,7 +116,7 @@ class CorporateStrategy(models.Model):
             return self.description1
         else:
             desc_trunc = ' '.join(self.description1[:101].split(' ')[0:-1])
-            return '{0} (...more...)'.format(desc_trunc)
+            return '{} (...more...)'.format(desc_trunc)
 
     class Meta:
         unique_together = [('corporateStrategyNo', 'fy')]
@@ -123,20 +127,19 @@ class ServicePriority(models.Model):
     """
     Abstract base class.
     """
-    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
-    categoryID = models.CharField(max_length=100, null=True, blank=True, db_index=True)
-    servicePriorityNo = models.CharField(max_length=100, null=False, default='-1', db_index=True)
-    strategicPlanNo = models.CharField(max_length=100, null=True, blank=True)
-    corporateStrategyNo = models.CharField(
-        max_length=100,
-        null=True,
-        blank=True)
+    fy = models.ForeignKey(
+        FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name='financial year')
+    categoryID = models.CharField(max_length=100, null=True, blank=True, db_index=True, verbose_name='category ID')
+    servicePriorityNo = models.CharField(
+        max_length=100, null=False, default='-1', db_index=True, verbose_name='service priority no')
+    strategicPlanNo = models.CharField(max_length=100, null=True, blank=True, verbose_name='strategic plan no')
+    corporateStrategyNo = models.CharField(max_length=100, null=True, blank=True, verbose_name='corporate strategy no')
     description = models.TextField(null=True)
     pvsExampleAnnWP = models.TextField()
     pvsExampleActNo = models.TextField()
 
     def __str__(self):
-        return '{0}: {1}'.format(self.pk, self.servicePriorityNo)
+        return '{}: {}'.format(self.pk, self.servicePriorityNo)
 
     class Meta:
         abstract = True
@@ -151,13 +154,13 @@ class GeneralServicePriority(ServicePriority):
 
 
 class NCServicePriority(ServicePriority):
-    assetNo = models.CharField(max_length=5)
+    assetNo = models.CharField(max_length=5, verbose_name='asset no')
     asset = models.TextField()
-    targetNo = models.CharField(max_length=30)
+    targetNo = models.CharField(max_length=30, verbose_name='target no')
     target = models.TextField()
-    actionNo = models.CharField(max_length=30)
+    actionNo = models.CharField(max_length=30, verbose_name='action no')
     action = models.TextField()
-    mileNo = models.CharField(max_length=30)
+    mileNo = models.CharField(max_length=30, verbose_name='mile no')
     milestone = models.TextField()
 
     class Meta:
@@ -167,7 +170,7 @@ class NCServicePriority(ServicePriority):
 
 
 class PVSServicePriority(ServicePriority):
-    servicePriority1 = models.TextField()
+    servicePriority1 = models.TextField(verbose_name='service priority 1')
 
     class Meta:
         verbose_name = 'PVS service priority'
@@ -175,7 +178,7 @@ class PVSServicePriority(ServicePriority):
 
 
 class SFMServicePriority(ServicePriority):
-    regionBranch = models.CharField(max_length=20)
+    regionBranch = models.CharField(max_length=20, verbose_name='region branch')
     description2 = models.TextField()
 
     class Meta:
@@ -192,14 +195,15 @@ class ERServicePriority(ServicePriority):
 
 
 class NCStrategicPlan(models.Model):
-    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
-    strategicPlanNo = models.CharField(max_length=100)
-    directionNo = models.CharField(max_length=100)
+    fy = models.ForeignKey(
+        FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name='financial year')
+    strategicPlanNo = models.CharField(max_length=100, verbose_name='strategic plan no')
+    directionNo = models.CharField(max_length=100, verbose_name='direction no')
     direction = models.TextField()
-    AimNo = models.CharField(max_length=100)
+    AimNo = models.CharField(max_length=100, verbose_name='aim no')
     Aim1 = models.TextField()
     Aim2 = models.TextField()
-    ActionNo = models.TextField()
+    ActionNo = models.TextField(verbose_name='action no')
     Action = models.TextField()
 
     class Meta:
@@ -209,7 +213,8 @@ class NCStrategicPlan(models.Model):
 
 
 class Outcomes(models.Model):
-    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
+    fy = models.ForeignKey(
+        FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name='financial year')
     q1Input = models.TextField()
     q2Input = models.TextField(blank=True)
     q3Input = models.TextField(blank=True)
@@ -221,12 +226,14 @@ class Outcomes(models.Model):
     class Meta:
         verbose_name_plural = 'outcomes'
 
+
 class ServicePriorityMappings(models.Model):
-    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True)
-    costCentreNo = models.CharField(max_length=4)
-    wildlifeManagement = models.CharField(max_length=100)
-    parksManagement = models.CharField(max_length=100)
-    forestManagement = models.CharField(max_length=100)
+    fy = models.ForeignKey(
+        FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name='financial year')
+    costCentreNo = models.CharField(max_length=4, verbose_name='cost centre no')
+    wildlifeManagement = models.CharField(max_length=100, verbose_name='wildlife management')
+    parksManagement = models.CharField(max_length=100, verbose_name='parks management')
+    forestManagement = models.CharField(max_length=100, verbose_name='forest management')
 
     def __str__(self):
         return self.costCentreNo

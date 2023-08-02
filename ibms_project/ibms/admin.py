@@ -54,17 +54,23 @@ class IBMDataAdmin(ModelAdmin):
     readonly_fields = (
         'fy', 'ibmIdentifier', 'budgetArea', 'projectSponsor', 'corporatePlanNo', 'strategicPlanNo',
         'regionalSpecificInfo', 'servicePriorityID', 'annualWPInfo', 'costCentre', 'account', 'service',
-        'activity', 'project', 'job')
+        'activity', 'project', 'job',
+        'priorityActionNo', 'priorityLevel', 'marineKMI', 'regionProject', 'regionDescription',
+    )
     actions = [
         export_as_csv_action(
             translations=[
                 'financialYear', 'ibmIdentifier', 'costCentre', 'account', 'service', 'activity', 'project', 'job',
                 'budgetArea', 'projectSponsor', 'corporatePlanNo', 'strategicPlanNo',
-                'regionalSpecificInfo', 'servicePriorityID', 'annualWPInfo'],
+                'regionalSpecificInfo', 'servicePriorityID', 'annualWPInfo',
+                'priorityActionNo', 'priorityLevel', 'marineKMI', 'regionProject', 'regionDescription',
+            ],
             fields=[
                 'fy', 'ibmIdentifier', 'costCentre', 'account', 'service', 'activity', 'project', 'job',
                 'budgetArea', 'projectSponsor', 'corporatePlanNo', 'strategicPlanNo',
-                'regionalSpecificInfo', 'servicePriorityID', 'annualWPInfo'])]
+                'regionalSpecificInfo', 'servicePriorityID', 'annualWPInfo',
+                'priorityActionNo', 'priorityLevel', 'marineKMI', 'regionProject', 'regionDescription',
+            ])]
 
 
 @register(GLPivDownload)
