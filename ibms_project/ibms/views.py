@@ -118,7 +118,7 @@ class UploadView(IbmsFormView):
         # We have to open the uploaded file in text mode to parse it.
         file = open(t.name, 'r')
         file_type = form.cleaned_data['upload_file_type']
-        # Catch up exception thrown by the upload validation process and display it to the user.
+        # Catch exception thrown by the upload validation process and display it to the user.
         try:
             upload_valid = validate_file(file, file_type)
         except Exception as e:
