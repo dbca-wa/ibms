@@ -167,7 +167,12 @@ def import_to_ibmdata(fileName, fy):
                 "strategicPlanNo": validateCharField('strategicPlanNo', 20, row[10]),
                 "regionalSpecificInfo": row[11],
                 "servicePriorityID": validateCharField('servicePriorityID', 100, row[12]),
-                "annualWPInfo": str(row[13])
+                "annualWPInfo": str(row[13]),
+                "priorityActionNo": str(row[14]),
+                "priorityLevel": str(row[15]),
+                "marineKMI": str(row[16]),
+                "regionProject": str(row[17]),
+                "regionDescription": str(row[18]),
             }
             query = {
                 "fy": fy,
