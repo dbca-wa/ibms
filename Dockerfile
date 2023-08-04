@@ -12,7 +12,7 @@ RUN apt-get update -y \
 # Install Python libs using Poetry.
 FROM builder_base_ibms as python_libs_ibms
 WORKDIR /app
-ENV POETRY_VERSION=1.2.2
+ENV POETRY_VERSION=1.5.1
 RUN pip install "poetry==$POETRY_VERSION"
 COPY poetry.lock pyproject.toml /app/
 RUN poetry config virtualenvs.create false \
