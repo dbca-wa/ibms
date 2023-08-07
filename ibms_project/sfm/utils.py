@@ -1,5 +1,5 @@
 import csv
-from ibms.db_funcs import csvload, saverow
+from ibms.utils import csvload, saverow
 from sfm.models import CostCentre, SFMMetric, MeasurementValue, Quarter
 
 COLS_SFM_METRICS = 5

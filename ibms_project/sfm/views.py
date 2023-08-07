@@ -20,7 +20,7 @@ from ibms.utils import get_download_period
 from sfm.forms import OutputEntryForm, OutputUploadForm, FMOutputReportForm
 from sfm.models import Quarter, SFMMetric, MeasurementType, MeasurementValue
 from sfm.report import outputs_report
-from sfm.sfm_file_funcs import process_upload_file, validate_file
+from sfm.utils import process_upload_file, validate_file
 
 
 class OutputEntry(LoginRequiredMixin, FormView):

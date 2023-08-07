@@ -14,13 +14,12 @@ from xlrd import open_workbook
 from xlutils.copy import copy
 
 from ibms import forms
-from ibms.file_funcs import validate_file, process_upload_file
 from ibms.models import IBMData, GLPivDownload, NCServicePriority, PVSServicePriority, SFMServicePriority
 from ibms.report import (
     reload_report, code_update_report, data_amend_report,
     service_priority_report, download_report, download_enhanced_report,
 )
-from ibms.utils import get_download_period
+from ibms.utils import get_download_period, validate_file, process_upload_file
 
 
 class SiteHomeView(LoginRequiredMixin, TemplateView):
