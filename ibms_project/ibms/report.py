@@ -722,7 +722,7 @@ def download_enhanced_report(glrows, response):
         "annualWPInfo",
         "priorityActionNo",
         "priorityLevel",
-        "marineKMI",
+        "marineKPI",
         "regionProject",
         "regionDescription",
     )
@@ -901,7 +901,7 @@ def download_enhanced_report(glrows, response):
             "d2",
             "priorityActionNo",
             "priorityLevel",
-            "marineKMI",
+            "marineKPI",
             "regionProject",
             "regionDescription",
         ]:

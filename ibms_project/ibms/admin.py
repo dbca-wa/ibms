@@ -55,7 +55,7 @@ class IBMDataAdmin(ModelAdmin):
         'fy', 'ibmIdentifier', 'budgetArea', 'projectSponsor', 'corporatePlanNo', 'strategicPlanNo',
         'regionalSpecificInfo', 'servicePriorityID', 'annualWPInfo', 'costCentre', 'account', 'service',
         'activity', 'project', 'job',
-        'priorityActionNo', 'priorityLevel', 'marineKMI', 'regionProject', 'regionDescription',
+        'priorityActionNo', 'priorityLevel', 'marineKPI', 'regionProject', 'regionDescription',
     )
     actions = [
         export_as_csv_action(
@@ -63,13 +63,13 @@ class IBMDataAdmin(ModelAdmin):
                 'financialYear', 'ibmIdentifier', 'costCentre', 'account', 'service', 'activity', 'project', 'job',
                 'budgetArea', 'projectSponsor', 'corporatePlanNo', 'strategicPlanNo',
                 'regionalSpecificInfo', 'servicePriorityID', 'annualWPInfo',
-                'priorityActionNo', 'priorityLevel', 'marineKMI', 'regionProject', 'regionDescription',
+                'priorityActionNo', 'priorityLevel', 'marineKPI', 'regionProject', 'regionDescription',
             ],
             fields=[
                 'fy', 'ibmIdentifier', 'costCentre', 'account', 'service', 'activity', 'project', 'job',
                 'budgetArea', 'projectSponsor', 'corporatePlanNo', 'strategicPlanNo',
                 'regionalSpecificInfo', 'servicePriorityID', 'annualWPInfo',
-                'priorityActionNo', 'priorityLevel', 'marineKMI', 'regionProject', 'regionDescription',
+                'priorityActionNo', 'priorityLevel', 'marineKPI', 'regionProject', 'regionDescription',
             ])]
 
 

@@ -170,7 +170,7 @@ def import_to_ibmdata(fileName, fy):
                 "annualWPInfo": str(row[13]),
                 "priorityActionNo": str(row[14]),
                 "priorityLevel": str(row[15]),
-                "marineKMI": str(row[16]),
+                "marineKPI": str(row[16]),
                 "regionProject": str(row[17]),
                 "regionDescription": str(row[18]),
             }

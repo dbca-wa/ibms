@@ -36,7 +36,7 @@ class IBMData(models.Model):
     job = models.CharField(max_length=6, null=True, blank=True)
     priorityActionNo = models.TextField(null=True, verbose_name='priority action no')
     priorityLevel = models.TextField(null=True, verbose_name='priority level')
-    marineKMI = models.TextField(null=True, verbose_name='marine KPI')
+    marineKPI = models.TextField(null=True, verbose_name='marine KPI')
     regionProject = models.TextField(null=True, verbose_name='region project')
     regionDescription = models.TextField(null=True, verbose_name='region description')
 
