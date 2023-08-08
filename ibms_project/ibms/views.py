@@ -19,7 +19,7 @@ from ibms.report import (
     reload_report, code_update_report, data_amend_report,
     service_priority_report, download_report, download_enhanced_report,
 )
-from ibms.utils import get_download_period, validate_file, process_upload_file
+from ibms.utils import get_download_period, validate_upload_file, process_upload_file
 
 
 class SiteHomeView(LoginRequiredMixin, TemplateView):
@@ -119,7 +119,7 @@ class UploadView(IbmsFormView):
         file_type = form.cleaned_data['upload_file_type']
         # Catch exception thrown by the upload validation process and display it to the user.
         try:
-            upload_valid = validate_file(file, file_type)
+            upload_valid = validate_upload_file(file, file_type)
         except Exception as e:
             messages.warning(self.request, 'Error: {}'.format(str(e)))
             return redirect('upload')
