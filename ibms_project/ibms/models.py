@@ -18,9 +18,14 @@ FINYEAR_CHOICES = (
 
 
 class IBMData(models.Model):
-    fy = models.ForeignKey(
-        FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name='financial year')
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name='financial year')
     ibmIdentifier = models.CharField(max_length=100, verbose_name='IBM identifer')
+    costCentre = models.CharField(max_length=4, null=True, blank=True, db_index=True, verbose_name='cost centre')
+    account = models.IntegerField(null=True, blank=True)
+    service = models.IntegerField(null=True, blank=True, db_index=True)
+    activity = models.CharField(max_length=4, null=True, blank=True)
+    project = models.CharField(max_length=6, null=True, blank=True)
+    job = models.CharField(max_length=6, null=True, blank=True)
     budgetArea = models.CharField(max_length=100, db_index=True, verbose_name='budget area')
     projectSponsor = models.CharField(max_length=100, db_index=True, verbose_name='project sponsor')
     corporatePlanNo = models.CharField(max_length=100, db_index=True, verbose_name='corporate plan no')
@@ -28,12 +33,6 @@ class IBMData(models.Model):
     regionalSpecificInfo = models.TextField(verbose_name='regional specific info')
     servicePriorityID = models.CharField(max_length=100, verbose_name='service priority ID')
     annualWPInfo = models.TextField(verbose_name='annual WP info')
-    costCentre = models.CharField(max_length=4, null=True, blank=True, db_index=True, verbose_name='cost centre')
-    account = models.IntegerField(null=True, blank=True)
-    service = models.IntegerField(null=True, blank=True, db_index=True)
-    activity = models.CharField(max_length=4, null=True, blank=True)
-    project = models.CharField(max_length=6, null=True, blank=True)
-    job = models.CharField(max_length=6, null=True, blank=True)
     priorityActionNo = models.TextField(null=True, verbose_name='priority action no')
     priorityLevel = models.TextField(null=True, verbose_name='priority level')
     marineKPI = models.TextField(null=True, verbose_name='marine KPI')
