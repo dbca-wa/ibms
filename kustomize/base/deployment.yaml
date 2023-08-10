@@ -49,4 +49,9 @@ spec:
           periodSeconds: 3
           failureThreshold: 3
           timeoutSeconds: 2
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
       restartPolicy: Always
