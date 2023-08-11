@@ -12,7 +12,6 @@ def get_generic_choices(model, key, allow_null=False):
     """Generates a list of choices for a drop down from a model and key.
     """
     CHOICES = [('', '--------')] if allow_null else []
-    NCServicePriority, 'categoryID')
     for i in model.objects.all().values_list(key, flat=True).distinct():
         CHOICES.append((str(i), str(i)))
     CHOICES.sort()
