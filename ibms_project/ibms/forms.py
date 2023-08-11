@@ -1,22 +1,21 @@
 from django import forms
-from django.db.utils import ProgrammingError
+#from django.db.utils import ProgrammingError
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, HTML, Div
 from ibms.models import (
-    GLPivDownload, FINYEAR_CHOICES, NCServicePriority, IBMData, PVSServicePriority, SFMServicePriority)
+    GLPivDownload, NCServicePriority, IBMData, PVSServicePriority, SFMServicePriority,
+)
 from sfm.models import FinancialYear
 
 
-def getGenericChoices(classmodel, key, allowNull=False):
+def get_generic_choices(model, key, allow_null=False):
     """Generates a list of choices for a drop down from a model and key.
     """
-    CHOICES = [('', '--------')] if allowNull else []
-    try:
-        for i in classmodel.objects.all().values_list(key, flat=True).distinct():
-            CHOICES.append((str(i), str(i)))
-        CHOICES.sort()
-    except ProgrammingError:  # This should only except with an empty database (no relations).
-        pass
+    CHOICES = [('', '--------')] if allow_null else []
+    for i in model.objects.all().values_list(key, flat=True).distinct():
+        CHOICES.append((str(i), str(i)))
+    CHOICES.sort()
+
     return CHOICES
 
 
@@ -97,13 +96,13 @@ class DownloadForm(FinancialYearFilterForm):
         super(DownloadForm, self).__init__(*args, **kwargs)
         self.request = request
         self.fields['cost_centre'] = forms.ChoiceField(
-            choices=getGenericChoices(GLPivDownload, 'costCentre', allowNull=True),
+            choices=get_generic_choices(GLPivDownload, 'costCentre', allow_null=True),
             required=False)
         self.fields['region'] = forms.ChoiceField(
-            choices=getGenericChoices(GLPivDownload, 'regionBranch', allowNull=True),
+            choices=get_generic_choices(GLPivDownload, 'regionBranch', allow_null=True),
             required=False, label='Region/branch')
         self.fields['division'] = forms.ChoiceField(
-            choices=getGenericChoices(GLPivDownload, 'division', allowNull=True),
+            choices=get_generic_choices(GLPivDownload, 'division', allow_null=True),
             required=False)
 
         # Disable several fields on initial form load.
@@ -150,20 +149,20 @@ class ReloadForm(FinancialYearFilterForm):
     def __init__(self, *args, **kwargs):
         super(ReloadForm, self).__init__(*args, **kwargs)
         self.fields['cost_centre'] = forms.ChoiceField(
-            choices=getGenericChoices(GLPivDownload, 'costCentre', allowNull=True),
+            choices=get_generic_choices(GLPivDownload, 'costCentre', allow_null=True),
             required=True)
         self.fields['cost_centre'].widget.attrs.update({'disabled': ''})
         self.fields['ncChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
-            choices=getGenericChoices(NCServicePriority, 'categoryID'),
+            choices=get_generic_choices(NCServicePriority, 'categoryID'),
             required=False, label='Wildlife Management')
         self.fields['pvsChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
-            choices=getGenericChoices(PVSServicePriority, 'categoryID'),
+            choices=get_generic_choices(PVSServicePriority, 'categoryID'),
             required=False, label='Parks Management')
         self.fields['fmChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
-            choices=getGenericChoices(SFMServicePriority, 'categoryID'),
+            choices=get_generic_choices(SFMServicePriority, 'categoryID'),
             required=False, label='Forest Management')
 
         # crispy_forms layout
@@ -197,31 +196,31 @@ class DataAmendmentForm(FinancialYearFilterForm):
         super(DataAmendmentForm, self).__init__(*args, **kwargs)
         self.request = request
         self.fields['cost_centre'] = forms.ChoiceField(
-            choices=getGenericChoices(GLPivDownload, 'costCentre', allowNull=True),
+            choices=get_generic_choices(GLPivDownload, 'costCentre', allow_null=True),
             required=False)
         self.fields['region'] = forms.ChoiceField(
-            choices=getGenericChoices(GLPivDownload, 'regionBranch', allowNull=True),
+            choices=get_generic_choices(GLPivDownload, 'regionBranch', allow_null=True),
             required=False, label='Region/branch')
         self.fields['service'] = forms.ChoiceField(
-            choices=getGenericChoices(GLPivDownload, 'service', allowNull=True),
+            choices=get_generic_choices(GLPivDownload, 'service', allow_null=True),
             required=False, label='Service')
         self.fields['budget_area'] = forms.ChoiceField(
-            choices=getGenericChoices(IBMData, 'budgetArea', allowNull=True),
+            choices=get_generic_choices(IBMData, 'budgetArea', allow_null=True),
             required=False, label='Budget Area')
         self.fields['project_sponsor'] = forms.ChoiceField(
-            choices=getGenericChoices(IBMData, 'projectSponsor', allowNull=True),
+            choices=get_generic_choices(IBMData, 'projectSponsor', allow_null=True),
             required=False, label='Project Sponsor')
         self.fields['ncChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
-            choices=getGenericChoices(NCServicePriority, 'categoryID'),
+            choices=get_generic_choices(NCServicePriority, 'categoryID'),
             required=False, label='Wildlife Management')
         self.fields['pvsChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
-            choices=getGenericChoices(PVSServicePriority, 'categoryID'),
+            choices=get_generic_choices(PVSServicePriority, 'categoryID'),
             required=False, label='Parks Management')
         self.fields['fmChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
-            choices=getGenericChoices(SFMServicePriority, 'categoryID'),
+            choices=get_generic_choices(SFMServicePriority, 'categoryID'),
             required=False, label='Forest Management')
 
         # Disable several fields on initial form load.
@@ -287,36 +286,36 @@ class ServicePriorityDataForm(FinancialYearFilterForm):
     def __init__(self, *args, **kwargs):
         super(ServicePriorityDataForm, self).__init__(*args, **kwargs)
         self.fields['region'] = forms.ChoiceField(
-            choices=getGenericChoices(
+            choices=get_generic_choices(
                 GLPivDownload,
                 'regionBranch',
-                allowNull=True),
+                allow_null=True),
             required=False,
             label='Region/branch')
         self.fields['service'] = forms.ChoiceField(
-            choices=getGenericChoices(
+            choices=get_generic_choices(
                 GLPivDownload,
                 'service',
-                allowNull=True),
+                allow_null=True),
             required=False,
             label='Service')
         self.fields['ncChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
-            choices=getGenericChoices(
+            choices=get_generic_choices(
                 NCServicePriority,
                 'categoryID'),
             required=False,
             label='Wildlife Management')
         self.fields['pvsChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
-            choices=getGenericChoices(
+            choices=get_generic_choices(
                 PVSServicePriority,
                 'categoryID'),
             required=False,
             label='Parks Management')
         self.fields['fmChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
-            choices=getGenericChoices(
+            choices=get_generic_choices(
                 SFMServicePriority,
                 'categoryID'),
             required=False,
@@ -347,28 +346,28 @@ class CodeUpdateForm(FinancialYearFilterForm):
     def __init__(self, *args, **kwargs):
         super(CodeUpdateForm, self).__init__(*args, **kwargs)
         self.fields['cost_centre'] = forms.ChoiceField(
-            choices=getGenericChoices(
+            choices=get_generic_choices(
                 GLPivDownload,
                 'costCentre',
-                allowNull=True),
+                allow_null=True),
             required=True)
         self.fields['ncChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
-            choices=getGenericChoices(
+            choices=get_generic_choices(
                 NCServicePriority,
                 'categoryID'),
             required=False,
             label='Wildlife Management')
         self.fields['pvsChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
-            choices=getGenericChoices(
+            choices=get_generic_choices(
                 PVSServicePriority,
                 'categoryID'),
             required=False,
             label='Parks Management')
         self.fields['fmChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
-            choices=getGenericChoices(
+            choices=get_generic_choices(
                 SFMServicePriority,
                 'categoryID'),
             required=False,
@@ -412,15 +411,15 @@ class ManagerCodeUpdateForm(FinancialYearFilterForm):
             choices=REPORT_CHOICES, label='Report Type?', required=True)
         self.fields['ncChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
-            choices=getGenericChoices(NCServicePriority, 'categoryID'),
+            choices=get_generic_choices(NCServicePriority, 'categoryID'),
             required=False, label='Wildlife Management')
         self.fields['pvsChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
-            choices=getGenericChoices(PVSServicePriority, 'categoryID'),
+            choices=get_generic_choices(PVSServicePriority, 'categoryID'),
             required=False, label='Parks Management')
         self.fields['fmChoice'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
-            choices=getGenericChoices(SFMServicePriority, 'categoryID'),
+            choices=get_generic_choices(SFMServicePriority, 'categoryID'),
             required=False, label='Forest Management')
 
         self.helper.layout = Layout(
