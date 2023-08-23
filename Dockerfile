@@ -30,6 +30,6 @@ COPY manage.py gunicorn.py ./
 COPY ibms_project ./ibms_project
 RUN python manage.py collectstatic --noinput
 
-USER appuser
+USER ${UID}
 EXPOSE 8080
 CMD ["gunicorn", "ibms_project.wsgi", "--config", "gunicorn.py"]
