@@ -4,11 +4,6 @@ metadata:
   name: ibms-clusterip
 spec:
   type: ClusterIP
-  ports:
-  - name: wsgi
-    port: 8080
-    protocol: TCP
-    targetPort: 8080
   selector:
     app: ibms-prod
     variant: prod

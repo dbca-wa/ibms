@@ -8,7 +8,6 @@ secretGenerator:
   - .env
 resources:
 - ../../base
-- service.yaml
 - ingress.yaml
 - pdb.yaml
 labels:
@@ -16,4 +15,5 @@ labels:
   pairs:
     variant: uat
 patches:
-- path: deployment_uat_patch.yaml
+- path: deployment_patch.yaml
+- path: service_patch.yaml
