@@ -1,9 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ibms
-  labels:
-    app: ibms-uat
+  name: ibms-ingress
 spec:
   ingressClassName: nginx
   rules:

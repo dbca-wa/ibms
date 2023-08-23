@@ -15,11 +15,11 @@ spec:
     spec:
       containers:
       - name: ibms
-        image: dbcawa/ibms:2.6.5
+        image: dbcawa/ibms:2.8.0
         imagePullPolicy: IfNotPresent
         env:
         - name: IBMS_URL
-          value: "https://ibms-aks.dbca.wa.gov.au"
+          value: "https://ibms.dbca.wa.gov.au"
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:

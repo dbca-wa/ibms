@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: ibms-deployment
 spec:
+  replicas: 2
   strategy:
     type: RollingUpdate
   template:
@@ -10,7 +11,7 @@ spec:
       containers:
       - name: ibms
         env:
-        - name: ALLOWED_DOMAINS
+        - name: ALLOWED_HOSTS
           value: ".dbca.wa.gov.au"
         - name: EMAIL_HOST
           value: "smtp.lan.fyi"
@@ -50,8 +51,11 @@ spec:
           failureThreshold: 3
           timeoutSeconds: 2
         securityContext:
+          runAsNonRoot: true
+          privileged: false
           allowPrivilegeEscalation: false
           capabilities:
             drop:
               - ALL
+          readOnlyRootFilesystem: false
       restartPolicy: Always
