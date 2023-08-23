@@ -12,18 +12,24 @@ RUN apt-get update -y \
 # Install Python libs using Poetry.
 FROM builder_base_ibms as python_libs_ibms
 WORKDIR /app
-ENV POETRY_VERSION=1.5.1
-RUN pip install "poetry==$POETRY_VERSION"
-COPY poetry.lock pyproject.toml /app/
+ARG POETRY_VERSION=1.6.1
+RUN pip install poetry=="${POETRY_VERSION}"
+COPY poetry.lock pyproject.toml ./
 RUN poetry config virtualenvs.create false \
   && poetry install --no-interaction --no-ansi --only main
+
+# Install a non-root user.
+ARG UID=10001
+ARG GID=10001
+RUN groupadd -g "${GID}" appuser \
+  && useradd --no-create-home --no-log-init --uid "${UID}" --gid "${GID}" appuser
 
 # Install the project.
 FROM python_libs_ibms
 COPY manage.py gunicorn.py ./
 COPY ibms_project ./ibms_project
 RUN python manage.py collectstatic --noinput
-# Run the application as the www-data user.
-USER www-data
+
+USER appuser
 EXPOSE 8080
 CMD ["gunicorn", "ibms_project.wsgi", "--config", "gunicorn.py"]
