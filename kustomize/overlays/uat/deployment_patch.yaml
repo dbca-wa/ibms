@@ -3,30 +3,30 @@ kind: Deployment
 metadata:
   name: ibms-deployment
   labels:
-    app: ibms-prod
+    app: ibms-uat
 spec:
   selector:
     matchLabels:
-      app: ibms-prod
+      app: ibms-uat
   template:
     metadata:
       labels:
-        app: ibms-prod
+        app: ibms-uat
     spec:
       containers:
       - name: ibms
-        image: dbcawa/ibms:2.6.5
-        imagePullPolicy: IfNotPresent
+        image: ghcr.io/dbca-wa/ibms
+        imagePullPolicy: Always
         env:
         - name: IBMS_URL
-          value: "https://ibms-aks.dbca.wa.gov.au"
+          value: "https://ibms-uat.dbca.wa.gov.au"
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
-              name: ibms-env-prod
+              name: ibms-env-uat
               key: DATABASE_URL
         - name: SECRET_KEY
           valueFrom:
             secretKeyRef:
-              name: ibms-env-prod
+              name: ibms-env-uat
               key: SECRET_KEY

@@ -20,7 +20,7 @@ SECURE_SSL_REDIRECT = env('SECURE_SSL_REDIRECT', False)
 SECURE_REFERRER_POLICY = env('SECURE_REFERRER_POLICY', None)
 SECURE_HSTS_SECONDS = env('SECURE_HSTS_SECONDS', 0)
 if not DEBUG:
-    ALLOWED_HOSTS = env('ALLOWED_DOMAINS', 'localhost').split(',')
+    ALLOWED_HOSTS = env('ALLOWED_HOSTS', 'localhost').split(',')
 else:
     ALLOWED_HOSTS = ['*']
 INTERNAL_IPS = ['127.0.0.1', '::1']
@@ -80,7 +80,7 @@ TEMPLATES = [
 ]
 SITE_TITLE = 'Integrated Business Management System'
 SITE_ACRONYM = 'IBMS'
-APPLICATION_VERSION_NO = '2.8.0'
+APPLICATION_VERSION_NO = '2.8.1'
 MANAGERS = (
     ('Zen Wee', 'zen.wee@dbca.wa.gov.au', '9219 9928'),
     ('Graham Holmes', 'graham.holmes@dbca.wa.gov.au', '9881 9212'),
