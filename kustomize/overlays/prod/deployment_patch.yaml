@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: ibms
-        image: ghcr.io/dbca-wa/ibms:2.8.0
+        image: ghcr.io/dbca-wa/ibms:2.8.1
         imagePullPolicy: IfNotPresent
         env:
         - name: IBMS_URL
