@@ -10,10 +10,16 @@ values in the format KEY=value (i.e. `overlays/uat/.env`). Required values:
     DATABASE_URL=value
     SECRET_KEY=value
 
+Review the built resource output using `kustomize`:
+
+```bash
+kustomize build kustomize/overlays/uat/ | less
+```
+
 Run `kubectl` with the `-k` flag to generate resources for a given overlay:
 
 ```bash
-kubectl apply -k overlays/uat
+kubectl apply -k kustomize/overlays/uat --namespace ibms --dry-run=client
 ```
 
 # References:
