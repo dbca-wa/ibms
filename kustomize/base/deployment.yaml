@@ -10,6 +10,8 @@ spec:
     spec:
       containers:
       - name: ibms
+        image: ghcr.io/dbca-wa/ibms
+        imagePullPolicy: Always
         env:
         - name: ALLOWED_HOSTS
           value: ".dbca.wa.gov.au"

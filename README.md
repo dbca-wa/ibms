@@ -43,3 +43,16 @@ Run console commands manually:
 To build a new Docker image from the `Dockerfile`:
 
     docker image build -t ghcr.io/dbca-wa/ibms .
+
+# Pre-commit hooks
+
+This project includes the following pre-commit hooks:
+
+- TruffleHog (credential scanning): https://github.com/marketplace/actions/trufflehog-oss
+
+Pre-commit hooks may have additional system dependencies to run. Optionally
+install pre-commit hooks locally like so:
+
+    poetry run pre-commit install
+
+Reference: https://pre-commit.com/
