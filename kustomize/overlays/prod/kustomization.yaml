@@ -16,7 +16,7 @@ labels:
       variant: prod
 images:
   - name: ghcr.io/dbca-wa/ibms
-    newTag: 2.8.1
+    newTag: 2.8.2
 patches:
   - path: deployment_patch.yaml
   - path: service_patch.yaml
