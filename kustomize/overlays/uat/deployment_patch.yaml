@@ -15,8 +15,6 @@ spec:
     spec:
       containers:
       - name: ibms
-        image: ghcr.io/dbca-wa/ibms
-        imagePullPolicy: Always
         env:
         - name: IBMS_URL
           value: "https://ibms-uat.dbca.wa.gov.au"
