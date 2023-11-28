@@ -3,6 +3,7 @@ import dj_database_url
 import os
 from pathlib import Path
 import sys
+import tomli
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = str(Path(__file__).resolve().parents[1])
@@ -80,7 +81,8 @@ TEMPLATES = [
 ]
 SITE_TITLE = 'Integrated Business Management System'
 SITE_ACRONYM = 'IBMS'
-APPLICATION_VERSION_NO = '2.8.1'
+project = tomli.load(open(os.path.join(BASE_DIR, "pyproject.toml"), "rb"))
+APPLICATION_VERSION_NO = project["tool"]["poetry"]["version"]
 MANAGERS = (
     ('Zen Wee', 'zen.wee@dbca.wa.gov.au', '9219 9928'),
     ('Graham Holmes', 'graham.holmes@dbca.wa.gov.au', '9881 9212'),
