@@ -3,9 +3,21 @@ from crispy_forms.layout import Submit, Layout, HTML, Div
 
 from ibms.forms import HelperForm
 from sfm.models import Quarter, CostCentre, SFMMetric, FinancialYear, MeasurementValue, REGION_CHOICES
-from sfm.fields import (
-    QtrModelChoiceField, SFMMetricModelChoiceField, SFMCostCentreModelChoiceField,
-)
+
+
+class QtrModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.description
+
+
+class SFMMetricModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.metricID
+
+
+class SFMCostCentreModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return str(obj)
 
 
 class OutputEntryForm(HelperForm):
