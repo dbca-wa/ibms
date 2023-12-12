@@ -29,3 +29,20 @@ spec:
             secretKeyRef:
               name: ibms-env-prod
               key: SECRET_KEY
+        - name: SENTRY_DSN
+          valueFrom:
+            secretKeyRef:
+              name: ibms-env-prod
+              key: SENTRY_DSN
+        - name: SENTRY_SAMPLE_RATE
+          valueFrom:
+            secretKeyRef:
+              name: ibms-env-prod
+              key: SENTRY_SAMPLE_RATE
+        - name: SENTRY_TRANSACTION_SAMPLE_RATE
+          valueFrom:
+            secretKeyRef:
+              name: ibms-env-prod
+              key: SENTRY_TRANSACTION_SAMPLE_RATE
+        - name: SENTRY_ENVIRONMENT
+          value: "prod"
