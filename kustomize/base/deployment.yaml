@@ -61,3 +61,4 @@ spec:
               - ALL
           readOnlyRootFilesystem: false
       restartPolicy: Always
+      terminationGracePeriodSeconds: 180
