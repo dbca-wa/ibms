@@ -29,29 +29,29 @@ spec:
           value: "Australia/Perth"
         resources:
           requests:
-            memory: "128Mi"
-            cpu: "25m"
+            memory: "256Mi"
+            cpu: "10m"
           limits:
-            memory: "4096Mi"
+            memory: "2Gi"
             cpu: "1000m"
         livenessProbe:
           httpGet:
             path: /liveness
             port: 8080
             scheme: HTTP
-          initialDelaySeconds: 3
-          periodSeconds: 3
+          periodSeconds: 15
+          successThreshold: 1
           failureThreshold: 3
-          timeoutSeconds: 2
+          timeoutSeconds: 5
         readinessProbe:
           httpGet:
             path: /readiness
             port: 8080
             scheme: HTTP
-          initialDelaySeconds: 3
-          periodSeconds: 3
+          periodSeconds: 15
+          successThreshold: 1
           failureThreshold: 3
-          timeoutSeconds: 2
+          timeoutSeconds: 5
         securityContext:
           runAsNonRoot: true
           privileged: false
