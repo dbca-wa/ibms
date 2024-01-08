@@ -27,7 +27,7 @@ tomli = "2.0.1"
 sentry-sdk = {version = "1.38.0", extras = ["django"]}
 
 [tool.poetry.group.dev.dependencies]
-ipython = "^8.10.0"
+ipython = "^8.20.0"
 ipdb = "^0.13.11"
 pre-commit = "^3.5.0"
 
