@@ -11,7 +11,7 @@ django = "3.2.23"
 psycopg2 = "2.9.9"
 dbca-utils = "1.1.6"
 django-extensions = "3.2.3"
-python-dotenv = "1.0.0"
+python-dotenv = "1.0.1"
 dj-database-url = "2.1.0"
 gunicorn = "21.2.0"
 django-crispy-forms = "2.0"
@@ -24,10 +24,10 @@ webtemplate-dbca = "1.6.0"
 whitenoise = {version = "6.6.0", extras = ["brotli"]}
 mixer = "7.2.2"
 tomli = "2.0.1"
-sentry-sdk = {version = "1.38.0", extras = ["django"]}
+sentry-sdk = {version = "1.39.2", extras = ["django"]}
 
 [tool.poetry.group.dev.dependencies]
-ipython = "^8.10.0"
+ipython = "^8.20.0"
 ipdb = "^0.13.11"
 pre-commit = "^3.5.0"
 
