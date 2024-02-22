@@ -6,7 +6,7 @@ authors = ["Ashley Felton <ashley.felton@dbca.wa.gov.au>"]
 license = "Apache-2.0"
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.11"
+python = ">=3.11"
 django = "4.2.10"
 psycopg2 = "2.9.9"
 dbca-utils = "2.0.0"
@@ -23,13 +23,12 @@ openpyxl = "3.1.2"
 webtemplate-dbca = "1.7.0"
 whitenoise = {version = "6.6.0", extras = ["brotli"]}
 mixer = "7.2.2"
-tomli = "2.0.1"
-sentry-sdk = {version = "1.40.4", extras = ["django"]}
+sentry-sdk = {version = "1.40.5", extras = ["django"]}
 
 [tool.poetry.group.dev.dependencies]
 ipython = "^8.21.0"
-ipdb = "^0.13.11"
-pre-commit = "^3.6.1"
+ipdb = "^0.13.13"
+pre-commit = "^3.6.2"
 
 [build-system]
 requires = ["poetry-core"]
