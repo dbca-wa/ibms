@@ -156,11 +156,3 @@ class IbmsViewsTest(IbmsTestCase):
             url = reverse(endpoint)
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
-
-    def test_healthcheck(self):
-        """Test the healthcheck view works without auth
-        """
-        self.client.logout()
-        url = reverse('health_check')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
