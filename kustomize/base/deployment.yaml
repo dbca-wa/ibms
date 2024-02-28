@@ -15,6 +15,8 @@ spec:
         env:
         - name: ALLOWED_HOSTS
           value: ".dbca.wa.gov.au"
+        - name: CSRF_TRUSTED_ORIGINS
+          value: "https://*.dbca.wa.gov.au"
         - name: EMAIL_HOST
           value: "smtp.lan.fyi"
         - name: IBM_CODE_UPDATER_URI
@@ -30,28 +32,40 @@ spec:
         resources:
           requests:
             memory: "128Mi"
-            cpu: "25m"
+            cpu: "10m"
           limits:
-            memory: "4096Mi"
+            memory: "2Gi"
             cpu: "1000m"
+        startupProbe:
+          httpGet:
+            path: /livez
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 3
+          periodSeconds: 15
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
         livenessProbe:
           httpGet:
-            path: /liveness
+            path: /livez
             port: 8080
             scheme: HTTP
-          initialDelaySeconds: 3
-          periodSeconds: 3
+          initialDelaySeconds: 0
+          periodSeconds: 15
+          successThreshold: 1
           failureThreshold: 3
-          timeoutSeconds: 2
+          timeoutSeconds: 10
         readinessProbe:
           httpGet:
-            path: /readiness
+            path: /readyz
             port: 8080
             scheme: HTTP
-          initialDelaySeconds: 3
-          periodSeconds: 3
+          initialDelaySeconds: 0
+          periodSeconds: 15
+          successThreshold: 1
           failureThreshold: 3
-          timeoutSeconds: 2
+          timeoutSeconds: 10
         securityContext:
           runAsNonRoot: true
           privileged: false

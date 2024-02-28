@@ -3,7 +3,7 @@ import dj_database_url
 import os
 from pathlib import Path
 import sys
-import tomli
+import tomllib
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = str(Path(__file__).resolve().parents[1])
@@ -24,6 +24,7 @@ if not DEBUG:
     ALLOWED_HOSTS = env('ALLOWED_HOSTS', 'localhost').split(',')
 else:
     ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS", "http://127.0.0.1").split(",")
 INTERNAL_IPS = ['127.0.0.1', '::1']
 ROOT_URLCONF = 'ibms_project.urls'
 WSGI_APPLICATION = 'ibms_project.wsgi.application'
@@ -81,7 +82,7 @@ TEMPLATES = [
 ]
 SITE_TITLE = 'Integrated Business Management System'
 SITE_ACRONYM = 'IBMS'
-project = tomli.load(open(os.path.join(BASE_DIR, "pyproject.toml"), "rb"))
+project = tomllib.load(open(os.path.join(BASE_DIR, "pyproject.toml"), "rb"))
 APPLICATION_VERSION_NO = project["tool"]["poetry"]["version"]
 MANAGERS = (
     ('Zen Wee', 'zen.wee@dbca.wa.gov.au', '9219 9928'),
