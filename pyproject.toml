@@ -23,7 +23,7 @@ openpyxl = "3.1.2"
 webtemplate-dbca = "1.7.0"
 whitenoise = {version = "6.6.0", extras = ["brotli"]}
 mixer = "7.2.2"
-sentry-sdk = {version = "1.40.5", extras = ["django"]}
+sentry-sdk = {version = "1.40.6", extras = ["django"]}
 
 [tool.poetry.group.dev.dependencies]
 ipython = "^8.22.1"
