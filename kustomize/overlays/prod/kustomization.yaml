@@ -16,6 +16,7 @@ labels:
       variant: prod
 patches:
   - path: deployment_patch.yaml
+  - path: deployment_hpa_patch.yaml
   - path: service_patch.yaml
 images:
   - name: ghcr.io/dbca-wa/ibms
