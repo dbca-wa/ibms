@@ -1,0 +1,7 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ibms-deployment-hpa
+spec:
+  scaleTargetRef:
+    name: ibms-deployment-prod
