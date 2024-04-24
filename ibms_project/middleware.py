@@ -1,3 +1,4 @@
+from django.db import connections
 from django.http import HttpResponse, HttpResponseServerError
 import logging
 
@@ -29,7 +30,6 @@ class HealthCheckMiddleware(object):
         being present.
         """
         try:
-            from django.db import connections
             cursor = connections["default"].cursor()
             cursor.execute("SELECT 1;")
             row = cursor.fetchone()
