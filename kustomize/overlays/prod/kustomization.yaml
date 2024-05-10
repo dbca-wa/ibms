@@ -20,4 +20,4 @@ patches:
   - path: service_patch.yaml
 images:
   - name: ghcr.io/dbca-wa/ibms
-    newTag: 2.8.5
+    newTag: 2.8.6
