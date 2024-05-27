@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ibms"
-version = "2.8.5"
+version = "2.8.7"
 description = "Integrated Business Management System corporate application"
 authors = ["Ashley Felton <ashley.felton@dbca.wa.gov.au>"]
 license = "Apache-2.0"
@@ -8,7 +8,7 @@ license = "Apache-2.0"
 [tool.poetry.dependencies]
 python = ">=3.11"
 django = "4.2.11"
-psycopg2 = "2.9.9"
+psycopg = {version = "3.1.19", extras = ["binary", "pool"]}
 dbca-utils = "2.0.2"
 django-extensions = "3.2.3"
 python-dotenv = "1.0.1"
@@ -23,12 +23,11 @@ openpyxl = "3.1.2"
 webtemplate-dbca = "1.7.0"
 whitenoise = {version = "6.6.0", extras = ["brotli"]}
 mixer = "7.2.2"
-sentry-sdk = {version = "1.45.0", extras = ["django"]}
 
 [tool.poetry.group.dev.dependencies]
 ipython = "^8.23.0"
 ipdb = "^0.13.13"
-pre-commit = "^3.7.0"
+pre-commit = "^3.7.1"
 
 [build-system]
 requires = ["poetry-core"]
