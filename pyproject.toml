@@ -19,7 +19,7 @@ crispy-bootstrap5 = "2024.2"
 xlrd = "2.0.1"  # TODO: deprecate
 xlutils = "2.0.0"  # TODO: deprecate
 xlwt = "1.3.0"  # TODO: deprecate
-openpyxl = "3.1.2"
+openpyxl = "3.1.4"
 webtemplate-dbca = "1.7.0"
 whitenoise = {version = "6.6.0", extras = ["brotli"]}
 mixer = "7.2.2"
