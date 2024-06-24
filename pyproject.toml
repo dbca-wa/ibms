@@ -21,7 +21,7 @@ xlutils = "2.0.0"  # TODO: deprecate
 xlwt = "1.3.0"  # TODO: deprecate
 openpyxl = "3.1.2"
 webtemplate-dbca = "1.7.0"
-whitenoise = {version = "6.6.0", extras = ["brotli"]}
+whitenoise = {version = "6.7.0", extras = ["brotli"]}
 mixer = "7.2.2"
 
 [tool.poetry.group.dev.dependencies]
