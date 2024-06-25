@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Prepare the base environment.
-FROM python:3.11.8-slim as builder_base_ibms
+FROM python:3.11.9-slim as builder_base_ibms
 MAINTAINER asi@dbca.wa.gov.au
 LABEL org.opencontainers.image.source https://github.com/dbca-wa/ibms
 
@@ -13,7 +13,7 @@ RUN apt-get update -y \
 # Install Python libs using Poetry.
 FROM builder_base_ibms as python_libs_ibms
 WORKDIR /app
-ARG POETRY_VERSION=1.7.1
+ARG POETRY_VERSION=1.8.3
 RUN pip install poetry=="${POETRY_VERSION}"
 COPY poetry.lock pyproject.toml ./
 RUN poetry config virtualenvs.create false \
