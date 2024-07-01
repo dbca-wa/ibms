@@ -804,7 +804,7 @@ def validate_upload_file(file, file_type):
     elif file_type == 'ERServicePriorityData':
         return validate_headers(
             row,
-            valid_count=8,
+            valid_count=6,
             headings=[
                 'CategoryID',
                 'SerPriNo',
