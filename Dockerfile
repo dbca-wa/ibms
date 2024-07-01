@@ -8,13 +8,13 @@ RUN apt-get update -y \
   && apt-get upgrade -y \
   && apt-get install -y python3-dev libpq-dev gcc \
   && rm -rf /var/lib/apt/lists/* \
-  && pip install --upgrade pip
+  && pip install --root-user-action=ignore --upgrade pip
 
 # Install Python libs using Poetry.
 FROM builder_base_ibms AS python_libs_ibms
 WORKDIR /app
 ARG POETRY_VERSION=1.8.3
-RUN pip install poetry=="${POETRY_VERSION}"
+RUN pip install --root-user-action=ignore poetry=="${POETRY_VERSION}"
 COPY poetry.lock pyproject.toml ./
 RUN poetry config virtualenvs.create false \
   && poetry install --no-interaction --no-ansi --only main
