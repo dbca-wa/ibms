@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
 # Prepare the base environment.
-FROM python:3.11.9-slim as builder_base_ibms
-MAINTAINER asi@dbca.wa.gov.au
-LABEL org.opencontainers.image.source https://github.com/dbca-wa/ibms
+FROM python:3.11.9-slim AS builder_base_ibms
+LABEL org.opencontainers.image.authors=asi@dbca.wa.gov.au
+LABEL org.opencontainers.image.source=https://github.com/dbca-wa/ibms
 
 RUN apt-get update -y \
   && apt-get upgrade -y \
@@ -11,7 +11,7 @@ RUN apt-get update -y \
   && pip install --upgrade pip
 
 # Install Python libs using Poetry.
-FROM builder_base_ibms as python_libs_ibms
+FROM builder_base_ibms AS python_libs_ibms
 WORKDIR /app
 ARG POETRY_VERSION=1.8.3
 RUN pip install poetry=="${POETRY_VERSION}"
