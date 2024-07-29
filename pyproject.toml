@@ -28,7 +28,7 @@ mixer = "7.2.2"
 [tool.poetry.group.dev.dependencies]
 ipython = "^8.26.0"
 ipdb = "^0.13.13"
-pre-commit = "^3.7.1"
+pre-commit = "^3.8.0"
 
 [build-system]
 requires = ["poetry-core"]
