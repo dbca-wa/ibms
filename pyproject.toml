@@ -1,20 +1,20 @@
 [tool.poetry]
 name = "ibms"
-version = "2.8.9"
+version = "2.8.10"
 description = "Integrated Business Management System corporate application"
 authors = ["Ashley Felton <ashley.felton@dbca.wa.gov.au>"]
 license = "Apache-2.0"
 package-mode = false
 
 [tool.poetry.dependencies]
-python = ">=3.11"
+python = "~3.12"
 django = "4.2.15"
-psycopg = "3.2.1"
+psycopg = {version = "3.2.1", extras = ["binary", "pool"]}
 dbca-utils = "2.0.2"
 django-extensions = "3.2.3"
 python-dotenv = "1.0.1"
 dj-database-url = "2.2.0"
-gunicorn = "22.0.0"
+gunicorn = "23.0.0"
 django-crispy-forms = "2.3"
 crispy-bootstrap5 = "2024.2"
 xlrd = "2.0.1"  # TODO: deprecate
@@ -26,7 +26,7 @@ whitenoise = {version = "6.7.0", extras = ["brotli"]}
 mixer = "7.2.2"
 
 [tool.poetry.group.dev.dependencies]
-ipython = "^8.26.0"
+ipython = "^8.27.0"
 ipdb = "^0.13.13"
 pre-commit = "^3.8.0"
 
