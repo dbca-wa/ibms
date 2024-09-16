@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Prepare the base environment.
-FROM python:3.12.6-alpine AS builder_base_ibms
+FROM python:3.12.6-alpine AS builder_base
 LABEL org.opencontainers.image.authors=asi@dbca.wa.gov.au
 LABEL org.opencontainers.image.source=https://github.com/dbca-wa/ibms
 
@@ -17,7 +17,7 @@ RUN addgroup -g ${GID} appuser \
   && adduser -H -D -u ${UID} -G appuser appuser
 
 # Install Python libs using Poetry.
-FROM builder_base_ibms AS python_libs_ibms
+FROM builder_base AS python_libs_ibms
 WORKDIR /app
 COPY poetry.lock pyproject.toml ./
 ARG POETRY_VERSION=1.8.3
