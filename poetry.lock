@@ -148,18 +148,18 @@ files = [
 
 [[package]]
 name = "crispy-bootstrap5"
-version = "2024.2"
+version = "2024.10"
 description = "Bootstrap5 template pack for django-crispy-forms"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "crispy-bootstrap5-2024.2.tar.gz", hash = "sha256:7d1fa40c6faf472e30e85c72551a3d2c9eedbf0abfff920683315e4e6f670f2b"},
-    {file = "crispy_bootstrap5-2024.2-py3-none-any.whl", hash = "sha256:3867e320920a6ef156e94f9e0f06a80344c453e1b3bd96cd9dc0522ae9e9afb8"},
+    {file = "crispy_bootstrap5-2024.10-py3-none-any.whl", hash = "sha256:59e91dac5e45a8c954af3fbcaa6804cd5aef4402f027af2f99a352b096c4016f"},
+    {file = "crispy_bootstrap5-2024.10.tar.gz", hash = "sha256:55b442fe675dd95ad280123c7fe464f454186e90b8e5642e751f436c87627c44"},
 ]
 
 [package.dependencies]
 django = ">=4.2"
-django-crispy-forms = ">=2"
+django-crispy-forms = ">=2.3"
 
 [package.extras]
 test = ["pytest", "pytest-django"]
@@ -369,13 +369,13 @@ ipython = {version = ">=7.31.1", markers = "python_version >= \"3.11\""}
 
 [[package]]
 name = "ipython"
-version = "8.27.0"
+version = "8.28.0"
 description = "IPython: Productive Interactive Computing"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "ipython-8.27.0-py3-none-any.whl", hash = "sha256:f68b3cb8bde357a5d7adc9598d57e22a45dfbea19eb6b98286fa3b288c9cd55c"},
-    {file = "ipython-8.27.0.tar.gz", hash = "sha256:0b99a2dc9f15fd68692e898e5568725c6d49c527d36a9fb5960ffbdeaa82ff7e"},
+    {file = "ipython-8.28.0-py3-none-any.whl", hash = "sha256:530ef1e7bb693724d3cdc37287c80b07ad9b25986c007a53aa1857272dac3f35"},
+    {file = "ipython-8.28.0.tar.gz", hash = "sha256:0d0d15ca1e01faeb868ef56bc7ee5a0de5bd66885735682e8a322ae289a13d1a"},
 ]
 
 [package.dependencies]
@@ -536,13 +536,13 @@ type = ["mypy (>=1.11.2)"]
 
 [[package]]
 name = "pre-commit"
-version = "3.8.0"
+version = "4.0.0"
 description = "A framework for managing and maintaining multi-language pre-commit hooks."
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "pre_commit-3.8.0-py2.py3-none-any.whl", hash = "sha256:9a90a53bf82fdd8778d58085faf8d83df56e40dfe18f45b19446e26bf1b3a63f"},
-    {file = "pre_commit-3.8.0.tar.gz", hash = "sha256:8bb6494d4a20423842e198980c9ecf9f96607a07ea29549e180eef9ae80fe7af"},
+    {file = "pre_commit-4.0.0-py2.py3-none-any.whl", hash = "sha256:0ca2341cf94ac1865350970951e54b1a50521e57b7b500403307aed4315a1234"},
+    {file = "pre_commit-4.0.0.tar.gz", hash = "sha256:5d9807162cc5537940f94f266cbe2d716a75cfad0d78a317a92cac16287cfed6"},
 ]
 
 [package.dependencies]
@@ -999,4 +999,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "a1f8e8092312a2049dba1d76432d01f7420e19741f087044f1e87aff0f2a0071"
+content-hash = "0459c6dcf7630c826f786ddf2e4c128d76b625d31f5f2f56a763d86a4d792309"
