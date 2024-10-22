@@ -14,35 +14,23 @@ spec:
         app: ibms-prod
     spec:
       containers:
-      - name: ibms
-        imagePullPolicy: IfNotPresent
-        env:
-        - name: IBMS_URL
-          value: "https://ibms.dbca.wa.gov.au"
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: ibms-env-prod
-              key: DATABASE_URL
-        - name: SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: ibms-env-prod
-              key: SECRET_KEY
-        - name: SENTRY_DSN
-          valueFrom:
-            secretKeyRef:
-              name: ibms-env-prod
-              key: SENTRY_DSN
-        - name: SENTRY_SAMPLE_RATE
-          valueFrom:
-            secretKeyRef:
-              name: ibms-env-prod
-              key: SENTRY_SAMPLE_RATE
-        - name: SENTRY_TRANSACTION_SAMPLE_RATE
-          valueFrom:
-            secretKeyRef:
-              name: ibms-env-prod
-              key: SENTRY_TRANSACTION_SAMPLE_RATE
-        - name: SENTRY_ENVIRONMENT
-          value: "prod"
+        - name: ibms
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: IBMS_URL
+              value: "https://ibms.dbca.wa.gov.au"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ibms-env-prod
+                  key: DATABASE_URL
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ibms-env-prod
+                  key: SECRET_KEY
+            - name: SHAREPOINT_IBMS
+              valueFrom:
+                secretKeyRef:
+                  name: ibms-env-prod
+                  key: SHAREPOINT_IBMS
