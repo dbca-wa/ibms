@@ -17,7 +17,6 @@ from xlutils.copy import copy
 from ibms import forms
 from ibms.models import GLPivDownload, IBMData, NCServicePriority, PVSServicePriority, SFMServicePriority
 from ibms.report import (
-    code_update_report,
     data_amend_report,
     download_enhanced_report,
     download_report,
@@ -244,89 +243,17 @@ class ReloadView(IbmsFormView):
         return response
 
 
-class CodeUpdateView(IbmsFormView):
+class CodeUpdateView(LoginRequiredMixin, TemplateView):
     template_name = "ibms/code_update.html"
-
-    def get_form_class(self):
-        if self.request.GET.get("admin", None) == "true" and self.request.user.is_superuser:
-            return forms.ManagerCodeUpdateForm
-        else:
-            return forms.CodeUpdateForm
 
     def get_context_data(self, **kwargs):
         context = super(CodeUpdateView, self).get_context_data(**kwargs)
+        if self.request.user.is_superuser:
+            context["superuser"] = True
         context["page_title"] = " | ".join([settings.SITE_ACRONYM, "Code update"])
         context["title"] = "CODE UPDATE"
+        context["download_period"] = get_download_period()
         return context
-
-    def get_success_url(self):
-        return reverse("code_update")
-
-    def form_valid(self, form):
-        fy = form.cleaned_data["financial_year"]
-        ibm = IBMData.objects.filter(fy=fy)
-        gl = GLPivDownload.objects.filter(fy=fy)
-
-        # CC limits both the querysets.
-        cc = self.request.POST.get("cost_centre")
-        if cc:
-            gl = gl.filter(costCentre=cc)
-            ibm = ibm.filter(costCentre=cc)
-
-        # Filter GLPivot to resource < 4000
-        gl = gl.filter(resource__lt=4000)
-
-        # Exclude service 11 from GLPivDownload queryset.
-        gl = gl.exclude(service=11)
-
-        # Superuser must specify DJ0 or non-DJ0 activities only.
-        # Business rule: for normal users, include any line items that are
-        # activity 'DJ0', EXCEPT where service is 42, 43 or 75.
-        # For superusers, do the opposite (include activity DJ0 items ONLY if
-        # service is 42, 43 or 75).
-        if self.request.user.is_superuser and "report_type" in form.cleaned_data:
-            if form.cleaned_data["report_type"] == "dj0":
-                gl = gl.filter(activity="DJ0")
-                gl = gl.filter(service__in=[42, 43, 75])
-                gl = gl.filter(account__in=[1, 2, 4, 42])
-            else:  # Non-DJ0.
-                gl = gl.exclude(activity="DJ0")
-                gl = gl.filter(account__in=[1, 2, 42])
-        else:
-            # Business rule: for CC 531 only, include accounts 1, 2, 6 & 42.
-            if cc and cc == "531":
-                gl = gl.filter(account__in=[1, 2, 6, 42])
-            else:
-                gl = gl.filter(account__in=[1, 2, 42])
-            gl = gl.exclude(activity="DJ0", service__in=[42, 43, 75])
-
-        # Filter by codeID: EXCLUDE objects with a codeID that matches any
-        # IBMData object's ibmIdentifier for the same FY.
-        code_ids = set(ibm.values_list("ibmIdentifier", flat=True))
-        gl = gl.exclude(codeID__in=code_ids).order_by("codeID")
-        gl_codeids = sorted(set(gl.values_list("codeID", flat=True)))
-
-        # Service priority checkboxes.
-        nc_sp = NCServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["ncChoice"]).order_by(
-            "servicePriorityNo"
-        )
-        pvs_sp = PVSServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["pvsChoice"]).order_by(
-            "servicePriorityNo"
-        )
-        fm_sp = SFMServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["fmChoice"]).order_by(
-            "servicePriorityNo"
-        )
-
-        # Style & populate the workbook.
-        fpath = os.path.join(settings.STATIC_ROOT, "excel", "ibms_codeupdate_base.xls")
-        excel_template = open_workbook(fpath, formatting_info=True, on_demand=True)
-        workbook = copy(excel_template)
-        code_update_report(excel_template, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_sp, ibm)
-
-        response = HttpResponse(content_type="application/vnd.ms-excel")
-        response["Content-Disposition"] = "attachment; filename=ibms_exceptions.xls"
-        workbook.save(response)  # Save the Excel workbook contents to the response.
-        return response
 
 
 class DataAmendmentView(IbmsFormView):

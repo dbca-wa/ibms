@@ -1,111 +1,12 @@
-{% extends "ibms/form.html" %}
-
-{% block check_all_button %}
-{% if superuser %}
-{% if request.path != '/code-update/v=' %}
-<button id="checkAll" type="button" class="btn btn-sm btn-success">Check/uncheck all</button></button>
-{% endif %}
-{% endif %}
-{% endblock %}
-
-{% block extra_js %}
-<script type="text/javascript">
-    // Utility function to update Cost Centre select field when financial year changes.
-    function updateCostCentre(finYear) {
-        $("select#id_cost_centre")[0].disabled = true;
-        $.ajax({
-            type: "GET",
-            url: "{% url 'ajax_glpivdownload_costcentre' %}",
-            data: {"financialYear": finYear},
-            success: function(data) {
-                select = $("select#id_cost_centre")[0];
-                select.options.length = 0;
-                select.options.add(new Option('--------', ''));
-                for (i in data.choices) {
-                    select.options.add(new Option(data.choices[i][0], data.choices[i][1]));
-                }
-            }
-        });
-        $("select#id_cost_centre")[0].disabled = false;
-    };
-
-    //Function to update mappings based on the financial year and the cost centre selected.
-    function updateMappings(finYear, costCentreNo) {
-        $.ajax({
-            type: "GET",
-            url: "{% url 'ajax_mappings' %}",
-            data: {"financialYear": finYear, "costCentreNo": costCentreNo},
-            success : function(data) {
-                checkMappedBoxes(data.choices);
-            }
-        })
-    };
-
-    function enableAllWidgets() {
-        $("select.select").each(function() {
-            this.disabled = false;
-        });
-        $("input.checkboxselectmultiple").each(function() {
-            this.disabled = false;
-        });
-    };
-    // ------------------------------------
-    $(function() {
-        var finYear = $("select#id_financial_year").val();
-
-		// Small function to check/uncheck all checkboxes on the page.
-        $("#checkAll").attr("data-type", "check");
-		$("#checkAll").click(function() {
-			if ($("#checkAll").attr("data-type") === "check") {
-				$('input[type="checkbox"]').prop("checked", true);
-				$("#checkAll").attr("data-type", "uncheck");
-			} else {
-				$('input[type="checkbox"]').prop("checked", false);
-				$("#checkAll").attr("data-type", "check");
-			}
-		});
-
-        // Check the Financial year select. If it has a value (if form fails validation, etc),
-        // then ensure that the other selects are enabled.
-        if (finYear) {
-            $("select.select").each(function() {
-                enableAllWidgets()
-                this.disabled = false;
-            });
-        };
-
-        // If the Financial Year select list changes, update the options for
-        // cost centre, region/branch and division.
-        $("select#id_financial_year").change(function() {
-            finYear = $("select#id_financial_year").val();
-            enableAllWidgets();
-            updateCostCentre(finYear);
-            checkMappedBoxes();
-        });
-
-        //Updates auto mappings based on cost centre being selected.
-        $("select#id_cost_centre").change(function() {
-            finYear = $("select#id_financial_year").val();
-            costCentreNo = $("select#id_cost_centre").val();
-            updateMappings(finYear, costCentreNo);
-        });
-    });
-
-    //Will populate the checkboxes correctly, as per mappings uploaded.
-    function checkMappedBoxes(fieldlist){
-        $('input[type=checkbox]').each(function(){
-            $(this.checked = false);
-            if (fieldlist > ""){
-                for(i = 0; i < fieldlist.length; i++){
-                    to_check = fieldlist[i].split(', ');
-                    for (p = 0; p < to_check.length; p++){
-                        if($(this).val() == to_check[p]){
-                            $(this.checked = true);
-                        }
-                    }
-                }   
-            }
-        });
-    }
-</script>
+{% extends "base_ibms.html" %}
+{% block page_content_inner %}
+    <h1>{{ title }}</h1>
+    <p>
+        Downloads as of: <strong>{{ download_period }}</strong>
+        {% block check_all_button %}{% endblock %}
+    </p>
+    <p>
+        <a href="{{ sharepoint_ibms }}Shared Documents/IBMS Admin/"
+           target="_blank">IBMS Code Update template download</a>
+    </p>
 {% endblock %}
