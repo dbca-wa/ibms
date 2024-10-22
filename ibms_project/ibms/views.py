@@ -16,13 +16,7 @@ from xlutils.copy import copy
 
 from ibms import forms
 from ibms.models import GLPivDownload, IBMData, NCServicePriority, PVSServicePriority, SFMServicePriority
-from ibms.report import (
-    data_amend_report,
-    download_enhanced_report,
-    download_report,
-    reload_report,
-    service_priority_report,
-)
+from ibms.report import download_enhanced_report, download_report, reload_report, service_priority_report
 from ibms.utils import get_download_period, process_upload_file, validate_upload_file
 
 
@@ -250,72 +244,23 @@ class CodeUpdateView(LoginRequiredMixin, TemplateView):
         context = super(CodeUpdateView, self).get_context_data(**kwargs)
         if self.request.user.is_superuser:
             context["superuser"] = True
+        context["download_period"] = get_download_period()
         context["page_title"] = " | ".join([settings.SITE_ACRONYM, "Code update"])
         context["title"] = "CODE UPDATE"
-        context["download_period"] = get_download_period()
         return context
 
 
-class DataAmendmentView(IbmsFormView):
-    form_class = forms.DataAmendmentForm
+class DataAmendmentView(LoginRequiredMixin, TemplateView):
     template_name = "ibms/data_amendment.html"
-
-    def get_form_kwargs(self):
-        kwargs = super(DataAmendmentView, self).get_form_kwargs()
-        kwargs.update({"request": self.request})
-        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super(DataAmendmentView, self).get_context_data(**kwargs)
+        if self.request.user.is_superuser:
+            context["superuser"] = True
+        context["download_period"] = get_download_period()
         context["page_title"] = " | ".join([settings.SITE_ACRONYM, "Data amendment"])
         context["title"] = "DATA AMENDMENT"
         return context
-
-    def get_success_url(self):
-        return reverse("dataamendment")
-
-    def form_valid(self, form):
-        fy = form.cleaned_data["financial_year"]
-        gl = GLPivDownload.objects.filter(fy=fy, account__in=[1, 2], resource__lt=4000)
-        gl = gl.exclude(activity="DJ0", job="777", service="11")
-        gl = gl.order_by("codeID")
-        ibm = IBMData.objects.filter(fy=fy)
-        # NOTE: we need a second queryset of IBMData objects to insert budget areas and sponsors to the workbook.
-        ibm_filtered = IBMData.objects.filter(fy=fy)
-        if form.cleaned_data["cost_centre"]:
-            gl = gl.filter(costCentre=form.cleaned_data["cost_centre"])
-            ibm_filtered = ibm_filtered.filter(costCentre=form.cleaned_data["cost_centre"])
-        if form.cleaned_data["region"]:
-            gl = gl.filter(regionBranch=form.cleaned_data["region"])
-        if form.cleaned_data["service"]:
-            gl = gl.filter(service=form.cleaned_data["service"])
-        if form.cleaned_data["budget_area"]:
-            ibm = ibm.filter(budgetArea=form.cleaned_data["budget_area"])
-        if form.cleaned_data["project_sponsor"]:
-            ibm = ibm.filter(projectSponsor=form.cleaned_data["project_sponsor"])
-
-        # Service priority checkboxes.
-        nc_sp = NCServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["ncChoice"]).order_by(
-            "servicePriorityNo"
-        )
-        pvs_sp = PVSServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["pvsChoice"]).order_by(
-            "servicePriorityNo"
-        )
-        fm_sp = SFMServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["fmChoice"]).order_by(
-            "servicePriorityNo"
-        )
-
-        fpath = os.path.join(settings.STATIC_ROOT, "excel", "ibms_dataamend_base.xls")
-        excel_template = open_workbook(fpath, formatting_info=True, on_demand=True)
-        workbook = copy(excel_template)
-
-        # Style & populate the worksheet.
-        data_amend_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp, ibm_filtered)
-
-        response = HttpResponse(content_type="application/vnd.ms-excel")
-        response["Content-Disposition"] = "attachment; filename=ibms_dataamendment.xls"
-        workbook.save(response)  # Save the worksheet contents to the response.
-        return response
 
 
 class ServicePriorityDataView(IbmsFormView):
