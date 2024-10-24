@@ -267,6 +267,12 @@ class CodeUpdateAdminView(IbmsFormView):
         context["title"] = "CODE UPDATE (ADMIN)"
         return context
 
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            messages.error(self.request, "You are not authorised to carry out this operation")
+            return redirect("site_home")
+        return super(CodeUpdateAdminView, self).get(request, *args, **kwargs)
+
     def get_success_url(self):
         return reverse("code_update")
 

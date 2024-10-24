@@ -63,22 +63,18 @@ class IbmsViewsTest(IbmsTestCase):
         """Test that all the IBMS views render"""
         self.client.login(username="admin", password="test")
 
-        for view in ["upload", "download", "reload", "code_update", "serviceprioritydata", "dataamendment"]:
+        for view in [
+            "upload",
+            "download",
+            "reload",
+            "code_update",
+            "code_update_admin",
+            "serviceprioritydata",
+            "dataamendment",
+        ]:
             url = reverse(view)
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
-
-    def test_ibms_codeupdate_admin(self):
-        """Test that the Code Update admin form renders"""
-        self.client.login(username="admin", password="test")
-        url = reverse("code_update") + "?admin=true"
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "You must select a financial year")
-        url = reverse("code_update")  # Test the normal form also.
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "You must select a financial year")
 
     def test_ibms_views_req_auth(self):
         """Test that all the IBMS views will redirect a non-auth'ed user."""
@@ -88,6 +84,7 @@ class IbmsViewsTest(IbmsTestCase):
             "download",
             "reload",
             "code_update",
+            "code_update_admin",
             "serviceprioritydata",
             "dataamendment",
         ]:
@@ -109,6 +106,16 @@ class IbmsViewsTest(IbmsTestCase):
         """Test clearglpivot view redirects normal users, but not superusers."""
         self.client.login(username="testuser", password="test")
         url = reverse("clearglpivot")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.client.login(username="admin", password="test")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_code_update_admin_view_redirect(self):
+        """Test code_update_admin view redirects normal users, but not superusers."""
+        self.client.login(username="testuser", password="test")
+        url = reverse("code_update_admin")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
         self.client.login(username="admin", password="test")
