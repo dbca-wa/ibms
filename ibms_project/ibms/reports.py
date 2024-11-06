@@ -1,14 +1,21 @@
-from copy import copy
 import csv
+from copy import copy
+
 from django.conf import settings
 from django.db.models import Sum
 from xlrd import cellname
-from xlwt import easyxf, Formula, XFStyle
+from xlwt import Formula, XFStyle, easyxf
 
 from ibms.models import (
-    IBMData, CorporateStrategy, NCStrategicPlan, NCServicePriority,
-    ERServicePriority, GeneralServicePriority, PVSServicePriority,
-    SFMServicePriority)
+    CorporateStrategy,
+    ERServicePriority,
+    GeneralServicePriority,
+    IBMData,
+    NCServicePriority,
+    NCStrategicPlan,
+    PVSServicePriority,
+    SFMServicePriority,
+)
 
 
 def service_priority_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp):
@@ -16,17 +23,17 @@ def service_priority_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp):
     sheet = workbook.get_sheet(0)
 
     # Download hyperlink:
-    bigfont = easyxf('font: bold 1,height 360;')  # Font height is in "twips" (1/20 of a point)
+    bigfont = easyxf("font: bold 1,height 360;")  # Font height is in "twips" (1/20 of a point)
     sheet.write(1, 0, Formula('HYPERLINK("{}")'.format(settings.IBM_SERVICE_PRIORITY_URI)), bigfont)
 
     # Padded zeroes number format
     pad2, pad3, pad4 = XFStyle(), XFStyle(), XFStyle()
-    pad2.num_format_str = '00'
-    pad3.num_format_str = '000'
-    pad4.num_format_str = '0000'
+    pad2.num_format_str = "00"
+    pad3.num_format_str = "000"
+    pad4.num_format_str = "0000"
 
     current_row = 3
-    code_id = ''
+    code_id = ""
     for row, data in enumerate(gl, current_row):
         # Only insert GLPivDownload objects with a matching IBMData object.
         if ibm.filter(ibmIdentifier=data.codeID):
@@ -59,15 +66,15 @@ def service_priority_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp):
                 sheet.write(current_row, 13, i.servicePriorityID)
                 sheet.write(current_row, 14, i.annualWPInfo)
                 sheet.write(current_row, 15, data.mPRACategory)
-                ytd = gl.filter(codeID=code_id).aggregate(Sum('ytdActual'))
-                fy = gl.filter(codeID=code_id).aggregate(Sum('fybudget'))
-                sheet.write(current_row, 16, ytd['ytdActual__sum'])
-                sheet.write(current_row, 17, fy['fybudget__sum'])
+                ytd = gl.filter(codeID=code_id).aggregate(Sum("ytdActual"))
+                fy = gl.filter(codeID=code_id).aggregate(Sum("fybudget"))
+                sheet.write(current_row, 16, ytd["ytdActual__sum"])
+                sheet.write(current_row, 17, fy["fybudget__sum"])
 
     # Insert the footer row formulae and '#END OF INPUT'
-    sheet.write(current_row + 2, 0, '#END OF INPUT')
-    sheet.write(current_row + 2, 16, Formula('SUM({}:{})'.format(cellname(4, 16), cellname(current_row, 16))))
-    sheet.write(current_row + 2, 17, Formula('SUM({}:{})'.format(cellname(4, 17), cellname(current_row, 17))))
+    sheet.write(current_row + 2, 0, "#END OF INPUT")
+    sheet.write(current_row + 2, 16, Formula("SUM({}:{})".format(cellname(4, 16), cellname(current_row, 16))))
+    sheet.write(current_row + 2, 17, Formula("SUM({}:{})".format(cellname(4, 17), cellname(current_row, 17))))
 
     # Sheet 2 - Service priority checkboxes.
     sheet = workbook.get_sheet(1)
@@ -79,17 +86,17 @@ def data_amend_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp, ibm_filtered):
     sheet = workbook.get_sheet(0)
 
     # Download hyperlink:
-    bigfont = easyxf('font: bold 1,height 360;')  # Font height is in "twips" (1/20 of a point)
+    bigfont = easyxf("font: bold 1,height 360;")  # Font height is in "twips" (1/20 of a point)
     sheet.write(1, 0, Formula('HYPERLINK("{}")'.format(settings.IBM_DATA_AMEND_URI)), bigfont)
 
     # Padded zeroes number format
     pad2, pad3, pad4 = XFStyle(), XFStyle(), XFStyle()
-    pad2.num_format_str = '00'
-    pad3.num_format_str = '000'
-    pad4.num_format_str = '0000'
+    pad2.num_format_str = "00"
+    pad3.num_format_str = "000"
+    pad4.num_format_str = "0000"
 
     current_row = 3
-    code_id = ''
+    code_id = ""
     for row, data in enumerate(gl, current_row):
         # Only insert GLPivDownload objects with a matching IBMData object.
         if ibm.filter(ibmIdentifier=data.codeID).exists():
@@ -122,15 +129,15 @@ def data_amend_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp, ibm_filtered):
                 sheet.write(current_row, 15, i.servicePriorityID)
                 sheet.write(current_row, 18, i.annualWPInfo)
                 sheet.write(current_row, 19, data.mPRACategory)
-                ytd = gl.filter(codeID=code_id).aggregate(Sum('ytdActual'))
-                fy = gl.filter(codeID=code_id).aggregate(Sum('fybudget'))
-                sheet.write(current_row, 20, ytd['ytdActual__sum'])
-                sheet.write(current_row, 21, fy['fybudget__sum'])
+                ytd = gl.filter(codeID=code_id).aggregate(Sum("ytdActual"))
+                fy = gl.filter(codeID=code_id).aggregate(Sum("fybudget"))
+                sheet.write(current_row, 20, ytd["ytdActual__sum"])
+                sheet.write(current_row, 21, fy["fybudget__sum"])
 
     # Insert the footer row formulae and '#END OF INPUT'
-    sheet.write(current_row + 2, 0, '#END OF INPUT')
-    sheet.write(current_row + 2, 20, Formula('SUM({}:{})'.format(cellname(4, 20), cellname(current_row, 20))))
-    sheet.write(current_row + 2, 21, Formula('SUM({}:{})'.format(cellname(4, 21), cellname(current_row, 21))))
+    sheet.write(current_row + 2, 0, "#END OF INPUT")
+    sheet.write(current_row + 2, 20, Formula("SUM({}:{})".format(cellname(4, 20), cellname(current_row, 20))))
+    sheet.write(current_row + 2, 21, Formula("SUM({}:{})".format(cellname(4, 21), cellname(current_row, 21))))
 
     # Sheet 2 - Service priority checkboxes.
     sheet = workbook.get_sheet(1)
@@ -149,22 +156,21 @@ def data_amend_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp, ibm_filtered):
 
 
 def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_sp, ibm):
-    """This report reads from the readonly workbook in order to perform some cell processing.
-    """
+    """This report reads from the readonly workbook in order to perform some cell processing."""
     # Sheet 1
     sheet = workbook.get_sheet(0)
     sheet_ro = workbook_ro.get_sheet(0)
 
     # Download hyperlink:
-    bigfont = easyxf('font: bold 1,height 360;')  # Font height is in "twips" (1/20 of a point)
+    bigfont = easyxf("font: bold 1,height 360;")  # Font height is in "twips" (1/20 of a point)
     url = Formula('HYPERLINK("{}")'.format(settings.IBM_CODE_UPDATER_URI))
     sheet.write(1, 0, url, bigfont)
 
     # Padded zeroes number format
     pad2, pad3, pad4 = XFStyle(), XFStyle(), XFStyle()
-    pad2.num_format_str = '00'
-    pad3.num_format_str = '000'
-    pad4.num_format_str = '0000'
+    pad2.num_format_str = "00"
+    pad3.num_format_str = "000"
+    pad4.num_format_str = "0000"
 
     # Find the maximum column index in the template headers (row 4).
     max_col_idx = 21  # Start at column V.
@@ -211,7 +217,7 @@ def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_
         sheet.write(row, 19, g.mPRACategory)
 
         # Write the SUM formula.
-        sheet.write(row, 20, Formula('ROUND(SUM(V{}:GP{}), 0)'.format(row + 1, row + 1)))
+        sheet.write(row, 20, Formula("ROUND(SUM(V{}:GP{}), 0)".format(row + 1, row + 1)))
 
         # Write ytdActual values for matching resource columns (use the dict created earlier).
         # Use the column index of a matching resource code.
@@ -226,11 +232,11 @@ def code_update_report(workbook_ro, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_
 
     row += 1
     # Insert the footer row formulae and '#END OF INPUT'
-    sheet.write(row, 0, '#END OF INPUT')
-    sheet.write(row, 20, Formula('ROUND(SUM(V{}:GP{}), 0)'.format(row + 1, row + 1)))
+    sheet.write(row, 0, "#END OF INPUT")
+    sheet.write(row, 20, Formula("ROUND(SUM(V{}:GP{}), 0)".format(row + 1, row + 1)))
     for i in range(21, max_col_idx):
         # For cell V:<end> in the footer row, insert a SUM formula.
-        sheet.write(row, i, Formula('ROUND(SUM({}:{}), 0)'.format(cellname(4, i), cellname(row - 1, i))))
+        sheet.write(row, i, Formula("ROUND(SUM({}:{}), 0)".format(cellname(4, i), cellname(row - 1, i))))
 
     # Sheet 2: Service priority checkboxes.
     sheet = workbook.get_sheet(1)
@@ -252,13 +258,13 @@ def reload_report(workbook, ibm, nc_sp, pvs_sp, fm_sp, gl):
     # IBMData sheet
     sheet = workbook.get_sheet(0)
     # Define cell styles
-    data_xf = easyxf('border: left thin, right thin, top thin, bottom thin;')
+    data_xf = easyxf("border: left thin, right thin, top thin, bottom thin;")
     pad2 = copy(data_xf)
-    pad2.num_format_str = '00'
+    pad2.num_format_str = "00"
     pad3 = copy(data_xf)
-    pad3.num_format_str = '000'
+    pad3.num_format_str = "000"
     pad4 = copy(data_xf)
-    pad4.num_format_str = '0000'
+    pad4.num_format_str = "0000"
     # Download hyperlink:
     sheet.write(1, 0, Formula('HYPERLINK("{}")'.format(settings.IBM_RELOAD_URI)))
     # Insert data:
@@ -314,7 +320,7 @@ def reload_report(workbook, ibm, nc_sp, pvs_sp, fm_sp, gl):
         if data.job not in jobs or data.jobName not in jobNames:
             # sheet.write(current_row, 0, data.job)
             # sheet.write(current_row, 1, data.jobName)
-            if(data.job.isdigit()):
+            if data.job.isdigit():
                 job = {"job": int(data.job), "jobName": data.jobName}
                 jobDict[current_row] = job
             else:
@@ -326,14 +332,14 @@ def reload_report(workbook, ibm, nc_sp, pvs_sp, fm_sp, gl):
         else:
             pass
     current_row = 0
-    for s in sorted(jobDict.items(), key=lambda k_v: k_v[1]['job']):
-        sheet.write(current_row, 0, str(s[1]['job']))
-        sheet.write(current_row, 1, s[1]['jobName'])
+    for s in sorted(jobDict.items(), key=lambda k_v: k_v[1]["job"]):
+        sheet.write(current_row, 0, str(s[1]["job"]))
+        sheet.write(current_row, 1, s[1]["jobName"])
         current_row += 1
 
-    for s in sorted(jobNoNumDict.items(), key=lambda k_v: k_v[1]['job']):
-        sheet.write(current_row, 0, s[1]['job'])
-        sheet.write(current_row, 1, s[1]['jobName'])
+    for s in sorted(jobNoNumDict.items(), key=lambda k_v: k_v[1]["job"]):
+        sheet.write(current_row, 0, s[1]["job"])
+        sheet.write(current_row, 1, s[1]["jobName"])
         current_row += 1
 
     sheet.col(1).width = 10000
@@ -345,7 +351,7 @@ def write_budget_areas(sheet, ibm):
     to the passed-in worksheet.
     """
     row = 1  # Skip the header row
-    budget_areas = sorted(set(ibm.values_list('budgetArea', 'costCentre')))
+    budget_areas = sorted(set(ibm.values_list("budgetArea", "costCentre")))
     for i in budget_areas:
         if i[0]:  # Non-blank only.
             sheet.write(row, 0, i[0])
@@ -358,7 +364,7 @@ def write_project_sponsors(sheet, ibm):
     to the passed-in worksheet.
     """
     row = 1  # Skip the header row
-    sponsors = sorted(set(ibm.values_list('projectSponsor', 'costCentre')))
+    sponsors = sorted(set(ibm.values_list("projectSponsor", "costCentre")))
     for i in sponsors:
         if i[0]:  # Non-blank only.
             sheet.write(row, 2, i[0])
@@ -371,7 +377,7 @@ def write_regional_spec_info(sheet, ibm):
     to the passed-in worksheet.
     """
     row = 1  # Skip the header row
-    reg_info = sorted(set(ibm.values_list('regionalSpecificInfo', 'costCentre')))
+    reg_info = sorted(set(ibm.values_list("regionalSpecificInfo", "costCentre")))
     for i in reg_info:
         if i[0]:  # Non-blank only.
             sheet.write(row, 4, i[0])
@@ -380,8 +386,7 @@ def write_regional_spec_info(sheet, ibm):
 
 
 def write_service_priorities(sheet, nc_sp, pvs_sp, fm_sp):
-    """Convenience function to write Service Priorites to a passed-in sheet.
-    """
+    """Convenience function to write Service Priorites to a passed-in sheet."""
     # Note that we can't just concat the three querysets together, because we
     # are using different models (with different field names).
     row = 0
@@ -406,13 +411,13 @@ def write_service_priorities(sheet, nc_sp, pvs_sp, fm_sp):
         sheet.write(row, 1, sp.servicePriorityNo)
         sheet.write(row, 2, sp.strategicPlanNo)
         sheet.write(row, 3, sp.corporateStrategyNo)
-        sheet.write(row, 4, '')
-        sheet.write(row, 5, '')
-        sheet.write(row, 6, '')
-        sheet.write(row, 7, '')
-        sheet.write(row, 8, '')
+        sheet.write(row, 4, "")
+        sheet.write(row, 5, "")
+        sheet.write(row, 6, "")
+        sheet.write(row, 7, "")
+        sheet.write(row, 8, "")
         sheet.write(row, 9, sp.servicePriority1)
-        sheet.write(row, 10, '')
+        sheet.write(row, 10, "")
         sheet.write(row, 11, sp.description)
         sheet.write(row, 12, sp.pvsExampleAnnWP)
         sheet.write(row, 13, sp.pvsExampleActNo)
@@ -423,20 +428,19 @@ def write_service_priorities(sheet, nc_sp, pvs_sp, fm_sp):
         sheet.write(row, 1, sp.servicePriorityNo)
         sheet.write(row, 2, sp.strategicPlanNo)
         sheet.write(row, 3, sp.corporateStrategyNo)
-        sheet.write(row, 4, '')
-        sheet.write(row, 5, '')
-        sheet.write(row, 6, '')
-        sheet.write(row, 7, '')
-        sheet.write(row, 8, '')
+        sheet.write(row, 4, "")
+        sheet.write(row, 5, "")
+        sheet.write(row, 6, "")
+        sheet.write(row, 7, "")
+        sheet.write(row, 8, "")
         sheet.write(row, 9, sp.description)
-        sheet.write(row, 10, '')
+        sheet.write(row, 10, "")
         sheet.write(row, 11, sp.description2)
         row += 1
 
 
 def download_report(glrows, response):
-    """Convenience function to write a CSV to a passed-in HTTPResponse.
-    """
+    """Convenience function to write a CSV to a passed-in HTTPResponse."""
     rows = glrows.values(
         "codeID",
         "fy",
@@ -478,7 +482,7 @@ def download_report(glrows, response):
         "fy",
         "budgetArea",
         "projectSponsor",
-        "corporatePlanNo",
+        # "corporatePlanNo",
         "strategicPlanNo",
         "regionalSpecificInfo",
         "servicePriorityID",
@@ -571,32 +575,23 @@ def download_report(glrows, response):
         "Nat Cons Strat Plan Action No",
         "Nat Cons Strat Plan Action Description",
         "Service Priority Description 1",
-        "Service Priority Description 2"]
+        "Service Priority Description 2",
+    ]
 
     writer.writerow(headers)
 
     for row_num, row in enumerate(rows, 1):
         outputdict = row
-        outputdict.update(
-            ibmdict.get(
-                row["codeID"] +
-                "_" +
-                row["fy"],
-                dict()))
-        if "corporatePlanNo" in outputdict.keys():
-            outputdict.update(
-                csdict.get(
-                    outputdict["corporatePlanNo"] +
-                    "_" +
-                    row["fy"],
-                    dict()))
+        outputdict.update(ibmdict.get(row["codeID"] + "_" + row["fy"], dict()))
+        # if "corporatePlanNo" in outputdict.keys():
+        #     outputdict.update(
+        #         csdict.get(
+        #             outputdict["corporatePlanNo"] +
+        #             "_" +
+        #             row["fy"],
+        #             dict()))
         if "strategicPlanNo" in outputdict.keys():
-            outputdict.update(
-                ncdict.get(
-                    outputdict["strategicPlanNo"] +
-                    "_" +
-                    row["fy"],
-                    dict()))
+            outputdict.update(ncdict.get(outputdict["strategicPlanNo"] + "_" + row["fy"], dict()))
         if "servicePriorityID" in outputdict.keys():
             d1, d2 = spdict.get(outputdict["servicePriorityID"] + "_" + row["fy"], ("", "", "", ""))[2:]
             outputdict.update({"d1": d1, "d2": d2})
@@ -636,7 +631,7 @@ def download_report(glrows, response):
             "mPRACategory",
             "budgetArea",
             "projectSponsor",
-            "corporatePlanNo",
+            # "corporatePlanNo",
             "strategicPlanNo",
             "regionalSpecificInfo",
             "servicePriorityID",
@@ -672,8 +667,7 @@ def download_report(glrows, response):
 
 
 def download_enhanced_report(glrows, response):
-    """Convenience function to write a CSV to a passed-in HTTPResponse.
-    """
+    """Convenience function to write a CSV to a passed-in HTTPResponse."""
     rows = glrows.values(
         "codeID",
         "fy",
@@ -713,7 +707,7 @@ def download_enhanced_report(glrows, response):
         "fy",
         "budgetArea",
         "projectSponsor",
-        "corporatePlanNo",
+        # "corporatePlanNo",
         "strategicPlanNo",
         "regionalSpecificInfo",
         "servicePriorityID",
@@ -821,25 +815,16 @@ def download_enhanced_report(glrows, response):
 
     for row_num, row in enumerate(rows, 1):
         outputdict = row
-        outputdict.update(
-            ibmdict.get(
-                row["codeID"] + "_" + row["fy"], dict()
-            )
-        )
-        if "corporatePlanNo" in outputdict.keys():
-            outputdict.update(
-                csdict.get(
-                    outputdict["corporatePlanNo"] +
-                    "_" +
-                    row["fy"],
-                    dict()))
+        outputdict.update(ibmdict.get(row["codeID"] + "_" + row["fy"], dict()))
+        # if "corporatePlanNo" in outputdict.keys():
+        #     outputdict.update(
+        #         csdict.get(
+        #             outputdict["corporatePlanNo"] +
+        #             "_" +
+        #             row["fy"],
+        #             dict()))
         if "strategicPlanNo" in outputdict.keys():
-            outputdict.update(
-                ncdict.get(
-                    outputdict["strategicPlanNo"] +
-                    "_" +
-                    row["fy"],
-                    dict()))
+            outputdict.update(ncdict.get(outputdict["strategicPlanNo"] + "_" + row["fy"], dict()))
         if "servicePriorityID" in outputdict.keys():
             d1, d2 = spdict.get(outputdict["servicePriorityID"] + "_" + row["fy"], ("", "", "", ""))[2:]
             outputdict.update({"d1": d1, "d2": d2})
@@ -877,7 +862,7 @@ def download_enhanced_report(glrows, response):
             "mPRACategory",
             "budgetArea",
             "projectSponsor",
-            "corporatePlanNo",
+            # "corporatePlanNo",
             "strategicPlanNo",
             "regionalSpecificInfo",
             "servicePriorityID",

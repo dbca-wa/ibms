@@ -23,7 +23,7 @@ from ibms.forms import (
     UploadForm,
 )
 from ibms.models import GLPivDownload, IBMData, NCServicePriority, PVSServicePriority, SFMServicePriority
-from ibms.report import download_enhanced_report, download_report, reload_report, service_priority_report
+from ibms.reports import download_enhanced_report, download_report, reload_report, service_priority_report
 from ibms.utils import get_download_period, process_upload_file, validate_upload_file
 
 
