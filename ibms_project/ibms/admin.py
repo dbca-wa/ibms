@@ -232,6 +232,7 @@ class GLPivDownloadAdmin(ModelAdmin):
 class CorporateStrategyAdmin(ModelAdmin):
     list_display = ["fy", "corporateStrategyNo", "description1"]
     list_filter = ["fy__financialYear"]
+    search_fields = ["corporateStrategyNo", "description1"]
     actions = [
         export_as_csv_action(
             translations=["id", "financialYear", "IBMSCSNo", "IBMSCSDesc1", "IBMSCSDesc2"],
@@ -429,6 +430,7 @@ class ERServicePriorityAdmin(ModelAdmin):
 class NCStrategicPlanAdmin(ModelAdmin):
     list_filter = ["fy__financialYear"]
     list_display = ["fy", "strategicPlanNo", "directionNo", "direction"]
+    search_fields = ["strategicPlanNo", "direction"]
     actions = [
         export_as_csv_action(
             translations=[
