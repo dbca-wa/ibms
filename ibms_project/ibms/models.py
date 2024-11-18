@@ -18,9 +18,7 @@ FINYEAR_CHOICES = (
 
 
 class IBMData(models.Model):
-    fy = models.ForeignKey(
-        FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name="financial year"
-    )
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, verbose_name="financial year")
     ibmIdentifier = models.CharField(max_length=100, verbose_name="IBM identifer")
     costCentre = models.CharField(max_length=4, null=True, blank=True, db_index=True, verbose_name="cost centre")
     account = models.IntegerField(null=True, blank=True)
@@ -42,9 +40,10 @@ class IBMData(models.Model):
     regionDescription = models.TextField(null=True, verbose_name="region description")
 
     def __str__(self):
-        return self.ibmIdentifier
+        return f"{self.fy} {self.ibmIdentifier}"
 
     class Meta:
+        # Financial year and ibmIdentifier should make a natural key for this model.
         unique_together = [("ibmIdentifier", "fy")]
         verbose_name = "IBM data"
         verbose_name_plural = "IBM data"
