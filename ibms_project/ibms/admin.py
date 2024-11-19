@@ -451,11 +451,11 @@ class NCStrategicPlanAdmin(ModelAdmin):
                 "strategicPlanNo",
                 "directionNo",
                 "direction",
-                "AimNo",
-                "Aim1",
-                "Aim2",
-                "ActionNo",
-                "Action",
+                "aimNo",
+                "aim1",
+                "aim2",
+                "actionNo",
+                "action",
             ],
         )
     ]

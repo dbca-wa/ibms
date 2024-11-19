@@ -28,8 +28,6 @@ class IBMData(models.Model):
     job = models.CharField(max_length=6, null=True, blank=True)
     budgetArea = models.CharField(max_length=100, db_index=True, verbose_name="budget area")
     projectSponsor = models.CharField(max_length=100, db_index=True, verbose_name="project sponsor")
-    # corporatePlanNo = models.CharField(max_length=100, db_index=True, verbose_name='corporate plan no')
-    # strategicPlanNo = models.CharField(max_length=100, db_index=True, verbose_name='strategic plan no')
     regionalSpecificInfo = models.TextField(verbose_name="regional specific info")
     servicePriorityID = models.CharField(max_length=100, verbose_name="service priority ID")
     annualWPInfo = models.TextField(verbose_name="annual WP info")
@@ -211,11 +209,11 @@ class NCStrategicPlan(models.Model):
     strategicPlanNo = models.CharField(max_length=100, verbose_name="strategic plan no")
     directionNo = models.CharField(max_length=100, verbose_name="direction no")
     direction = models.TextField()
-    AimNo = models.CharField(max_length=100, verbose_name="aim no")
-    Aim1 = models.TextField()
-    Aim2 = models.TextField()
-    ActionNo = models.TextField(verbose_name="action no")
-    Action = models.TextField()
+    aimNo = models.CharField(max_length=100, verbose_name="aim no")
+    aim1 = models.TextField()
+    aim2 = models.TextField()
+    actionNo = models.TextField(verbose_name="action no")
+    action = models.TextField()
 
     class Meta:
         unique_together = [("strategicPlanNo", "fy")]

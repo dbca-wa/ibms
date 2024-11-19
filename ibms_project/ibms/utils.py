@@ -158,29 +158,29 @@ def import_to_corporate_strategy(file_name, fy):
 
 def import_to_nc_strategic_plan(file_name, fy):
     reader, file, file_name = csvload(file_name)
+    i = 1
     try:
-        i = 1
         for row in reader:
             data = {
                 "fy": fy,
                 "strategicPlanNo": validate_char_field("strategicPlanNo", 20, row[0]),
                 "directionNo": validate_char_field("directionNo", 20, row[1]),
                 "direction": str(row[2]),
-                "AimNo": validate_char_field("directionNo", 20, row[3]),
-                "Aim1": str(row[4]),
-                "Aim2": str(row[5]),
-                "ActionNo": validate_char_field("directionNo", 20, row[6]),
-                "Action": str(row[7]),
+                "aimNo": validate_char_field("directionNo", 20, row[3]),
+                "aim1": str(row[4]),
+                "aim2": str(row[5]),
+                "actionNo": validate_char_field("directionNo", 20, row[6]),
+                "action": str(row[7]),
             }
             query = {"fy": fy, "strategicPlanNo": str(row[0])}
             saverow(NCStrategicPlan, data, query)
-            i + i + 1
+            i += 1
 
         file.close()
     except NCServicePriority.DoesNotExist:
         file.close()
         raise Exception(
-            "Row {0}:{1}\nPlease import NC Service Priority data before proceeding, otherwise database integrity will be compromised.".format(
+            "Row {}:{}\nPlease import NC Service Priority data before proceeding, otherwise database integrity will be compromised.".format(
                 i, row[0]
             )
         )
@@ -358,7 +358,7 @@ def download_ibms_data(glrows):
     csdict = dict(((r["corporateStrategyNo"] + "_" + r["fy"], r) for r in csrows))
 
     ncrows = NCStrategicPlan.objects.values(
-        "strategicPlanNo", "fy", "directionNo", "direction", "AimNo", "Aim1", "Aim2", "ActionNo", "Action"
+        "strategicPlanNo", "fy", "directionNo", "direction", "aimNo", "aim1", "aim2", "actionNo", "action"
     )
     ncdict = dict(((r["strategicPlanNo"] + "_" + r["fy"], r) for r in ncrows))
 
@@ -496,11 +496,11 @@ def download_ibms_data(glrows):
             "description2",
             "directionNo",
             "direction",
-            "AimNo",
-            "Aim1",
-            "Aim2",
-            "ActionNo",
-            "Action",
+            "aimNo",
+            "aim1",
+            "aim2",
+            "actionNo",
+            "action",
             "d1",
             "d2",
         ]:
@@ -659,11 +659,11 @@ def validate_upload_file(file, file_type):
                 "StratPlanNo",
                 "StratDirNo",
                 "StratDir",
-                "AimNo",
-                "Aim1",
-                "Aim2",
-                "ActNo",
-                "Action",
+                "aimNo",
+                "aim1",
+                "aim2",
+                "actNo",
+                "action",
             ],
         )
     elif file_type == "ERServicePriorityData":
