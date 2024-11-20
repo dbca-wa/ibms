@@ -622,7 +622,7 @@ def validate_upload_file(file, file_type):
     elif file_type == "IBMData":
         return validate_headers(
             row,
-            valid_count=19,
+            valid_count=17,
             headings=[
                 "ibmIdentifier",
                 "costCentre",
@@ -633,8 +633,6 @@ def validate_upload_file(file, file_type):
                 "job",
                 "budgetArea",
                 "projectSponsor",
-                # 'corporatePlanNo',
-                # 'strategicPlanNo',
                 "regionalSpecificInfo",
                 "servicePriorityID",
                 "annualWPInfo",
