@@ -86,9 +86,6 @@
                                 <a class="nav-link" href="{% url 'download_enhanced' %}">Enhanced Download</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'reload' %}">Reload</a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link" href="{% url 'code_update' %}">Code Update</a>
                             </li>
                             {% if superuser %}
@@ -96,9 +93,6 @@
                                     <a class="nav-link" href="{% url 'code_update_admin' %}">Code Update (Admin)</a>
                                 </li>
                             {% endif %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'serviceprioritydata' %}">Service Priority data</a>
-                            </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'dataamendment' %}">Data Amendment</a>
                             </li>
