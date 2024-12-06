@@ -23,7 +23,13 @@ from ibms.forms import (
     UploadForm,
 )
 from ibms.models import GLPivDownload, IBMData, NCServicePriority, PVSServicePriority, SFMServicePriority
-from ibms.reports import download_enhanced_report, download_report, reload_report, service_priority_report
+from ibms.reports import (
+    code_update_report,
+    download_enhanced_report,
+    download_report,
+    reload_report,
+    service_priority_report,
+)
 from ibms.utils import get_download_period, process_upload_file, validate_upload_file
 
 
@@ -122,12 +128,14 @@ class UploadView(IbmsFormView):
         # We have to open the uploaded file in text mode to parse it.
         file = open(t.name, "r")
         file_type = form.cleaned_data["upload_file_type"]
+
         # Catch exception thrown by the upload validation process and display it to the user.
         try:
             upload_valid = validate_upload_file(file, file_type)
         except Exception as e:
             messages.warning(self.request, "Error: {}".format(str(e)))
             return redirect("upload")
+
         # Upload may still not be valid, but at least no exception was thrown.
         if upload_valid:
             fy = form.cleaned_data["financial_year"]
@@ -144,7 +152,6 @@ class UploadView(IbmsFormView):
                 "This file appears to be of an incorrect type. Please choose a {} file.".format(file_type),
             )
             return redirect("upload")
-        return super(UploadView, self).form_valid(form)
 
 
 class DownloadView(IbmsFormView):
@@ -167,17 +174,17 @@ class DownloadView(IbmsFormView):
 
     def form_valid(self, form):
         d = form.cleaned_data
-        glrows = GLPivDownload.objects.filter(fy=d["financial_year"])
+        glpiv_qs = GLPivDownload.objects.filter(fy=d["financial_year"])
         if d.get("cost_centre", None):
-            glrows = glrows.filter(costCentre=d["cost_centre"])
+            glpiv_qs = glpiv_qs.filter(costCentre=d["cost_centre"])
         elif d.get("region", None):
-            glrows = glrows.filter(regionBranch=d["region"])
+            glpiv_qs = glpiv_qs.filter(regionBranch=d["region"])
         elif d.get("division", None):
-            glrows = glrows.filter(division=d["division"])
+            glpiv_qs = glpiv_qs.filter(division=d["division"])
 
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=ibms_data_download.csv"
-        response = download_report(glrows, response)  # Write CSV data.
+        response = download_report(glpiv_qs, response)  # Write CSV data.
         return response
 
 
@@ -193,17 +200,17 @@ class DownloadEnhancedView(DownloadView):
 
     def form_valid(self, form):
         d = form.cleaned_data
-        glrows = GLPivDownload.objects.filter(fy=d["financial_year"])
+        glpiv_qs = GLPivDownload.objects.filter(fy=d["financial_year"])
         if d.get("cost_centre", None):
-            glrows = glrows.filter(costCentre=d["cost_centre"])
+            glpiv_qs = glpiv_qs.filter(costCentre=d["cost_centre"])
         elif d.get("region", None):
-            glrows = glrows.filter(regionBranch=d["region"])
+            glpiv_qs = glpiv_qs.filter(regionBranch=d["region"])
         elif d.get("division", None):
-            glrows = glrows.filter(division=d["division"])
+            glpiv_qs = glpiv_qs.filter(division=d["division"])
 
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=ibms_data_enhanced_download.csv"
-        response = download_enhanced_report(glrows, response)  # Write CSV data.
+        response = download_enhanced_report(glpiv_qs, response)  # Write CSV data.
         return response
 
 
