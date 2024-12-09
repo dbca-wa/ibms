@@ -36,11 +36,11 @@ Required settings are as follows:
 
 Use `runserver` to run a local copy of the application:
 
-    poetry run python manage.py runserver 0:8080
+    python manage.py runserver 0:8080
 
 Run console commands manually:
 
-    poetry run python manage.py shell_plus
+    python manage.py shell_plus
 
 ## Docker image
 
@@ -52,11 +52,11 @@ To build a new Docker image from the `Dockerfile`:
 
 This project includes the following pre-commit hooks:
 
-- TruffleHog: https://docs.trufflesecurity.com/docs/scanning-git/precommit-hooks/
+- TruffleHog: <https://docs.trufflesecurity.com/docs/scanning-git/precommit-hooks/>
 
 Pre-commit hooks may have additional system dependencies to run. Optionally
 install pre-commit hooks locally like so:
 
     poetry run pre-commit install
 
-Reference: https://pre-commit.com/
+Reference: <https://pre-commit.com/>
