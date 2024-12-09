@@ -2,10 +2,9 @@ name: "Build Docker image and run Trivy vulnerability scan"
 
 on:
   push:
-    # Publish `master` as `latest` image.
-    branches: [master]
-    # Publish `2.*` tags as releases.
-    tags: ["2.*"]
+    branches: [master, dev]
+    # Publish tagged commits as releases.
+    tags: ["*"]
   pull_request:
     branches: [master]
 
@@ -77,7 +76,9 @@ jobs:
       # Run vulnerability scan on built image
       #----------------------------------------------
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.29.0
+        env:
+          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
         with:
           scan-type: "image"
           scanners: "vuln"
