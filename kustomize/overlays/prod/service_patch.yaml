@@ -5,5 +5,5 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: ibms-prod
+    app: ibms-deployment
     variant: prod

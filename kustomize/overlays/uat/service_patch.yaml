@@ -5,5 +5,5 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: ibms-uat
+    app: ibms-deployment
     variant: uat
