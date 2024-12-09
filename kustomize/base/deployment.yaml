@@ -2,76 +2,84 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ibms-deployment
+  labels:
+    app: ibms-deployment
 spec:
+  selector:
+    matchLabels:
+      app: ibms-deployment
   strategy:
     type: RollingUpdate
   template:
+    metadata:
+      labels:
+        app: ibms-deployment
     spec:
       containers:
-      - name: ibms
-        image: ghcr.io/dbca-wa/ibms
-        imagePullPolicy: Always
-        env:
-        - name: ALLOWED_HOSTS
-          value: ".dbca.wa.gov.au"
-        - name: CSRF_TRUSTED_ORIGINS
-          value: "https://*.dbca.wa.gov.au"
-        - name: EMAIL_HOST
-          value: "smtp.lan.fyi"
-        - name: IBM_CODE_UPDATER_URI
-          value: "https://static.dbca.wa.gov.au/pages/ibms-code-update.html"
-        - name: IBM_DATA_AMEND_URI
-          value: "https://static.dbca.wa.gov.au/pages/ibms-code-update.html"
-        - name: IBM_RELOAD_URI
-          value: "https://static.dbca.wa.gov.au/pages/ibms-budget-template.html"
-        - name: IBM_SERVICE_PRIORITY_URI
-          value: "https://static.dbca.wa.gov.au/pages/ibms-service-priority-data.html"
-        - name: TZ
-          value: "Australia/Perth"
-        resources:
-          requests:
-            memory: "100Mi"
-            cpu: "5m"
-          limits:
-            memory: "2Gi"
-            cpu: "1000m"
-        startupProbe:
-          httpGet:
-            path: /livez
-            port: 8080
-            scheme: HTTP
-          initialDelaySeconds: 3
-          periodSeconds: 15
-          timeoutSeconds: 10
-          successThreshold: 1
-          failureThreshold: 3
-        livenessProbe:
-          httpGet:
-            path: /livez
-            port: 8080
-            scheme: HTTP
-          initialDelaySeconds: 0
-          periodSeconds: 15
-          successThreshold: 1
-          failureThreshold: 3
-          timeoutSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /readyz
-            port: 8080
-            scheme: HTTP
-          initialDelaySeconds: 0
-          periodSeconds: 15
-          successThreshold: 1
-          failureThreshold: 3
-          timeoutSeconds: 10
-        securityContext:
-          runAsNonRoot: true
-          privileged: false
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-              - ALL
-          readOnlyRootFilesystem: false
+        - name: ibms
+          image: ghcr.io/dbca-wa/ibms
+          imagePullPolicy: Always
+          env:
+            - name: ALLOWED_HOSTS
+              value: ".dbca.wa.gov.au"
+            - name: CSRF_TRUSTED_ORIGINS
+              value: "https://*.dbca.wa.gov.au"
+            - name: EMAIL_HOST
+              value: "smtp.lan.fyi"
+            - name: IBM_CODE_UPDATER_URI
+              value: "https://static.dbca.wa.gov.au/pages/ibms-code-update.html"
+            - name: IBM_DATA_AMEND_URI
+              value: "https://static.dbca.wa.gov.au/pages/ibms-code-update.html"
+            - name: IBM_RELOAD_URI
+              value: "https://static.dbca.wa.gov.au/pages/ibms-budget-template.html"
+            - name: IBM_SERVICE_PRIORITY_URI
+              value: "https://static.dbca.wa.gov.au/pages/ibms-service-priority-data.html"
+            - name: TZ
+              value: "Australia/Perth"
+          resources:
+            requests:
+              memory: "100Mi"
+              cpu: "5m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          startupProbe:
+            httpGet:
+              path: /livez
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 3
+            periodSeconds: 15
+            timeoutSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 15
+            successThreshold: 1
+            failureThreshold: 3
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 15
+            successThreshold: 1
+            failureThreshold: 3
+            timeoutSeconds: 10
+          securityContext:
+            runAsNonRoot: true
+            privileged: false
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: false
       restartPolicy: Always
       terminationGracePeriodSeconds: 180

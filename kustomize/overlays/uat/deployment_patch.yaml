@@ -2,16 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ibms-deployment
-  labels:
-    app: ibms-uat
 spec:
-  selector:
-    matchLabels:
-      app: ibms-uat
   template:
-    metadata:
-      labels:
-        app: ibms-uat
     spec:
       containers:
         - name: ibms
@@ -23,6 +15,11 @@ spec:
                 secretKeyRef:
                   name: ibms-env-uat
                   key: DATABASE_URL
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ibms-env-uat
+                  key: SECRET_KEY
             - name: SHAREPOINT_IBMS
               valueFrom:
                 secretKeyRef:

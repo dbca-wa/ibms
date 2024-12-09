@@ -5,13 +5,13 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: ibms-uat.dbca.wa.gov.au
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: ibms-clusterip-uat
-            port:
-              number: 8080
+    - host: ibms-uat.dbca.wa.gov.au
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ibms-clusterip-uat
+                port:
+                  number: 8080
