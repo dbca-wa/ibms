@@ -1,9 +1,10 @@
-from dbca_utils.utils import env
-import dj_database_url
 import os
-from pathlib import Path
 import sys
 import tomllib
+from pathlib import Path
+
+import dj_database_url
+from dbca_utils.utils import env
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = str(Path(__file__).resolve().parents[1])
@@ -12,184 +13,152 @@ PROJECT_DIR = str(Path(__file__).resolve().parents[0])
 sys.path.insert(0, PROJECT_DIR)
 
 # Settings defined in environment variables.
-DEBUG = env('DEBUG', False)
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
-SECRET_KEY = env('SECRET_KEY', 'PlaceholderSecretKey')
-CSRF_COOKIE_SECURE = env('CSRF_COOKIE_SECURE', False)
-SESSION_COOKIE_SECURE = env('SESSION_COOKIE_SECURE', False)
-SECURE_SSL_REDIRECT = env('SECURE_SSL_REDIRECT', False)
-SECURE_REFERRER_POLICY = env('SECURE_REFERRER_POLICY', None)
-SECURE_HSTS_SECONDS = env('SECURE_HSTS_SECONDS', 0)
+DEBUG = env("DEBUG", False)
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+SECRET_KEY = env("SECRET_KEY", "PlaceholderSecretKey")
+CSRF_COOKIE_SECURE = env("CSRF_COOKIE_SECURE", False)
+SESSION_COOKIE_SECURE = env("SESSION_COOKIE_SECURE", False)
+SECURE_SSL_REDIRECT = env("SECURE_SSL_REDIRECT", False)
+SECURE_REFERRER_POLICY = env("SECURE_REFERRER_POLICY", None)
+SECURE_HSTS_SECONDS = env("SECURE_HSTS_SECONDS", 0)
 if not DEBUG:
-    ALLOWED_HOSTS = env('ALLOWED_HOSTS', 'localhost').split(',')
+    ALLOWED_HOSTS = env("ALLOWED_HOSTS", "localhost").split(",")
 else:
-    ALLOWED_HOSTS = ['*']
+    ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS", "http://127.0.0.1").split(",")
-INTERNAL_IPS = ['127.0.0.1', '::1']
-ROOT_URLCONF = 'ibms_project.urls'
-WSGI_APPLICATION = 'ibms_project.wsgi.application'
+INTERNAL_IPS = ["127.0.0.1", "::1"]
+ROOT_URLCONF = "ibms_project.urls"
+WSGI_APPLICATION = "ibms_project.wsgi.application"
 INSTALLED_APPS = (
-    'whitenoise.runserver_nostatic',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.messages',
-    'django.contrib.sessions',
-    'django.contrib.staticfiles',
-    'django_extensions',
-    'crispy_forms',
-    'crispy_bootstrap5',
-    'webtemplate_dbca',
-    'ibms',
-    'sfm',
+    "whitenoise.runserver_nostatic",
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.messages",
+    "django.contrib.sessions",
+    "django.contrib.staticfiles",
+    "django_extensions",
+    "crispy_forms",
+    "crispy_bootstrap5",
+    "webtemplate_dbca",
+    "ibms",
+    "sfm",
 )
 MIDDLEWARE = [
-    'ibms_project.middleware.HealthCheckMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'dbca_utils.middleware.SSOLoginMiddleware',
+    "ibms_project.middleware.HealthCheckMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "dbca_utils.middleware.SSOLoginMiddleware",
 ]
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-)
+AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': (os.path.join(BASE_DIR, 'ibms_project', 'templates'),),
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'debug': DEBUG,
-            'context_processors': [
-                'django.contrib.auth.context_processors.auth',
-                'django.template.context_processors.debug',
-                'django.template.context_processors.i18n',
-                'django.template.context_processors.media',
-                'django.template.context_processors.static',
-                'django.template.context_processors.tz',
-                'django.template.context_processors.request',
-                'django.template.context_processors.csrf',
-                'django.contrib.messages.context_processors.messages',
-                'ibms_project.context_processors.standard'
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": (os.path.join(BASE_DIR, "ibms_project", "templates"),),
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "debug": DEBUG,
+            "context_processors": [
+                "django.contrib.auth.context_processors.auth",
+                "django.template.context_processors.debug",
+                "django.template.context_processors.i18n",
+                "django.template.context_processors.media",
+                "django.template.context_processors.static",
+                "django.template.context_processors.tz",
+                "django.template.context_processors.request",
+                "django.template.context_processors.csrf",
+                "django.contrib.messages.context_processors.messages",
+                "ibms_project.context_processors.standard",
             ],
         },
     }
 ]
-SITE_TITLE = 'Integrated Business Management System'
-SITE_ACRONYM = 'IBMS'
+SITE_TITLE = "Integrated Business Management System"
+SITE_ACRONYM = "IBMS"
 project = tomllib.load(open(os.path.join(BASE_DIR, "pyproject.toml"), "rb"))
 APPLICATION_VERSION_NO = project["tool"]["poetry"]["version"]
 MANAGERS = (
-    ('Zen Wee', 'zen.wee@dbca.wa.gov.au', '9219 9928'),
-    ('Graham Holmes', 'graham.holmes@dbca.wa.gov.au', '9881 9212'),
-    ('Neil Clancy', 'neil.clancy@dbca.wa.gov.au', '9219 9926'),
+    ("Zen Wee", "zen.wee@dbca.wa.gov.au", "9219 9928"),
+    ("Graham Holmes", "graham.holmes@dbca.wa.gov.au", "9881 9212"),
+    ("Neil Clancy", "neil.clancy@dbca.wa.gov.au", "9219 9926"),
 )
 SITE_ID = 1
 ANONYMOUS_USER_ID = 1
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/'
-IBM_CODE_UPDATER_URI = env('IBM_CODE_UPDATER_URI', '')
-IBM_SERVICE_PRIORITY_URI = env('IBM_SERVICE_PRIORITY_URI', '')
-IBM_RELOAD_URI = env('IBM_RELOAD_URI', '')
-IBM_DATA_AMEND_URI = env('IBM_DATA_AMEND_URI', '')
+LOGIN_URL = "/login/"
+LOGIN_REDIRECT_URL = "/"
+IBM_CODE_UPDATER_URI = env("IBM_CODE_UPDATER_URI", "")
+IBM_SERVICE_PRIORITY_URI = env("IBM_SERVICE_PRIORITY_URI", "")
+IBM_RELOAD_URI = env("IBM_RELOAD_URI", "")
+IBM_DATA_AMEND_URI = env("IBM_DATA_AMEND_URI", "")
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None  # Required to allow end-of-month GLPivot bulk deletes.
-CSV_FILE_LIMIT = env('CSV_FILE_LIMIT', 100000000)
+CSV_FILE_LIMIT = env("CSV_FILE_LIMIT", 100000000)
+SHAREPOINT_IBMS = env("SHAREPOINT_IBMS", "")
 
 
 # Database configuration
 DATABASES = {
     # Defined in DATABASE_URL env variable.
-    'default': dj_database_url.config(),
+    "default": dj_database_url.config(),
 }
 
 
 # Static files (CSS, JavaScript, Images)
 # Ensure that the media directory exists:
-if not os.path.exists(os.path.join(BASE_DIR, 'media')):
-    os.mkdir(os.path.join(BASE_DIR, 'media'))
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATIC_URL = '/static/'
-STATICFILES_DIRS = (os.path.join(PROJECT_DIR, 'static'), )
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+if not os.path.exists(os.path.join(BASE_DIR, "media")):
+    os.mkdir(os.path.join(BASE_DIR, "media"))
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "/media/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATIC_URL = "/static/"
+STATICFILES_DIRS = (os.path.join(PROJECT_DIR, "static"),)
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 WHITENOISE_ROOT = STATIC_ROOT
 
 
 # Internationalisation.
 USE_I18N = False
 USE_TZ = True
-TIME_ZONE = 'Australia/Perth'
-LANGUAGE_CODE = 'en-us'
-DATE_INPUT_FORMATS = (
-    '%d/%m/%y',
-    '%d/%m/%Y',
-    '%d-%m-%y',
-    '%d-%m-%Y',
-    '%d %b %Y',
-    '%d %b, %Y',
-    '%d %B %Y',
-    '%d %B, %Y')
+TIME_ZONE = "Australia/Perth"
+LANGUAGE_CODE = "en-us"
+DATE_INPUT_FORMATS = ("%d/%m/%y", "%d/%m/%Y", "%d-%m-%y", "%d-%m-%Y", "%d %b %Y", "%d %b, %Y", "%d %B %Y", "%d %B, %Y")
 DATETIME_INPUT_FORMATS = (
-    '%d/%m/%y %H:%M',
-    '%d/%m/%Y %H:%M',
-    '%d-%m-%y %H:%M',
-    '%d-%m-%Y %H:%M',)
+    "%d/%m/%y %H:%M",
+    "%d/%m/%Y %H:%M",
+    "%d-%m-%y %H:%M",
+    "%d-%m-%Y %H:%M",
+)
 
 
 # Email settings.
-EMAIL_HOST = env('EMAIL_HOST', 'email.host')
-EMAIL_PORT = env('EMAIL_PORT', 25)
+EMAIL_HOST = env("EMAIL_HOST", "email.host")
+EMAIL_PORT = env("EMAIL_PORT", 25)
 
 
 # Logging settings - log to stdout/stderr
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'console': {'format': '%(asctime)s %(levelname)-8s %(message)s'},
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "console": {"format": "%(asctime)s %(levelname)-8s %(message)s"},
     },
-    'handlers': {
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'stream': sys.stdout,
-            'formatter': 'console'
-        },
+    "handlers": {
+        "console": {"level": "INFO", "class": "logging.StreamHandler", "stream": sys.stdout, "formatter": "console"},
     },
-    'loggers': {
-        '': {
-            'handlers': ['console'],
-            'level': 'DEBUG' if DEBUG else 'INFO',
+    "loggers": {
+        "": {
+            "handlers": ["console"],
+            "level": "DEBUG" if DEBUG else "INFO",
         },
-        'ibms': {
-            'handlers': ['console'],
-            'level': 'INFO'
-        },
-    }
+        "ibms": {"handlers": ["console"], "level": "INFO"},
+    },
 }
 
 # django-crispy-forms config
-CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
-CRISPY_TEMPLATE_PACK = 'bootstrap5'
-
-# Sentry settings
-SENTRY_DSN = env('SENTRY_DSN', None)
-SENTRY_SAMPLE_RATE = env('SENTRY_SAMPLE_RATE', 1.0)  # Error sampling rate
-SENTRY_TRANSACTION_SAMPLE_RATE = env('SENTRY_TRANSACTION_SAMPLE_RATE', 0.0)  # Transaction sampling
-SENTRY_ENVIRONMENT = env('SENTRY_ENVIRONMENT', None)
-if SENTRY_DSN and SENTRY_ENVIRONMENT:
-    import sentry_sdk
-
-    sentry_sdk.init(
-        dsn=SENTRY_DSN,
-        sample_rate=SENTRY_SAMPLE_RATE,
-        traces_sample_rate=SENTRY_TRANSACTION_SAMPLE_RATE,
-        environment=SENTRY_ENVIRONMENT,
-        release=APPLICATION_VERSION_NO,
-    )
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"

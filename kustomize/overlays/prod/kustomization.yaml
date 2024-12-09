@@ -5,7 +5,9 @@ secretGenerator:
   - name: ibms-env
     type: Opaque
     envs:
-    - .env
+      - .env
+generatorOptions:
+  disableNameSuffixHash: true
 resources:
   - ../../base
   - ingress.yaml

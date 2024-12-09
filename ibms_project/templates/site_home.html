@@ -1,12 +1,17 @@
 {% extends "base_ibms.html" %}
-
 {% block page_content_inner %}
     <div class="row">
         <div class="col-sm-12 col-lg-10">
             <h1>ABOUT THIS APPLICATION</h1>
-            <p>The Integrated Business Management System (IBMS) is designed to improve the integration of the Department’s strategic planning and budget management functions.</p>
-            <p>This is achieved by creating a link between financial and strategic business information; establishing a cohesive structure for strategic planning, priority setting and operational work plans; and developing an effective knowledge management framework that provides a single source of information.</p>
-            <p>A key objective of the IBMS is to improve the end-to-end accountability to the Department’s Services, in terms of assessing work programs and the alignment of work to service priorities, reporting on financial expenditure against this information and reviewing actions and achievements.</p>
+            <p>
+                The Integrated Business Management System (IBMS) is designed to improve the integration of the Department’s strategic planning and budget management functions.
+            </p>
+            <p>
+                This is achieved by creating a link between financial and strategic business information; establishing a cohesive structure for strategic planning, priority setting and operational work plans; and developing an effective knowledge management framework that provides a single source of information.
+            </p>
+            <p>
+                A key objective of the IBMS is to improve the end-to-end accountability to the Department’s Services, in terms of assessing work programs and the alignment of work to service priorities, reporting on financial expenditure against this information and reviewing actions and achievements.
+            </p>
             <hr>
         </div>
     </div>
@@ -14,24 +19,39 @@
         <div class="col-sm-12 col-md-6 col-lg-5">
             <h4>IBMS WORK INSTRUCTIONS</h4>
             <ul>
-                <li><a href="https://dpaw.sharepoint.com/sites/ibmsusers/Shared%20Documents/IBMS%20Documentation/IBMS_BudgetTemplate_Reload%20Instructions.docx">Annual Budget Template Reload Instructions</a></li>
-                <li><a href="https://dpaw.sharepoint.com/sites/ibmsusers/Shared%20Documents/IBMS%20Documentation/IBMS_General%20Instructions.docx">IBMS General Information</a></li>
-                <li><a href="https://dpaw.sharepoint.com/sites/ibmsusers/Shared%20Documents/IBMS%20Documentation/IBMS_Code%20Update_Data%20Amendment%20Instructions.docx">Code Update / Data Amendment Instructions</a></li>
+                <li>
+                    <a href="{{ sharepoint_ibms }}Shared Documents/IBMS Documentation/IBMS_BudgetTemplate_Reload Instructions.docx">Annual Budget Template Reload Instructions</a>
+                </li>
+                <li>
+                    <a href="{{ sharepoint_ibms }}Shared Documents/IBMS Documentation/IBMS_General Instructions.docx">IBMS General Information</a>
+                </li>
+                <li>
+                    <a href="{{ sharepoint_ibms }}Shared Documents/IBMS Documentation/IBMS_Code Update_Data Amendment Instructions.docx">Code Update / Data Amendment Instructions</a>
+                </li>
             </ul>
             <h4>IBMS USER FOLDERS</h4>
             <ul>
-                <li><a href="https://dpaw.sharepoint.com/:f:/s/ibmsusers/EjDJH49I0oRIvl1ELhiFeUsBkfL0IpJQF2Zv5MOMQejp6Q?e=pBMopm">General User Information (Code Update/Data Amendment/Budget Templates)</a></li>
-                <li><a href="https://dpaw.sharepoint.com/:f:/s/ibmsusers/EtP_A4yLjdxGvIxN8Y35obEB9niKw6n8ZGr-MyrEWHIWtA?e=yXV4cN">Folder for User Uploads</a></li>
+                <li>
+                    <a href="{{ sharepoint_ibms }}Shared Documents/IBMS User Information/"
+                       target="_blank">General User Information (Code Update/Data Amendment/Budget Templates)</a>
+                </li>
+                <li>
+                    <a href="{{ sharepoint_ibms }}Shared Documents/IBMS-Shared Folder-CodeUpdate/"
+                       target="_blank">Folder for User Uploads</a>
+                </li>
             </ul>
         </div>
         <div class="col-sm-12 col-md-6 col-lg-5">
             <h4>CONTACTS</h4>
-            <p>For more information about this application, please contact:
-            <ul>
-            {% for manager in managers %}
-                <li><a href="mailto:{{ manager.1 }}">{{ manager.0 }}</a> ({{ manager.2 }})</li>
-            {% endfor %}
-            </ul>
+            <p>
+                For more information about this application, please contact:
+                <ul>
+                    {% for manager in managers %}
+                        <li>
+                            <a href="mailto:{{ manager.1 }}">{{ manager.0 }}</a> ({{ manager.2 }})
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
-    </div>
-{% endblock %}
+    {% endblock %}

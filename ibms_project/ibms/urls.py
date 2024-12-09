@@ -1,20 +1,30 @@
 from django.urls import path
+
 from ibms.models import GLPivDownload, IBMData, ServicePriorityMappings
 from ibms.views import (
-    DownloadView, DownloadEnhancedView, UploadView, ReloadView, CodeUpdateView,
-    ServicePriorityDataView, DataAmendmentView, ClearGLPivotView,
-    IbmsModelFieldJSON, ServicePriorityMappingsJSON,
+    ClearGLPivotView,
+    CodeUpdateAdminView,
+    CodeUpdateView,
+    DataAmendmentView,
+    DownloadEnhancedView,
+    DownloadView,
+    IbmsModelFieldJSON,
+    ReloadView,
+    ServicePriorityDataView,
+    ServicePriorityMappingsJSON,
+    UploadView,
 )
 
 urlpatterns = [
-    path('upload/', UploadView.as_view(), name='upload'),
-    path('download/', DownloadView.as_view(), name='download'),
-    path('download-enhanced/', DownloadEnhancedView.as_view(), name='download_enhanced'),
-    path('reload/', ReloadView.as_view(), name='reload'),
-    path('code-update/', CodeUpdateView.as_view(), name='code_update'),
-    path('service-priority-data/', ServicePriorityDataView.as_view(), name='serviceprioritydata'),
-    path('data-amendment/', DataAmendmentView.as_view(), name='dataamendment'),
-    path('clear-gl-pivot/', ClearGLPivotView.as_view(), name='clearglpivot'),
+    path("upload/", UploadView.as_view(), name="upload"),
+    path("download/", DownloadView.as_view(), name="download"),
+    path("download-enhanced/", DownloadEnhancedView.as_view(), name="download_enhanced"),
+    path("reload/", ReloadView.as_view(), name="reload"),
+    path("code-update/", CodeUpdateView.as_view(), name="code_update"),
+    path("code-update-admin/", CodeUpdateAdminView.as_view(), name="code_update_admin"),
+    path("service-priority-data/", ServicePriorityDataView.as_view(), name="serviceprioritydata"),
+    path("data-amendment/", DataAmendmentView.as_view(), name="dataamendment"),
+    path("clear-gl-pivot/", ClearGLPivotView.as_view(), name="clearglpivot"),
     # AJAX model field endpoints.
     # Note to future self: these views return JSON data suitable for insert
     # into form select lists. In some cases, the background query requires text
@@ -26,13 +36,51 @@ urlpatterns = [
     # Review the IbmsModelFieldJSON view for further details.
     # 2nd note to future self: you have already considered refactoring this
     # using django-rest-framework, etc. Do not bother - this works fine.
-    path('ajax/ibmdata/budget-area/', IbmsModelFieldJSON.as_view(model=IBMData, fieldname='budgetArea'), name='ajax_ibmdata_budgetarea'),
-    path('ajax/ibmdata/project-sponsor/', IbmsModelFieldJSON.as_view(model=IBMData, fieldname='projectSponsor'), name='ajax_ibmdata_projectsponsor'),
-    path('ajax/ibmdata/service/', IbmsModelFieldJSON.as_view(model=IBMData, fieldname='service'), name='ajax_ibmdata_service'),
-    path('ajax/glpivdownload/financial-year/', IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='fy'), name='ajax_glpivdownload_financialyear'),
-    path('ajax/glpivdownload/service/', IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='service'), name='ajax_glpivdownload_service'),
-    path('ajax/glpivdownload/cost-centre/', IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='costCentre'), name='ajax_glpivdownload_costcentre'),
-    path('ajax/glpivdownload/region-branch/', IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='regionBranch'), name='ajax_glpivdownload_regionbranch'),
-    path('ajax/glpivdownload/division/', IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname='division'), name='ajax_glpivdownload_division'),
-    path('ajax/mappings', ServicePriorityMappingsJSON.as_view(model=ServicePriorityMappings, fieldname="wildlifeManagement, parksManagement, forestManagement"), name="ajax_mappings")
+    path(
+        "ajax/ibmdata/budget-area/",
+        IbmsModelFieldJSON.as_view(model=IBMData, fieldname="budgetArea"),
+        name="ajax_ibmdata_budgetarea",
+    ),
+    path(
+        "ajax/ibmdata/project-sponsor/",
+        IbmsModelFieldJSON.as_view(model=IBMData, fieldname="projectSponsor"),
+        name="ajax_ibmdata_projectsponsor",
+    ),
+    path(
+        "ajax/ibmdata/service/",
+        IbmsModelFieldJSON.as_view(model=IBMData, fieldname="service"),
+        name="ajax_ibmdata_service",
+    ),
+    path(
+        "ajax/glpivdownload/financial-year/",
+        IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname="fy"),
+        name="ajax_glpivdownload_financialyear",
+    ),
+    path(
+        "ajax/glpivdownload/service/",
+        IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname="service"),
+        name="ajax_glpivdownload_service",
+    ),
+    path(
+        "ajax/glpivdownload/cost-centre/",
+        IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname="costCentre"),
+        name="ajax_glpivdownload_costcentre",
+    ),
+    path(
+        "ajax/glpivdownload/region-branch/",
+        IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname="regionBranch"),
+        name="ajax_glpivdownload_regionbranch",
+    ),
+    path(
+        "ajax/glpivdownload/division/",
+        IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname="division"),
+        name="ajax_glpivdownload_division",
+    ),
+    path(
+        "ajax/mappings",
+        ServicePriorityMappingsJSON.as_view(
+            model=ServicePriorityMappings, fieldname="wildlifeManagement, parksManagement, forestManagement"
+        ),
+        name="ajax_mappings",
+    ),
 ]

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ibms"
-version = "2.8.10"
+version = "2.9.0"
 description = "Integrated Business Management System corporate application"
 authors = ["Ashley Felton <ashley.felton@dbca.wa.gov.au>"]
 license = "Apache-2.0"
@@ -8,27 +8,41 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = "~3.12"
-django = "4.2.15"
-psycopg = {version = "3.2.1", extras = ["binary", "pool"]}
+django = "4.2.17"
+psycopg = { version = "3.2.3", extras = ["binary", "pool"] }
 dbca-utils = "2.0.2"
 django-extensions = "3.2.3"
 python-dotenv = "1.0.1"
-dj-database-url = "2.2.0"
+dj-database-url = "2.3.0"
 gunicorn = "23.0.0"
 django-crispy-forms = "2.3"
-crispy-bootstrap5 = "2024.2"
-xlrd = "2.0.1"  # TODO: deprecate
-xlutils = "2.0.0"  # TODO: deprecate
-xlwt = "1.3.0"  # TODO: deprecate
+crispy-bootstrap5 = "2024.10"
+xlrd = "2.0.1"                                               # TODO: deprecate
+xlutils = "2.0.0"                                            # TODO: deprecate
+xlwt = "1.3.0"                                               # TODO: deprecate
 openpyxl = "3.1.5"
-webtemplate-dbca = "1.7.1"
-whitenoise = {version = "6.7.0", extras = ["brotli"]}
+webtemplate-dbca = "1.7.2"
+whitenoise = {version = "6.8.2", extras = ["brotli"]}
 mixer = "7.2.2"
 
 [tool.poetry.group.dev.dependencies]
-ipython = "^8.27.0"
+ipython = "^8.30.0"
 ipdb = "^0.13.13"
-pre-commit = "^3.8.0"
+pre-commit = "^4.0.1"
+
+# Reference: https://docs.astral.sh/ruff/configuration/
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+ignore = [
+  "E501", # Line too long
+  "E722", # Bare except
+]
+
+# Reference: https://www.djlint.com/docs/configuration/
+[tool.djlint]
+profile = "django"
 
 [build-system]
 requires = ["poetry-core"]
