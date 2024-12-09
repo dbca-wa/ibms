@@ -919,16 +919,17 @@ files = [
 
 [[package]]
 name = "webtemplate-dbca"
-version = "1.7.1"
+version = "1.7.2"
 description = "Base HTML templates for DBCA Django projects"
 optional = false
-python-versions = "*"
+python-versions = "<4.0,>=3.9"
 files = [
-    {file = "webtemplate-dbca-1.7.1.tar.gz", hash = "sha256:0fe4ccd143dfee138c85969989a9757d14dbdf3387f1317f37f4667d90131da0"},
+    {file = "webtemplate_dbca-1.7.2-py3-none-any.whl", hash = "sha256:4ebfa62ad7261dcf9e49b19430444e3c12ea1db0e487fb4aa4a05ffa5849d917"},
+    {file = "webtemplate_dbca-1.7.2.tar.gz", hash = "sha256:fbd6fdf342bacc0f43bd9005a302539f6680ed15e6fcdfc0e120d368ce59a391"},
 ]
 
 [package.dependencies]
-Django = ">=3.2"
+django = ">=3.2,<5.1"
 
 [[package]]
 name = "whitenoise"
@@ -996,4 +997,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "1d2b0df229b7d3aad76e8c61b709be0807ad29c091ad4fe56e8d7e0ee2a68e1f"
+content-hash = "e0a5075d3f2f9242c5d6663bcf15f3be11953e9e868ed33ef2152ea9afbf49db"

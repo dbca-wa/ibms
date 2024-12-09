@@ -21,7 +21,7 @@ xlrd = "2.0.1"                                               # TODO: deprecate
 xlutils = "2.0.0"                                            # TODO: deprecate
 xlwt = "1.3.0"                                               # TODO: deprecate
 openpyxl = "3.1.5"
-webtemplate-dbca = "1.7.1"
+webtemplate-dbca = "1.7.2"
 whitenoise = {version = "6.8.2", extras = ["brotli"]}
 mixer = "7.2.2"
 
