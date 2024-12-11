@@ -7,7 +7,7 @@ source code repositories managed through our GitHub organisation
 
 This repository takes guidance relating to Secure Software Development from the
 [WA Government Cyber Security
-Policy](https://www.wa.gov.au/system/files/2022-01/WA%20Government%20Cyber%20Security%20Policy.pdf).
+Policy](https://www.wa.gov.au/government/publications/2024-wa-government-cyber-security-policy).
 
 If you believe that you have found a security vulnerability in any DBCA-managed
 repository, please report it to us as described below.
