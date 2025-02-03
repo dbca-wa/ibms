@@ -82,7 +82,7 @@ TEMPLATES = [
 SITE_TITLE = "Integrated Business Management System"
 SITE_ACRONYM = "IBMS"
 project = tomllib.load(open(os.path.join(BASE_DIR, "pyproject.toml"), "rb"))
-APPLICATION_VERSION_NO = project["tool"]["poetry"]["version"]
+APPLICATION_VERSION_NO = project["project"]["version"]
 MANAGERS = (
     ("Zen Wee", "zen.wee@dbca.wa.gov.au", "9219 9928"),
     ("Graham Holmes", "graham.holmes@dbca.wa.gov.au", "9881 9212"),
