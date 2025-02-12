@@ -53,7 +53,9 @@ class HelperForm(forms.Form):
 class FinancialYearFilterForm(HelperForm):
     """Base form class to be include a financial year filter select."""
 
-    financial_year = forms.ModelChoiceField(queryset=FinancialYear.objects.all().order_by("financialYear"))
+    financial_year = forms.ModelChoiceField(
+        queryset=FinancialYear.objects.all().order_by("-financialYear"), empty_label=None, required=True
+    )
 
 
 class ClearGLPivotForm(FinancialYearFilterForm):
@@ -286,54 +288,6 @@ class DataAmendmentForm(FinancialYearFilterForm):
         return self.cleaned_data
 
 
-class ServicePriorityDataForm(FinancialYearFilterForm):
-    def __init__(self, *args, **kwargs):
-        super(ServicePriorityDataForm, self).__init__(*args, **kwargs)
-        self.fields["region"] = forms.ChoiceField(
-            choices=get_generic_choices(GLPivDownload, "regionBranch", allow_null=True),
-            required=False,
-            label="Region/branch",
-        )
-        self.fields["service"] = forms.ChoiceField(
-            choices=get_generic_choices(GLPivDownload, "service", allow_null=True), required=False, label="Service"
-        )
-        self.fields["ncChoice"] = forms.MultipleChoiceField(
-            widget=forms.CheckboxSelectMultiple,
-            choices=get_generic_choices(NCServicePriority, "categoryID"),
-            required=False,
-            label="Wildlife Management",
-        )
-        self.fields["pvsChoice"] = forms.MultipleChoiceField(
-            widget=forms.CheckboxSelectMultiple,
-            choices=get_generic_choices(PVSServicePriority, "categoryID"),
-            required=False,
-            label="Parks Management",
-        )
-        self.fields["fmChoice"] = forms.MultipleChoiceField(
-            widget=forms.CheckboxSelectMultiple,
-            choices=get_generic_choices(SFMServicePriority, "categoryID"),
-            required=False,
-            label="Forest Management",
-        )
-
-        # Disable several fields on initial form load.
-        for field in ["region", "service"]:
-            self.fields[field].widget.attrs.update({"disabled": ""})
-
-        # crispy_forms layout
-        self.helper.layout = Layout(
-            "financial_year",
-            "region",
-            "service",
-            HTML('<div class="checkbox">'),
-            "ncChoice",
-            "pvsChoice",
-            "fmChoice",
-            HTML("</div>"),
-            Div(Submit("download", "Download"), css_class="col-sm-offset-4 col-md-offset-3 col-lg-offset-2"),
-        )
-
-
 class CodeUpdateForm(FinancialYearFilterForm):
     def __init__(self, *args, **kwargs):
         super(CodeUpdateForm, self).__init__(*args, **kwargs)
@@ -420,3 +374,268 @@ class ManagerCodeUpdateForm(FinancialYearFilterForm):
             HTML("</div>"),
             Div(Submit("codeupdate", "Code Update"), css_class="col-sm-offset-4 col-md-offset-3 col-lg-offset-2"),
         )
+
+
+class IbmDataFilterForm(forms.Form):
+    financial_year = forms.ModelChoiceField(
+        queryset=FinancialYear.objects.all().order_by("-financialYear"), empty_label=None, required=True
+    )
+    cost_centre = forms.ChoiceField(choices=[("", "--------")], required=False)
+    region = forms.ChoiceField(choices=[("", "--------")], required=False, label="Region/branch")
+    budget_area = forms.ChoiceField(choices=[("", "--------")], required=False)
+    project_sponsor = forms.ChoiceField(choices=[("", "--------")], required=False)
+    service = forms.ChoiceField(choices=[("", "--------")], required=False)
+    project = forms.ChoiceField(choices=[("", "--------")], required=False)
+    job = forms.ChoiceField(choices=[("", "--------")], required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Set field options for CC and Region/branch.
+        fy = FinancialYear.objects.get(financialYear=kwargs["initial"]["financial_year"])
+        cost_centres = (
+            IBMData.objects.filter(fy=fy, costCentre__isnull=False).values_list("costCentre", flat=True).distinct()
+        )
+        self.fields["cost_centre"].choices += sorted([(i, i) for i in cost_centres])
+        regions = (
+            GLPivDownload.objects.filter(fy=fy, regionBranch__isnull=False)
+            .values_list("regionBranch", flat=True)
+            .distinct()
+        )
+        self.fields["region"].choices += sorted([(i, i) for i in regions])
+
+        if "cost_centre" in kwargs["initial"] and kwargs["initial"]["cost_centre"]:
+            budget_areas = (
+                IBMData.objects.filter(fy=fy, costCentre=kwargs["initial"]["cost_centre"], budgetArea__isnull=False)
+                .values_list("budgetArea", flat=True)
+                .distinct()
+            )
+            self.fields["budget_area"].choices += sorted([(i, i) for i in budget_areas if i])
+            project_sponsors = (
+                IBMData.objects.filter(fy=fy, costCentre=kwargs["initial"]["cost_centre"], projectSponsor__isnull=False)
+                .values_list("projectSponsor", flat=True)
+                .distinct()
+            )
+            self.fields["project_sponsor"].choices += sorted([(i, i) for i in project_sponsors if i])
+            services = (
+                IBMData.objects.filter(fy=fy, costCentre=kwargs["initial"]["cost_centre"], service__isnull=False)
+                .values_list("service", flat=True)
+                .distinct()
+            )
+            self.fields["service"].choices += sorted([(i, i) for i in services if i])
+            projects = (
+                IBMData.objects.filter(fy=fy, costCentre=kwargs["initial"]["cost_centre"], project__isnull=False)
+                .values_list("project", flat=True)
+                .distinct()
+            )
+            self.fields["project"].choices += sorted([(i, i) for i in projects if i])
+            jobs = (
+                IBMData.objects.filter(fy=fy, costCentre=kwargs["initial"]["cost_centre"], job__isnull=False)
+                .values_list("job", flat=True)
+                .distinct()
+            )
+            self.fields["job"].choices += sorted([(i, i) for i in jobs if i])
+
+        if "region" in kwargs["initial"] and kwargs["initial"]["region"]:
+            region_branch = kwargs["initial"]["region"]
+            cost_centres = set(
+                GLPivDownload.objects.filter(fy=fy, regionBranch=region_branch).values_list("costCentre", flat=True)
+            )
+
+            budget_areas = (
+                IBMData.objects.filter(fy=fy, costCentre__in=cost_centres, budgetArea__isnull=False)
+                .values_list("budgetArea", flat=True)
+                .distinct()
+            )
+            self.fields["budget_area"].choices += sorted([(i, i) for i in budget_areas if i])
+            project_sponsors = (
+                IBMData.objects.filter(fy=fy, costCentre__in=cost_centres, projectSponsor__isnull=False)
+                .values_list("projectSponsor", flat=True)
+                .distinct()
+            )
+            self.fields["project_sponsor"].choices += sorted([(i, i) for i in project_sponsors if i])
+            services = (
+                IBMData.objects.filter(fy=fy, costCentre__in=cost_centres, service__isnull=False)
+                .values_list("service", flat=True)
+                .distinct()
+            )
+            self.fields["service"].choices += sorted([(i, i) for i in services if i])
+            projects = (
+                IBMData.objects.filter(fy=fy, costCentre__in=cost_centres, project__isnull=False)
+                .values_list("project", flat=True)
+                .distinct()
+            )
+            self.fields["project"].choices += sorted([(i, i) for i in projects if i])
+            jobs = (
+                IBMData.objects.filter(fy=fy, costCentre__in=cost_centres, job__isnull=False)
+                .values_list("job", flat=True)
+                .distinct()
+            )
+            self.fields["job"].choices += sorted([(i, i) for i in jobs if i])
+
+        # crispy_forms layout
+        self.helper = FormHelper()
+        self.helper.form_method = "GET"
+        self.helper.form_class = "form-horizontal"
+        self.helper.label_class = "col-xs-12 col-sm-4 col-md-3 col-lg-2"
+        self.helper.field_class = "col-xs-12 col-sm-8 col-md-6 col-lg-4"
+        self.helper.layout = Layout(
+            "financial_year",
+            HTML("""<div class="row">
+                <div class="col-sm-12 col-md-9 col-lg-6 alert alert-info">
+                Select either Cost Centre OR Region/Branch:</div>
+                </div>"""),
+            "cost_centre",
+            "region",
+            HTML("""<div class="row">
+                <div class="col-sm-12 col-md-9 col-lg-6 alert alert-info">
+                Select additional filter(s) to limit records returned:
+                </div></div>"""),
+            "budget_area",
+            "project_sponsor",
+            "service",
+            "project",
+            "job",
+            Div(Submit("filter", "Filter"), css_class="col-sm-offset-4 col-md-offset-3 col-lg-offset-2"),
+        )
+
+
+class ListTextWidget(forms.TextInput):
+    """A customised TextInput widget, which accepts a list of options and renders
+    a datalist element inline with the text input element.
+    References:
+      - https://docs.djangoproject.com/en/dev/ref/forms/widgets/#customizing-widget-instances
+      - https://developer.mozilla.org/en-US/docs/Web/HTML/Element/data_list
+    """
+
+    def __init__(self, name, data_list, *args, **kwargs):
+        super(ListTextWidget, self).__init__(*args, **kwargs)
+        self._name = name
+        self._list = data_list
+        self.attrs.update({"list": f"{self._name}_list"})
+
+    def render(self, name, value, attrs=None, renderer=None):
+        text_html = super(ListTextWidget, self).render(name, value, attrs=attrs)
+        data_list = f'<datalist id="{self._name}_list">'
+        for item in self._list:
+            data_list += f'<option value="{item}">'
+        data_list += "</datalist>"
+
+        return text_html + data_list
+
+
+class IbmDataForm(forms.ModelForm):
+    budgetArea = forms.CharField(label="Budget area", required=True)
+    # budgetArea = forms.ChoiceField(choices=[], label="Budget area", required=True)
+    projectSponsor = forms.CharField(label="Project sponsor", required=False)
+    # projectSponsor = forms.ChoiceField(choices=[], label="Project sponsor", required=True)
+    servicePriorityID = forms.ChoiceField(choices=[], label="Service priority ID", required=True)
+    save_button = Submit("save", "Save", css_class="btn-lg")
+    cancel_button = Submit("cancel", "Cancel", css_class="btn-secondary")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = kwargs["instance"]
+
+        # CharField using ListTextWidget
+        budget_areas = (
+            IBMData.objects.filter(fy=instance.fy, costCentre=instance.costCentre, budgetArea__isnull=False)
+            .exclude(budgetArea="")
+            .values_list("budgetArea", flat=True)
+            .distinct()
+        )
+        budget_areas = sorted(list(budget_areas))
+        self.fields["budgetArea"].widget = ListTextWidget(name="budget_areas", data_list=budget_areas)
+
+        project_sponsors = (
+            IBMData.objects.filter(fy=instance.fy, costCentre=instance.costCentre, projectSponsor__isnull=False)
+            .exclude(projectSponsor="")
+            .values_list("projectSponsor", flat=True)
+            .distinct()
+        )
+        project_sponsors = sorted(list(project_sponsors))
+        self.fields["projectSponsor"].widget = ListTextWidget(name="project_sponsors", data_list=project_sponsors)
+
+        service_priority_ids = (
+            IBMData.objects.filter(fy=instance.fy, costCentre=instance.costCentre, servicePriorityID__isnull=False)
+            .values_list("servicePriorityID", flat=True)
+            .distinct()
+        )
+        self.fields["servicePriorityID"].choices += sorted([(i, i) for i in service_priority_ids if i])
+
+        # Readonly fields
+        for field in [
+            "ibmIdentifier",
+            "fy",
+            "costCentre",
+            "account",
+            "service",
+            "activity",
+            "project",
+            "job",
+        ]:
+            self.fields[field].required = False
+            self.fields[field].disabled = True
+            self.fields[field].widget = forms.TextInput(attrs={"readonly": "readonly"})
+
+        # Non-essential fields
+        for field in [
+            "regionalSpecificInfo",
+            "annualWPInfo",
+            "regionProject",
+            "regionDescription",
+        ]:
+            self.fields[field].required = False
+
+        # crispy_forms layout
+        self.helper = FormHelper()
+        self.helper.form_class = "form-horizontal"
+        self.helper.label_class = "col-xs-12 col-sm-4 col-md-2"
+        self.helper.field_class = "col-xs-12 col-sm-8 col-md-10"
+        self.helper.help_text_inline = True
+        self.helper.attrs = {"novalidate": ""}
+        self.helper.layout = Layout(
+            "ibmIdentifier",
+            "fy",
+            "budgetArea",
+            "projectSponsor",
+            "regionalSpecificInfo",
+            "servicePriorityID",
+            "annualWPInfo",
+            "costCentre",
+            "account",
+            "service",
+            "activity",
+            "project",
+            "job",
+            "priorityActionNo",
+            "priorityLevel",
+            "marineKPI",
+            "regionProject",
+            "regionDescription",
+            Div(self.save_button, self.cancel_button, css_class="col-sm-offset-4 col-md-offset-3 col-lg-offset-2"),
+        )
+
+    class Meta:
+        model = IBMData
+        fields = [
+            "ibmIdentifier",
+            "fy",
+            "budgetArea",
+            "projectSponsor",
+            "regionalSpecificInfo",
+            "servicePriorityID",
+            "annualWPInfo",
+            "costCentre",
+            "account",
+            "service",
+            "activity",
+            "project",
+            "job",
+            "priorityActionNo",
+            "priorityLevel",
+            "marineKPI",
+            "regionProject",
+            "regionDescription",
+        ]
+        exclude = ["id"]

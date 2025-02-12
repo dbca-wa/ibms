@@ -1,6 +1,6 @@
 [project]
 name = "ibms"
-version = "2.9.0"
+version = "2.9.1"
 description = "Integrated Business Management System corporate application"
 authors = [{ name = "Ashley Felton", email = "ashley.felton@dbca.wa.gov.au" }]
 license = "Apache-2.0"
@@ -16,7 +16,7 @@ dependencies = [
   "django-crispy-forms == 2.3",
   "crispy-bootstrap5 == 2024.10",
   "webtemplate-dbca == 1.7.2",
-  "whitenoise[brotli] == 6.8.2",
+  "whitenoise[brotli]==6.9.0",
   "openpyxl == 3.1.5",
   "xlrd == 2.0.1",                # TODO: deprecate
   "xlutils == 2.0.0",             # TODO: deprecate
@@ -25,12 +25,7 @@ dependencies = [
 
 
 [dependency-groups]
-dev = [
-  "ipython >= 8.31.0",
-  "ipdb >= 0.13.13",
-  "mixer >= 7.2.2",
-  "pre-commit >= 4.0.1",
-]
+dev = ["ipython >= 8.31.0", "mixer >= 7.2.2", "pre-commit >= 4.0.1"]
 
 # Reference: https://docs.astral.sh/ruff/configuration/
 [tool.ruff]

@@ -1,0 +1,12 @@
+{% extends "base_ibms.html" %}
+{% load static crispy_forms_tags %}
+{% block page_content_inner %}
+    <div class="row py-1">
+        <div class="col">
+            <h1>{{ title }}</h1>
+        </div>
+    </div>
+    <div class="row border-top">
+        <div class="col">{% crispy form %}</div>
+    </div>
+{% endblock %}

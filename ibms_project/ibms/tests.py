@@ -1,20 +1,35 @@
 from datetime import date
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
 from mixer.backend.django import mixer
 
-from ibms.models import GLPivDownload, IBMData
+from ibms.models import FinancialYear, GLPivDownload, IBMData
 
 
 class IbmsTestCase(TestCase):
     """Defines fixtures and setup common to all ibms test cases."""
 
-    fixtures = [
-        "test-user-data.json",
-    ]
-    cleans_up_after_itself = True
+    def setUp(self):
+        User = get_user_model()
+        self.admin = User.objects.create_superuser(
+            username="admin",
+            email="admin@email.com",
+            first_name="Admin",
+            last_name="User",
+            password="test",
+        )
+        self.user = User.objects.create_user(
+            username="testuser",
+            email="user@email.com",
+            first_name="Test",
+            last_name="User",
+            password="test",
+        )
+        self.user.save()
+        self.fy = mixer.blend(FinancialYear)
 
 
 class IbmsViewsTest(IbmsTestCase):
@@ -69,8 +84,7 @@ class IbmsViewsTest(IbmsTestCase):
             "reload",
             "code_update",
             "code_update_admin",
-            "serviceprioritydata",
-            "dataamendment",
+            "ibmdata_list",
         ]:
             url = reverse(view)
             response = self.client.get(url)
@@ -85,8 +99,7 @@ class IbmsViewsTest(IbmsTestCase):
             "reload",
             "code_update",
             "code_update_admin",
-            "serviceprioritydata",
-            "dataamendment",
+            "ibmdata_list",
         ]:
             url = reverse(view)
             response = self.client.get(url)
@@ -146,16 +159,18 @@ class IbmsViewsTest(IbmsTestCase):
 
         self.client.login(username="admin", password="test")
         for endpoint in [
-            "ajax_ibmdata_budgetarea",
-            "ajax_ibmdata_projectsponsor",
-            "ajax_ibmdata_service",
             "ajax_glpivdownload_financialyear",
-            "ajax_glpivdownload_service",
+            "ajax_ibmdata_costcentre",
             "ajax_glpivdownload_costcentre",
             "ajax_glpivdownload_regionbranch",
+            "ajax_ibmdata_service",
+            "ajax_ibmdata_project",
+            "ajax_ibmdata_job",
+            "ajax_ibmdata_budgetarea",
+            "ajax_ibmdata_projectsponsor",
             "ajax_glpivdownload_division",
             "ajax_mappings",
         ]:
             url = reverse(endpoint)
-            response = self.client.get(url)
+            response = self.client.get(url, {"financialYear": self.fy.financialYear})
             self.assertEqual(response.status_code, 200)
