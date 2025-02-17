@@ -481,8 +481,8 @@ class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
             "ajax_ibmdata_job_url": reverse("ajax_ibmdata_job"),
         }
         context["download_period"] = get_download_period()
-        context["page_title"] = f"{settings.SITE_ACRONYM} | IBM data amendment"
-        context["title"] = "IBM DATA AMENDMENT"
+        context["page_title"] = f"{settings.SITE_ACRONYM} | Data amendment"
+        context["title"] = "DATA AMENDMENT"
         context["object_count"] = self.get_queryset().count()
         return context
 
@@ -557,5 +557,5 @@ class IbmDataUpdate(UpdateView):
 
     def form_valid(self, form):
         obj = self.get_object()
-        messages.success(self.request, f"IBM Data {obj.ibmIdentifier} ({obj.fy}) updated successfully")
+        messages.success(self.request, f"{obj.ibmIdentifier} ({obj.fy}) was amended successfully")
         return super().form_valid(form)

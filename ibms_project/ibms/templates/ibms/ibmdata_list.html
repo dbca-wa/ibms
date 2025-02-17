@@ -7,6 +7,16 @@
             <p>
                 Downloads as of: <strong>{{ download_period }}</strong>
             </p>
+            <div class="alert alert-primary" role="alert">
+                <strong>Option 1</strong>: click the link below to download a spreadsheet used to bulk-update codes.
+            </div>
+            <p>
+                <a href="{{ sharepoint_ibms }}Shared Documents/IBMS Admin/IBMS Data Amendment.xlsx?download=1"
+                   target="_blank">IBMS Data Amendment template download</a>
+            </p>
+            <div class="alert alert-primary" role="alert">
+                <strong>Option 2</strong>: use the options below to filter data and amend individual codes.
+            </div>
             {% crispy form %}
         </div>
     </div>
@@ -46,7 +56,7 @@
                                 <td>{{ object.budgetArea }}</td>
                                 <td>{{ object.projectSponsor }}</td>
                                 <td>
-                                    <a href="{% url 'ibmdata_update' pk=object.pk %}">Edit</a>
+                                    <a href="{% url 'ibmdata_update' pk=object.pk %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
                                 </td>
                             </tr>
                         {% endfor %}
