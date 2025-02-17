@@ -481,16 +481,13 @@ class IbmDataFilterForm(forms.Form):
         self.helper.field_class = "col-xs-12 col-sm-8 col-md-6 col-lg-4"
         self.helper.layout = Layout(
             "financial_year",
-            HTML("""<div class="row">
-                <div class="col-sm-12 col-md-9 col-lg-6 alert alert-info">
-                Select either Cost Centre OR Region/Branch:</div>
-                </div>"""),
+            HTML("""<div class="col-sm-12 col-md-9 col-lg-6 alert alert-info">
+                Select either Cost Centre OR Region/Branch:</div>"""),
             "cost_centre",
             "region",
-            HTML("""<div class="row">
-                <div class="col-sm-12 col-md-9 col-lg-6 alert alert-info">
+            HTML("""<div class="col-sm-12 col-md-9 col-lg-6 alert alert-info">
                 Select additional filter(s) to limit records returned:
-                </div></div>"""),
+                </div>"""),
             "budget_area",
             "project_sponsor",
             "service",
@@ -582,6 +579,9 @@ class IbmDataForm(forms.ModelForm):
         for field in [
             "regionalSpecificInfo",
             "annualWPInfo",
+            "priorityActionNo",
+            "priorityLevel",
+            "marineKPI",
             "regionProject",
             "regionDescription",
         ]:
