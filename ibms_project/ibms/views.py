@@ -421,7 +421,18 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
             qs = qs.filter(costCentre=request.GET["service"])
 
         if request.GET.get("regionBranch", None):
-            qs = qs.filter(regionBranch=request.GET["regionBranch"])
+            if self.model == IBMData and request.GET.get("financialYear", None):
+                # As regionBranch is a field on GLPivDownload, we obtain the set of CC values for the given FY,
+                # then use those values to filter the IBMData queryset.
+                fy = FinancialYear.objects.get(financialYear=request.GET["financialYear"])
+                cost_centres = set(
+                    GLPivDownload.objects.filter(fy=fy, regionBranch=self.request.GET["regionBranch"]).values_list(
+                        "costCentre", flat=True
+                    )
+                )
+                qs = qs.filter(costCentre__in=cost_centres)
+            else:
+                qs = qs.filter(regionBranch=request.GET["regionBranch"])
 
         # If we're not after PKs, then we need to reduce the qs to distinct values.
         if not self.return_pk:
