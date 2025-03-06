@@ -23,7 +23,6 @@ dependencies = [
   "xlwt == 1.3.0",                # TODO: deprecate
 ]
 
-
 [dependency-groups]
 dev = ["ipython >= 8.31.0", "mixer >= 7.2.2", "pre-commit >= 4.0.1"]
 

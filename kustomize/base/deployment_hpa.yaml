@@ -5,7 +5,7 @@ metadata:
 spec:
   # Set a min of 2 replicas in order to allow our PDB.
   minReplicas: 2
-  maxReplicas: 10
+  maxReplicas: 5
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
