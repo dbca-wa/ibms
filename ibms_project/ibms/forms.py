@@ -586,6 +586,8 @@ class IbmDataForm(forms.ModelForm):
             "regionDescription",
         ]:
             self.fields[field].required = False
+            # Use smaller textarea widgets.
+            self.fields[field].widget = forms.Textarea(attrs={"cols": "40", "rows": "4"})
 
         # crispy_forms layout
         self.helper = FormHelper()

@@ -4,11 +4,14 @@
 const context = JSON.parse(document.getElementById('javascript_context').textContent);
 
 // DOM element selectors
+const divOptionOne = document.getElementById('id_option_one');
+const divTemplateLink = document.getElementById('id_template_link');
+const divOptionTwo = document.getElementById('id_option_two');
+const divFilterForm = document.getElementById('id_filter_form');
+const divResultTable = document.getElementById('id_result_table');
 const fySelectEl = document.getElementById('id_financial_year');
-
 const ccSelectEl = document.getElementById('id_cost_centre');
 const regionSelectEl = document.getElementById('id_region');
-
 const budgetSelectEl = document.getElementById('id_budget_area');
 const sponsorSelectEl = document.getElementById('id_project_sponsor');
 const serviceSelectEl = document.getElementById('id_service');
@@ -183,4 +186,22 @@ regionSelectEl.addEventListener('change', function () {
   updateService(fy, false, region);
   updateProject(fy, false, region);
   updateJob(fy, false, region);
+});
+
+if (divResultTable) {
+  divTemplateLink.style.visibility = 'hidden';
+  divFilterForm.style.visibility = 'visible';
+  divResultTable.style.visibility = 'visible';
+}
+
+// Click event listeners for the two options.
+divOptionOne.addEventListener('click', function () {
+  divTemplateLink.style.visibility = 'visible';
+  divFilterForm.style.visibility = 'hidden';
+  divResultTable.style.visibility = 'hidden';
+});
+divOptionTwo.addEventListener('click', function () {
+  divTemplateLink.style.visibility = 'hidden';
+  divFilterForm.style.visibility = 'visible';
+  divResultTable.style.visibility = 'visible';
 });

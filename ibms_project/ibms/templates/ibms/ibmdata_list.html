@@ -7,22 +7,29 @@
             <p>
                 Downloads as of: <strong>{{ download_period }}</strong>
             </p>
-            <div class="alert alert-primary" role="alert">
+            <p>Please click on either of the two options below.</p>
+            <div class="alert alert-primary hover-pointer"
+                 role="alert"
+                 id="id_option_one">
                 <strong>Option 1</strong>: click the link below to download a spreadsheet used to bulk-update codes.
             </div>
-            <p>
-                <a href="{{ sharepoint_ibms }}Shared Documents/IBMS Admin/IBMS Data Amendment.xlsx?download=1"
-                   target="_blank">IBMS Data Amendment template download</a>
-            </p>
-            <div class="alert alert-primary" role="alert">
+            <div id="id_template_link" class="initially-hidden">
+                <p>
+                    <a href="{{ sharepoint_ibms }}Shared Documents/IBMS Admin/IBMS Data Amendment.xlsx?download=1"
+                       target="_blank">IBMS Data Amendment template download</a>
+                </p>
+            </div>
+            <div class="alert alert-primary hover-pointer"
+                 role="alert"
+                 id="id_option_two">
                 <strong>Option 2</strong>: use the options below to filter data and amend individual codes.
             </div>
-            {% crispy form %}
+            <div id="id_filter_form" class="initially-hidden">{% crispy form %}</div>
         </div>
     </div>
-    <div class="row">
-        <div class="col">
-            {% if object_list %}
+    {% if object_list %}
+        <div class="row" id="id_result_table">
+            <div class="col">
                 <p>Results: {{ object_count }}</p>
                 <table class="table table-sm table-striped table-bordered">
                     <thead>
@@ -62,9 +69,9 @@
                         {% endfor %}
                     </tbody>
                 </table>
-            {% endif %}
+            </div>
         </div>
-    </div>
+    {% endif %}
 {% endblock %}
 {% block extra_js %}
     {{ javascript_context|json_script:"javascript_context" }}

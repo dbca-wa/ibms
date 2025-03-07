@@ -9,7 +9,13 @@
     {{ block.super }}
     <style>
     .footer {
-        background-color: #f5f5f5;
+      background-color: #f5f5f5;
+    }
+    .initially-hidden {
+      visibility: hidden;
+    }
+    .hover-pointer:hover {
+      cursor: pointer;
     }
     </style>
 {% endblock %}
