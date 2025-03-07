@@ -188,6 +188,7 @@ regionSelectEl.addEventListener('change', function () {
   updateJob(fy, false, region);
 });
 
+// If the filter results table is present, default this div to being visible.
 if (divResultTable) {
   divTemplateLink.style.visibility = 'hidden';
   divFilterForm.style.visibility = 'visible';

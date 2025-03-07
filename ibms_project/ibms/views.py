@@ -459,7 +459,16 @@ class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        for key in ["financial_year", "cost_centre", "region", "service", "budget_area", "project_sponsor"]:
+        for key in [
+            "financial_year",
+            "cost_centre",
+            "region",
+            "service",
+            "budget_area",
+            "project",
+            "job",
+            "project_sponsor",
+        ]:
             if self.request.GET.get(key, None):
                 kwargs["initial"][key] = self.request.GET[key]
         # Always provide a default FY.
@@ -517,11 +526,11 @@ class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
 
         # Project
         if self.request.GET.get("project", None):
-            qs = qs.filter(service=self.request.GET["project"])
+            qs = qs.filter(project=self.request.GET["project"])
 
         # Job
         if self.request.GET.get("job", None):
-            qs = qs.filter(service=self.request.GET["job"])
+            qs = qs.filter(job=self.request.GET["job"])
 
         # Budget area
         if self.request.GET.get("budget_area", None):
