@@ -522,11 +522,17 @@ class ListTextWidget(forms.TextInput):
 
 
 class IbmDataForm(forms.ModelForm):
-    budgetArea = forms.CharField(label="Budget area", required=True)
-    # budgetArea = forms.ChoiceField(choices=[], label="Budget area", required=True)
-    projectSponsor = forms.CharField(label="Project sponsor", required=False)
-    # projectSponsor = forms.ChoiceField(choices=[], label="Project sponsor", required=True)
-    servicePriorityID = forms.ChoiceField(choices=[], label="Service priority ID", required=True)
+    budgetArea = forms.CharField(
+        label="Budget area",
+        required=True,
+        help_text="Free text. Remove existing value and click to display other options.",
+    )
+    projectSponsor = forms.CharField(
+        label="Project sponsor",
+        required=False,
+        help_text="Free text. Remove existing value and click to display other options.",
+    )
+    servicePriorityID = forms.ChoiceField(choices=[("", "--------")], label="Service priority ID", required=False)
     save_button = Submit("save", "Save", css_class="btn-lg")
     cancel_button = Submit("cancel", "Cancel", css_class="btn-secondary")
 
@@ -574,6 +580,10 @@ class IbmDataForm(forms.ModelForm):
             self.fields[field].required = False
             self.fields[field].disabled = True
             self.fields[field].widget = forms.TextInput(attrs={"readonly": "readonly"})
+
+        # Business rule: for accounts 1, 2 and 42, the servicePriorityID field is compulsory.
+        if instance.account in [1, 2, 42]:
+            self.fields["servicePriorityID"].required = True
 
         # Non-essential fields
         for field in [
