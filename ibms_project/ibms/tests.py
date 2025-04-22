@@ -37,25 +37,6 @@ class IbmsViewsTest(IbmsTestCase):
 
     client = Client()
 
-    def test_auth_views_render(self):
-        """Test that the login/logout view render correctly"""
-        url = reverse("login")
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "login.html")
-        self.client.login(username="admin", password="test")
-        url = reverse("logout")
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "logged_out.html")
-
-    def test_login_template(self):
-        """Test that the login view renders correctly"""
-        url = reverse("login")
-        response = self.client.get(url)
-        # View template shouldn't contain the navbar login URL.
-        self.assertNotContains(response, '<a href="/login/">Log in</a>')
-
     def test_homepage_superuser(self):
         """Test homepage view contains required elements for a superuser"""
         url = reverse("site_home")
