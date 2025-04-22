@@ -33,6 +33,7 @@ class SiteHomeView(LoginRequiredMixin, TemplateView):
     """Static template view for the site homepage."""
 
     template_name = "site_home.html"
+    http_method_names = ["get", "head", "options"]
 
     def get_context_data(self, **kwargs):
         context = super(SiteHomeView, self).get_context_data(**kwargs)
@@ -48,6 +49,7 @@ class IbmsFormView(LoginRequiredMixin, FormView):
     """Base FormView class, to set common context variables."""
 
     template_name = "ibms/form.html"
+    http_method_names = ["get", "post", "head", "options"]
 
     def get_context_data(self, **kwargs):
         context = super(IbmsFormView, self).get_context_data(**kwargs)
@@ -250,6 +252,7 @@ class ReloadView(IbmsFormView):
 
 class CodeUpdateView(LoginRequiredMixin, TemplateView):
     template_name = "ibms/code_update.html"
+    http_method_names = ["get", "head", "options"]
 
     def get_context_data(self, **kwargs):
         context = super(CodeUpdateView, self).get_context_data(**kwargs)
@@ -350,6 +353,8 @@ class CodeUpdateAdminView(IbmsFormView):
 class JSONResponseMixin(object):
     """View mixin to return a JSON response to requests."""
 
+    http_method_names = ["get", "head", "options"]
+
     def render_to_response(self, context):
         "Returns a JSON response containing 'context' as payload"
         return self.get_json_response(self.convert_context_to_json(context))
@@ -371,6 +376,7 @@ class ServicePriorityMappingsJSON(JSONResponseMixin, BaseDetailView):
     model = None
     fieldname = None
     return_pk = False
+    http_method_names = ["get", "head", "options"]
 
     def get(self, request, *args, **kwargs):
         try:
@@ -406,6 +412,7 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
     model = None
     fieldname = None
     return_pk = False
+    http_method_names = ["get", "head", "options"]
 
     def get(self, request, *args, **kwargs):
         # Sanity check: if the model hasn't got that field, return a
@@ -454,7 +461,7 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
 
 class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
     model = IBMData
-    http_method_names = ["get", "head", "options", "trace"]
+    http_method_names = ["get", "head", "options"]
     form_class = IbmDataFilterForm
 
     def get_form_kwargs(self):
@@ -546,6 +553,7 @@ class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
 class IbmDataUpdate(UpdateView):
     model = IBMData
     form_class = IbmDataForm
+    http_method_names = ["get", "post", "put", "patch", "head", "options"]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
