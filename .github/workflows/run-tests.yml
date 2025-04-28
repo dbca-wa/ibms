@@ -23,23 +23,18 @@ jobs:
         options: --mount type=tmpfs,destination=/var/lib/postgresql/data --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       #----------------------------------------------
-      # Checkout repo and set up Python
+      # Checkout repo
       #----------------------------------------------
       - name: Check out repository
         uses: actions/checkout@v4
         id: checkout-repo
         with:
           fetch-depth: 0
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        id: setup-python
-        with:
-          python-version: '3.12'
       #----------------------------------------------
       # Install & configure uv
       #----------------------------------------------
       - name: Install the latest version of uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
       #----------------------------------------------
