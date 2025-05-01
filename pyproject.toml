@@ -16,7 +16,7 @@ dependencies = [
   "django-extensions==4.1",
   "django-crispy-forms==2.4",
   "crispy-bootstrap5==2025.4",
-  "webtemplate-dbca==1.7.2",
+  "webtemplate-dbca==1.8.2",
   "whitenoise[brotli]==6.9.0",
   "openpyxl==3.1.5",
   "xlrd==2.0.1", # TODO: deprecate

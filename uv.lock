@@ -262,7 +262,7 @@ requires-dist = [
     { name = "openpyxl", specifier = "==3.1.5" },
     { name = "psycopg", extras = ["binary", "pool"], specifier = "==3.2.6" },
     { name = "python-dotenv", specifier = "==1.1.0" },
-    { name = "webtemplate-dbca", specifier = "==1.7.2" },
+    { name = "webtemplate-dbca", specifier = "==1.8.2" },
     { name = "whitenoise", extras = ["brotli"], specifier = "==6.9.0" },
     { name = "xlrd", specifier = "==2.0.1" },
     { name = "xlutils", specifier = "==2.0.0" },
@@ -649,14 +649,14 @@ wheels = [
 
 [[package]]
 name = "webtemplate-dbca"
-version = "1.7.2"
+version = "1.8.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/32/15/8b7a735f2f2ae0cb0e3afa2dac1c07d208c1467daef0e09eb73b90f2265f/webtemplate_dbca-1.7.2.tar.gz", hash = "sha256:fbd6fdf342bacc0f43bd9005a302539f6680ed15e6fcdfc0e120d368ce59a391", size = 43324 }
+sdist = { url = "https://files.pythonhosted.org/packages/ee/cd/eda9f608b9d9d9a63924817bd4fb0f38cf2759d327367e644b1625c2bc60/webtemplate_dbca-1.8.2.tar.gz", hash = "sha256:55899634c19ad7e862355616ee2592d18619e48e2797a2db6ef6f8a073ed8e17", size = 48599 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/44/10/676312d2fdaca5977442127f0c1853a3d1601925c65e5a5f0df50382e113/webtemplate_dbca-1.7.2-py3-none-any.whl", hash = "sha256:4ebfa62ad7261dcf9e49b19430444e3c12ea1db0e487fb4aa4a05ffa5849d917", size = 49419 },
+    { url = "https://files.pythonhosted.org/packages/0d/1e/27be81a01460309f2d775e90ad251674a7031f83fb78c9c00df9da40c551/webtemplate_dbca-1.8.2-py3-none-any.whl", hash = "sha256:70bc7f5ec347d38cb86a5b50e8a456f9ca95b378e420316b6428a83bae60f0cf", size = 53368 },
 ]
 
 [[package]]
