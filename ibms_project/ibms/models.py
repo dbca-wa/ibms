@@ -82,15 +82,12 @@ class GLPivDownload(models.Model):
     shortCode = models.CharField(max_length=20, verbose_name="short code")
     shortCodeName = models.CharField(max_length=200, verbose_name="short code name")
     gLCode = models.CharField(max_length=30, verbose_name="GL code")
-    ptdActual = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-    )
-    ptdBudget = models.DecimalField(max_digits=10, decimal_places=2)
-    ytdActual = models.DecimalField(max_digits=10, decimal_places=2)
-    ytdBudget = models.DecimalField(max_digits=10, decimal_places=2)
-    fybudget = models.DecimalField(max_digits=12, decimal_places=2)
-    ytdVariance = models.DecimalField(max_digits=10, decimal_places=2)
+    ptdActual = models.DecimalField(max_digits=14, decimal_places=2)
+    ptdBudget = models.DecimalField(max_digits=14, decimal_places=2)
+    ytdActual = models.DecimalField(max_digits=14, decimal_places=2)
+    ytdBudget = models.DecimalField(max_digits=14, decimal_places=2)
+    fybudget = models.DecimalField(max_digits=14, decimal_places=2)
+    ytdVariance = models.DecimalField(max_digits=14, decimal_places=2)
     ccName = models.CharField(max_length=100, verbose_name="CC name")
     serviceName = models.CharField(max_length=100, verbose_name="service name")
     activityName = models.CharField(max_length=100, verbose_name="activity name")
