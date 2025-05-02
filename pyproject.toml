@@ -1,34 +1,36 @@
-[tool.poetry]
+[project]
 name = "ibms"
-version = "2.9.0"
+version = "2.9.1"
 description = "Integrated Business Management System corporate application"
-authors = ["Ashley Felton <ashley.felton@dbca.wa.gov.au>"]
+authors = [{ name = "Ashley Felton", email = "ashley.felton@dbca.wa.gov.au" }]
 license = "Apache-2.0"
-package-mode = false
+requires-python = ">=3.12,<4.0"
+dependencies = [
+  "django == 4.2.18",
+  "psycopg[binary,pool]==3.2.4",
+  "dbca-utils == 2.0.3",
+  "python-dotenv == 1.0.1",
+  "dj-database-url == 2.3.0",
+  "gunicorn == 23.0.0",
+  "django-extensions == 3.2.3",
+  "django-crispy-forms == 2.3",
+  "crispy-bootstrap5 == 2024.10",
+  "webtemplate-dbca == 1.7.2",
+  "whitenoise[brotli] == 6.8.2",
+  "openpyxl == 3.1.5",
+  "xlrd == 2.0.1",                # TODO: deprecate
+  "xlutils == 2.0.0",             # TODO: deprecate
+  "xlwt == 1.3.0",                # TODO: deprecate
+]
 
-[tool.poetry.dependencies]
-python = "~3.12"
-django = "4.2.17"
-psycopg = { version = "3.2.3", extras = ["binary", "pool"] }
-dbca-utils = "2.0.2"
-django-extensions = "3.2.3"
-python-dotenv = "1.0.1"
-dj-database-url = "2.3.0"
-gunicorn = "23.0.0"
-django-crispy-forms = "2.3"
-crispy-bootstrap5 = "2024.10"
-xlrd = "2.0.1"                                               # TODO: deprecate
-xlutils = "2.0.0"                                            # TODO: deprecate
-xlwt = "1.3.0"                                               # TODO: deprecate
-openpyxl = "3.1.5"
-webtemplate-dbca = "1.7.2"
-whitenoise = {version = "6.8.2", extras = ["brotli"]}
-mixer = "7.2.2"
 
-[tool.poetry.group.dev.dependencies]
-ipython = "^8.30.0"
-ipdb = "^0.13.13"
-pre-commit = "^4.0.1"
+[dependency-groups]
+dev = [
+  "ipython >= 8.31.0",
+  "ipdb >= 0.13.13",
+  "mixer >= 7.2.2",
+  "pre-commit >= 4.0.1",
+]
 
 # Reference: https://docs.astral.sh/ruff/configuration/
 [tool.ruff]
@@ -43,7 +45,3 @@ ignore = [
 # Reference: https://www.djlint.com/docs/configuration/
 [tool.djlint]
 profile = "django"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"

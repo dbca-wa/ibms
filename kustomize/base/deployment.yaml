@@ -21,28 +21,28 @@ spec:
           imagePullPolicy: Always
           env:
             - name: ALLOWED_HOSTS
-              value: ".dbca.wa.gov.au"
+              value: '.dbca.wa.gov.au'
             - name: CSRF_TRUSTED_ORIGINS
-              value: "https://*.dbca.wa.gov.au"
+              value: 'https://*.dbca.wa.gov.au'
             - name: EMAIL_HOST
-              value: "smtp.lan.fyi"
+              value: 'smtp.lan.fyi'
             - name: IBM_CODE_UPDATER_URI
-              value: "https://static.dbca.wa.gov.au/pages/ibms-code-update.html"
+              value: 'https://static.dbca.wa.gov.au/pages/ibms-code-update.html'
             - name: IBM_DATA_AMEND_URI
-              value: "https://static.dbca.wa.gov.au/pages/ibms-code-update.html"
+              value: 'https://static.dbca.wa.gov.au/pages/ibms-code-update.html'
             - name: IBM_RELOAD_URI
-              value: "https://static.dbca.wa.gov.au/pages/ibms-budget-template.html"
+              value: 'https://static.dbca.wa.gov.au/pages/ibms-budget-template.html'
             - name: IBM_SERVICE_PRIORITY_URI
-              value: "https://static.dbca.wa.gov.au/pages/ibms-service-priority-data.html"
+              value: 'https://static.dbca.wa.gov.au/pages/ibms-service-priority-data.html'
             - name: TZ
-              value: "Australia/Perth"
+              value: 'Australia/Perth'
           resources:
             requests:
-              memory: "100Mi"
-              cpu: "5m"
+              memory: '100Mi'
+              cpu: '5m'
             limits:
-              memory: "2Gi"
-              cpu: "1000m"
+              memory: '2Gi'
+              cpu: '1000m'
           startupProbe:
             httpGet:
               path: /livez
@@ -75,6 +75,7 @@ spec:
             timeoutSeconds: 10
           securityContext:
             runAsNonRoot: true
+            runAsUser: 1000
             privileged: false
             allowPrivilegeEscalation: false
             capabilities:
