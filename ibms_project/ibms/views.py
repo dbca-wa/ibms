@@ -505,8 +505,13 @@ class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
     def get_queryset(self):
         qs = super().get_queryset()
 
-        # Always filter by the newest financial year.
-        fy = FinancialYear.objects.order_by("-financialYear").first()
+        # Financial year
+        if self.request.GET.get("financial_year"):
+            fy = FinancialYear.objects.get(financialYear=self.request.GET["financial_year"])
+        else:
+            # Filter by the newest financial year.
+            fy = FinancialYear.objects.order_by("-financialYear").first()
+
         qs = qs.filter(fy=fy)
 
         # If we don't have either CC or region/branch filters, return an empty queryset.

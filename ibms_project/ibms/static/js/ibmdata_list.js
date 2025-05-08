@@ -160,14 +160,15 @@ async function updateJob(fy, cc = null, region = null) {
 
 // Disable the FY select list (defaults to the newest).
 fySelectEl.disabled = true;
-const fy = fySelectEl.value;
 
 // If the Cost Centre select list changes, update the Service, Budget Area
 // and Project sponsor select lists.
 // Also unselect any value in the region/branch select list.
 ccSelectEl.addEventListener('change', function () {
   regionSelectEl.selectedIndex = 0;
+  const fy = fySelectEl.value;
   const cc = ccSelectEl.value;
+
   updateBudgetArea(fy, cc, false);
   updateProjectSponsor(fy, cc, false);
   updateService(fy, cc, false);
@@ -180,6 +181,7 @@ ccSelectEl.addEventListener('change', function () {
 // Also unselect any value in the cost centre select list.
 regionSelectEl.addEventListener('change', function () {
   ccSelectEl.selectedIndex = 0;
+  const fy = fySelectEl.value;
   const region = regionSelectEl.value;
   updateBudgetArea(fy, false, region);
   updateProjectSponsor(fy, false, region);

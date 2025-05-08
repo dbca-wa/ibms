@@ -390,7 +390,6 @@ class IbmDataFilterForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         # Set field options for CC and Region/branch.
         fy = FinancialYear.objects.get(financialYear=kwargs["initial"]["financial_year"])
         cost_centres = (
@@ -525,14 +524,30 @@ class IbmDataForm(forms.ModelForm):
     budgetArea = forms.CharField(
         label="Budget area",
         required=True,
-        help_text="Free text. Remove existing value and click to display other options.",
+        help_text="Free text. Delete existing value and click to display list.",
     )
     projectSponsor = forms.CharField(
         label="Project sponsor",
         required=False,
-        help_text="Free text. Remove existing value and click to display other options.",
+        help_text="Free text. Delete existing value and click to display list.",
     )
     servicePriorityID = forms.ChoiceField(choices=[("", "--------")], label="Service priority ID", required=False)
+    marineKPI = forms.CharField(
+        label="Marine KPI",
+        required=False,
+        help_text="Free text. Delete existing value and click to display list.",
+    )
+    regionProject = forms.CharField(
+        label="Region project",
+        required=False,
+        help_text="Free text. Delete existing value and click to display list.",
+    )
+    regionDescription = forms.CharField(
+        label="Region description",
+        required=False,
+        help_text="Free text. Delete existing value and click to display list.",
+    )
+
     save_button = Submit("save", "Save", css_class="btn-lg")
     cancel_button = Submit("cancel", "Cancel", css_class="btn-secondary")
 
@@ -540,7 +555,7 @@ class IbmDataForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         instance = kwargs["instance"]
 
-        # CharField using ListTextWidget
+        # CharFields using ListTextWidget
         budget_areas = (
             IBMData.objects.filter(fy=instance.fy, costCentre=instance.costCentre, budgetArea__isnull=False)
             .exclude(budgetArea="")
@@ -566,6 +581,35 @@ class IbmDataForm(forms.ModelForm):
         )
         self.fields["servicePriorityID"].choices += sorted([(i, i) for i in service_priority_ids if i])
 
+        marine_kpis = (
+            IBMData.objects.filter(fy=instance.fy, costCentre=instance.costCentre, marineKPI__isnull=False)
+            .exclude(marineKPI="")
+            .values_list("marineKPI", flat=True)
+            .distinct()
+        )
+        marine_kpis = sorted(list(marine_kpis))
+        self.fields["marineKPI"].widget = ListTextWidget(name="marine_kpi", data_list=marine_kpis)
+
+        region_projects = (
+            IBMData.objects.filter(fy=instance.fy, costCentre=instance.costCentre, regionProject__isnull=False)
+            .exclude(regionProject="")
+            .values_list("regionProject", flat=True)
+            .distinct()
+        )
+        region_projects = sorted(list(region_projects))
+        self.fields["regionProject"].widget = ListTextWidget(name="region_project", data_list=region_projects)
+
+        region_descriptions = (
+            IBMData.objects.filter(fy=instance.fy, costCentre=instance.costCentre, regionDescription__isnull=False)
+            .exclude(regionDescription="")
+            .values_list("regionDescription", flat=True)
+            .distinct()
+        )
+        region_descriptions = sorted(list(region_descriptions))
+        self.fields["regionDescription"].widget = ListTextWidget(
+            name="region_description", data_list=region_descriptions
+        )
+
         # Readonly fields
         for field in [
             "ibmIdentifier",
@@ -585,15 +629,12 @@ class IbmDataForm(forms.ModelForm):
         if instance.account in [1, 2, 42]:
             self.fields["servicePriorityID"].required = True
 
-        # Non-essential fields
+        # Non-essential Textarea fields.
         for field in [
             "regionalSpecificInfo",
             "annualWPInfo",
             "priorityActionNo",
             "priorityLevel",
-            "marineKPI",
-            "regionProject",
-            "regionDescription",
         ]:
             self.fields[field].required = False
             # Use smaller textarea widgets.
