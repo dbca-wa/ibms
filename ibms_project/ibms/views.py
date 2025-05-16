@@ -514,6 +514,9 @@ class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
 
         qs = qs.filter(fy=fy)
 
+        # Always exclude activity == "DJ0".
+        qs = qs.exclude(activity="DJ0")
+
         # If we don't have either CC or region/branch filters, return an empty queryset.
         if not (self.request.GET.get("cost_centre", None) or self.request.GET.get("region", None)):
             return qs.none()
