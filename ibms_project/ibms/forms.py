@@ -531,21 +531,26 @@ class IbmDataForm(forms.ModelForm):
         required=False,
         help_text="Free text. Delete existing value and click to display list.",
     )
-    servicePriorityID = forms.ChoiceField(choices=[("", "--------")], label="Service priority ID", required=False)
+    servicePriorityID = forms.ChoiceField(
+        choices=[("", "--------")],
+        label="Service priority ID",
+        required=False,
+        help_text="Must match Service Number e.g. S24 - WM",
+    )
     marineKPI = forms.CharField(
         label="Marine KPI",
         required=False,
-        help_text="Free text. Delete existing value and click to display list.",
+        help_text="Mandatory for Marine Parks. Free text. Delete existing value and click to display list.",
     )
     regionProject = forms.CharField(
         label="Region project",
         required=False,
-        help_text="Free text. Delete existing value and click to display list.",
+        help_text="Mandatory for PfoP. Free text. Delete existing value and click to display list.",
     )
     regionDescription = forms.CharField(
         label="Region description",
         required=False,
-        help_text="Free text. Delete existing value and click to display list.",
+        help_text="Mandatory for PfoP. Free text. Delete existing value and click to display list.",
     )
 
     save_button = Submit("save", "Save", css_class="btn-lg")
