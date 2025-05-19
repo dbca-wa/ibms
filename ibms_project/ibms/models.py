@@ -26,7 +26,7 @@ class IBMData(models.Model):
 
     fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, verbose_name="financial year")
     costCentre = models.CharField(max_length=4, null=True, blank=True, db_index=True, verbose_name="cost centre")
-    # regionBranch
+
     service = models.IntegerField(null=True, blank=True, db_index=True)
     project = models.CharField(max_length=6, null=True, blank=True)
     job = models.CharField(max_length=6, null=True, blank=True)
