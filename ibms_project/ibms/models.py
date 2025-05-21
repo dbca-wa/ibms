@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.db import models
+from django.urls import reverse
 from sfm.models import FinancialYear
 
 FINYEAR_CHOICES = (
@@ -52,6 +53,9 @@ class IBMData(models.Model):
         unique_together = [("ibmIdentifier", "fy")]
         verbose_name = "IBM data"
         verbose_name_plural = "IBM data"
+
+    def get_absolute_url(self):
+        return reverse("ibms:ibmdata_update", kwargs={"pk": self.pk})
 
     def get_glpivdownload(self):
         """Returns a single matched GLPivDownload object, if it exists."""

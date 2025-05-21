@@ -15,15 +15,7 @@ from sfm.models import FinancialYear
 from xlrd import open_workbook
 from xlutils.copy import copy
 
-from ibms.forms import (
-    ClearGLPivotForm,
-    DownloadForm,
-    IbmDataFilterForm,
-    IbmDataForm,
-    ManagerCodeUpdateForm,
-    ReloadForm,
-    UploadForm,
-)
+from ibms.forms import ClearGLPivotForm, DownloadForm, IbmDataFilterForm, IbmDataForm, ManagerCodeUpdateForm, ReloadForm, UploadForm
 from ibms.models import GLPivDownload, IBMData, NCServicePriority, PVSServicePriority, SFMServicePriority
 from ibms.reports import code_update_report, download_enhanced_report, download_report, reload_report
 from ibms.utils import get_download_period, process_upload_file, validate_upload_file
@@ -112,7 +104,7 @@ class UploadView(IbmsFormView):
         return context
 
     def get_success_url(self):
-        return reverse("upload")
+        return reverse("ibms:upload")
 
     def form_valid(self, form):
         # Uploaded CSVs may contain characters with oddball encodings.
@@ -168,7 +160,7 @@ class DownloadView(IbmsFormView):
         return context
 
     def get_success_url(self):
-        return reverse("download")
+        return reverse("ibms:download")
 
     def form_valid(self, form):
         d = form.cleaned_data
@@ -195,7 +187,7 @@ class DownloadEnhancedView(DownloadView):
         return context
 
     def get_success_url(self):
-        return reverse("download_enhanced")
+        return reverse("ibms:download_enhanced")
 
     def form_valid(self, form):
         d = form.cleaned_data
@@ -224,7 +216,7 @@ class ReloadView(IbmsFormView):
         return context
 
     def get_success_url(self):
-        return reverse("reload")
+        return reverse("ibms:reload")
 
     def form_valid(self, form):
         fy = form.cleaned_data["financial_year"]
@@ -281,7 +273,7 @@ class CodeUpdateAdminView(IbmsFormView):
         return super(CodeUpdateAdminView, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse("code_update")
+        return reverse("ibms:code_update")
 
     def form_valid(self, form):
         fy = form.cleaned_data["financial_year"]
@@ -328,15 +320,9 @@ class CodeUpdateAdminView(IbmsFormView):
         gl_codeids = sorted(set(gl.values_list("codeID", flat=True)))
 
         # Service priority checkboxes.
-        nc_sp = NCServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["ncChoice"]).order_by(
-            "servicePriorityNo"
-        )
-        pvs_sp = PVSServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["pvsChoice"]).order_by(
-            "servicePriorityNo"
-        )
-        fm_sp = SFMServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["fmChoice"]).order_by(
-            "servicePriorityNo"
-        )
+        nc_sp = NCServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["ncChoice"]).order_by("servicePriorityNo")
+        pvs_sp = PVSServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["pvsChoice"]).order_by("servicePriorityNo")
+        fm_sp = SFMServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["fmChoice"]).order_by("servicePriorityNo")
 
         # Style & populate the workbook.
         fpath = os.path.join(settings.STATIC_ROOT, "excel", "ibms_codeupdate_base.xls")
@@ -433,9 +419,7 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
                 # then use those values to filter the IBMData queryset.
                 fy = FinancialYear.objects.get(financialYear=request.GET["financialYear"])
                 cost_centres = set(
-                    GLPivDownload.objects.filter(fy=fy, regionBranch=self.request.GET["regionBranch"]).values_list(
-                        "costCentre", flat=True
-                    )
+                    GLPivDownload.objects.filter(fy=fy, regionBranch=self.request.GET["regionBranch"]).values_list("costCentre", flat=True)
                 )
                 qs = qs.filter(costCentre__in=cost_centres)
             else:
@@ -490,11 +474,11 @@ class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
         if self.request.user.is_superuser:
             context["superuser"] = True
         context["javascript_context"] = {
-            "ajax_ibmdata_budgetarea_url": reverse("ajax_ibmdata_budgetarea"),
-            "ajax_ibmdata_projectsponsor_url": reverse("ajax_ibmdata_projectsponsor"),
-            "ajax_ibmdata_service_url": reverse("ajax_ibmdata_service"),
-            "ajax_ibmdata_project_url": reverse("ajax_ibmdata_project"),
-            "ajax_ibmdata_job_url": reverse("ajax_ibmdata_job"),
+            "ajax_ibmdata_budgetarea_url": reverse("ibms:ajax_ibmdata_budgetarea"),
+            "ajax_ibmdata_projectsponsor_url": reverse("ibms:ajax_ibmdata_projectsponsor"),
+            "ajax_ibmdata_service_url": reverse("ibms:ajax_ibmdata_service"),
+            "ajax_ibmdata_project_url": reverse("ibms:ajax_ibmdata_project"),
+            "ajax_ibmdata_job_url": reverse("ibms:ajax_ibmdata_job"),
         }
         context["download_period"] = get_download_period()
         context["page_title"] = f"{settings.SITE_ACRONYM} | Data amendment"
@@ -532,9 +516,7 @@ class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
             # As regionBranch is a field on GLPivDownload, we obtain the set of CC values for the given FY,
             # then use those values to filter the IBMData queryset.
             region_branch = self.request.GET["region"]
-            cost_centres = set(
-                GLPivDownload.objects.filter(fy=fy, regionBranch=region_branch).values_list("costCentre", flat=True)
-            )
+            cost_centres = set(GLPivDownload.objects.filter(fy=fy, regionBranch=region_branch).values_list("costCentre", flat=True))
             qs = qs.filter(costCentre__in=cost_centres)
 
         # Service
@@ -576,11 +558,11 @@ class IbmDataUpdate(UpdateView):
 
     def post(self, request, *args, **kwargs):
         if request.POST.get("cancel", None):
-            return redirect(reverse("ibmdata_list"))
+            return redirect(reverse("ibms:ibmdata_list"))
         return super().post(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse("ibmdata_list")
+        return reverse("ibms:ibmdata_list")
 
     def form_valid(self, form):
         obj = self.get_object()

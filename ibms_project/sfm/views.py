@@ -42,7 +42,7 @@ class OutputEntry(LoginRequiredMixin, FormView):
         return context
 
     def get_success_url(self):
-        return reverse("outcome-entry")
+        return reverse("sfm:outcome-entry")
 
     def form_valid(self, form):
         d = form.cleaned_data
@@ -68,7 +68,7 @@ class OutputUpload(LoginRequiredMixin, FormView):
 
     def get(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return redirect(reverse("output-upload"))
+            return redirect(reverse("sfm:output-upload"))
         return super(OutputUpload, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -82,7 +82,7 @@ class OutputUpload(LoginRequiredMixin, FormView):
         return context
 
     def get_success_url(self):
-        return reverse("output-upload")
+        return reverse("sfm:output-upload")
 
     def form_valid(self, form):
         # Uploaded CSVs may contain characters with oddball encodings.
@@ -101,9 +101,7 @@ class OutputUpload(LoginRequiredMixin, FormView):
             process_upload_file(file.name, file_type, fy)
             messages.success(self.request, "Output upload values updated successfully.")
         else:
-            messages.error(
-                self.request, "This file appears to be of an incorrect type. Please choose a {} file.".format(file_type)
-            )
+            messages.error(self.request, "This file appears to be of an incorrect type. Please choose a {} file.".format(file_type))
         return super(OutputUpload, self).form_valid(form)
 
 
@@ -161,13 +159,9 @@ class MeasurementValueJSON(JSONResponseMixin, BaseDetailView):
             quarter = Quarter.objects.get(pk=request.GET["quarter"])
             metric = SFMMetric.objects.get(pk=request.GET["sfmMetric"])
 
-            if MeasurementValue.objects.filter(
-                quarter=quarter, region=request.GET["region"], sfmMetric=metric
-            ).exists():
+            if MeasurementValue.objects.filter(quarter=quarter, region=request.GET["region"], sfmMetric=metric).exists():
                 # Find the measure
-                measures = MeasurementValue.objects.filter(
-                    quarter=quarter, region=request.GET["region"], sfmMetric=metric
-                )
+                measures = MeasurementValue.objects.filter(quarter=quarter, region=request.GET["region"], sfmMetric=metric)
                 if measures.filter(value__isnull=False).exists():
                     measure = measures.filter(value__isnull=False).first()
                 else:  # Just use the first object in the queryset.
@@ -183,9 +177,7 @@ class MeasurementValueJSON(JSONResponseMixin, BaseDetailView):
         if "quarter" in request.POST and "region" in request.POST and "sfmMetric" in request.POST:
             quarter = Quarter.objects.get(pk=request.POST["quarter"])
             metric = SFMMetric.objects.get(pk=request.POST["sfmMetric"])
-            measure, created = MeasurementValue.objects.get_or_create(
-                quarter=quarter, region=request.POST["region"], sfmMetric=metric
-            )
+            measure, created = MeasurementValue.objects.get_or_create(quarter=quarter, region=request.POST["region"], sfmMetric=metric)
             if "planned" in request.POST:
                 measure.planned = request.POST["planned"] == "true"
             if "status" in request.POST:

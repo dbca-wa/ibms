@@ -16,7 +16,7 @@ class SfmViewsTest(IbmsTestCase):
         self.client.login(username="admin", password="test")
 
         for view in ["outcome-entry", "output-upload", "output-report"]:
-            url = reverse(view)
+            url = reverse(f"sfm:{view}")
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
 
@@ -24,7 +24,7 @@ class SfmViewsTest(IbmsTestCase):
         """Test that all the sfm views will redirect a non-auth'ed user."""
         self.client.logout()
         for view in ["outcome-entry", "output-upload", "output-report"]:
-            url = reverse(view)
+            url = reverse(f"sfm:{view}")
             response = self.client.get(url)
             self.assertEqual(response.status_code, 302)
 
@@ -32,7 +32,7 @@ class SfmViewsTest(IbmsTestCase):
         """Test sfm form validation errors."""
         self.client.login(username="admin", password="test")
 
-        url = reverse("output-report")
+        url = reverse("sfm:output-report")
         response = self.client.post(url)
         self.assertFormError(response.context["form"], "financial_year", "This field is required.")
         self.assertFormError(response.context["form"], "quarter", "This field is required.")
@@ -61,6 +61,6 @@ class SfmViewsTest(IbmsTestCase):
             "ajax_sfmmetric_metricid",
             "ajax_measurementvalue",
         ]:
-            url = reverse(endpoint)
+            url = reverse(f"sfm:{endpoint}")
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)

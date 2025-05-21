@@ -101,9 +101,7 @@ class DownloadForm(FinancialYearFilterForm):
             required=False,
             label="Region/branch",
         )
-        self.fields["division"] = forms.ChoiceField(
-            choices=get_generic_choices(GLPivDownload, "division", allow_null=True), required=False
-        )
+        self.fields["division"] = forms.ChoiceField(choices=get_generic_choices(GLPivDownload, "division", allow_null=True), required=False)
 
         # Disable several fields on initial form load.
         for field in ["cost_centre", "region", "division"]:
@@ -392,15 +390,9 @@ class IbmDataFilterForm(forms.Form):
         super().__init__(*args, **kwargs)
         # Set field options for CC and Region/branch.
         fy = FinancialYear.objects.get(financialYear=kwargs["initial"]["financial_year"])
-        cost_centres = (
-            IBMData.objects.filter(fy=fy, costCentre__isnull=False).values_list("costCentre", flat=True).distinct()
-        )
+        cost_centres = IBMData.objects.filter(fy=fy, costCentre__isnull=False).values_list("costCentre", flat=True).distinct()
         self.fields["cost_centre"].choices += sorted([(i, i) for i in cost_centres])
-        regions = (
-            GLPivDownload.objects.filter(fy=fy, regionBranch__isnull=False)
-            .values_list("regionBranch", flat=True)
-            .distinct()
-        )
+        regions = GLPivDownload.objects.filter(fy=fy, regionBranch__isnull=False).values_list("regionBranch", flat=True).distinct()
         self.fields["region"].choices += sorted([(i, i) for i in regions])
 
         if "cost_centre" in kwargs["initial"] and kwargs["initial"]["cost_centre"]:
@@ -437,9 +429,7 @@ class IbmDataFilterForm(forms.Form):
 
         if "region" in kwargs["initial"] and kwargs["initial"]["region"]:
             region_branch = kwargs["initial"]["region"]
-            cost_centres = set(
-                GLPivDownload.objects.filter(fy=fy, regionBranch=region_branch).values_list("costCentre", flat=True)
-            )
+            cost_centres = set(GLPivDownload.objects.filter(fy=fy, regionBranch=region_branch).values_list("costCentre", flat=True))
 
             budget_areas = (
                 IBMData.objects.filter(fy=fy, costCentre__in=cost_centres, budgetArea__isnull=False)
@@ -465,11 +455,7 @@ class IbmDataFilterForm(forms.Form):
                 .distinct()
             )
             self.fields["project"].choices += sorted([(i, i) for i in projects if i])
-            jobs = (
-                IBMData.objects.filter(fy=fy, costCentre__in=cost_centres, job__isnull=False)
-                .values_list("job", flat=True)
-                .distinct()
-            )
+            jobs = IBMData.objects.filter(fy=fy, costCentre__in=cost_centres, job__isnull=False).values_list("job", flat=True).distinct()
             self.fields["job"].choices += sorted([(i, i) for i in jobs if i])
 
         # crispy_forms layout
@@ -611,9 +597,7 @@ class IbmDataForm(forms.ModelForm):
             .distinct()
         )
         region_descriptions = sorted(list(region_descriptions))
-        self.fields["regionDescription"].widget = ListTextWidget(
-            name="region_description", data_list=region_descriptions
-        )
+        self.fields["regionDescription"].widget = ListTextWidget(name="region_description", data_list=region_descriptions)
 
         # Readonly fields
         for field in [

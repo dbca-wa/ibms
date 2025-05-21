@@ -1,8 +1,10 @@
 {% extends "base_ibms.html" %}
 {% load crispy_forms_tags %}
-
 {% block page_content_inner %}
-<h1>{{ title }}</h1>
-<p>Downloads as of: <strong>{{ download_period }}</strong>{% block check_all_button %}{% endblock %}</p>
-{% crispy form %}
+    <h1>{{ title }}</h1>
+    <p>
+        Downloads as of: <strong>{{ download_period }}</strong>
+        {% block check_all_button %}{% endblock %}
+    </p>
+    {% crispy form %}
 {% endblock %}

@@ -1,16 +1,15 @@
 from django.db import models
 
-
 REGION_CHOICES = [
-    ('Goldfields', 'Goldfields'),
-    ('Kimberley', 'Kimberley'),
-    ('Midwest', 'Midwest'),
-    ('Pilbara', 'Pilbara'),
-    ('South Coast', 'South Coast'),
-    ('South West', 'South West'),
-    ('Swan', 'Swan'),
-    ('Warren', 'Warren'),
-    ('Wheatbelt', 'Wheatbelt'),
+    ("Goldfields", "Goldfields"),
+    ("Kimberley", "Kimberley"),
+    ("Midwest", "Midwest"),
+    ("Pilbara", "Pilbara"),
+    ("South Coast", "South Coast"),
+    ("South West", "South West"),
+    ("Swan", "Swan"),
+    ("Warren", "Warren"),
+    ("Wheatbelt", "Wheatbelt"),
 ]
 
 
@@ -81,16 +80,14 @@ class MeasurementValue(models.Model):
         ("completed", "Completed"),
     )
     quarter = models.ForeignKey(Quarter, on_delete=models.PROTECT)
-    costCentre = models.ForeignKey(
-        CostCentre, verbose_name="cost centre", on_delete=models.PROTECT, null=True, blank=True)
+    costCentre = models.ForeignKey(CostCentre, verbose_name="cost centre", on_delete=models.PROTECT, null=True, blank=True)
     region = models.CharField(max_length=100, choices=REGION_CHOICES, null=True, blank=True)
-    sfmMetric = models.ForeignKey(
-        SFMMetric, verbose_name="SFM metric", on_delete=models.PROTECT)
+    sfmMetric = models.ForeignKey(SFMMetric, verbose_name="SFM metric", on_delete=models.PROTECT)
     planned = models.BooleanField(null=True, verbose_name="action planned")
     status = models.CharField(max_length=64, choices=STATUS_CHOICES, null=True, blank=True)
     measurementType = models.ForeignKey(
-        MeasurementType, null=True, blank=True, on_delete=models.PROTECT,
-        verbose_name="measurement type", help_text="Deprecated field")
+        MeasurementType, null=True, blank=True, on_delete=models.PROTECT, verbose_name="measurement type", help_text="Deprecated field"
+    )
     value = models.FloatField(null=True, blank=True, help_text="Deprecated field")
     comment = models.TextField(null=True)
 

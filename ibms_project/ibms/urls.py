@@ -15,6 +15,7 @@ from ibms.views import (
     UploadView,
 )
 
+app_name = "ibms"
 urlpatterns = [
     path("upload/", UploadView.as_view(), name="upload"),
     path("download/", DownloadView.as_view(), name="download"),

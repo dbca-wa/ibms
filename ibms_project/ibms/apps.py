@@ -1,6 +1,7 @@
 from django.apps import AppConfig
 
+
 class IBMSConfig(AppConfig):
-    default_auto_field = 'django.db.models.AutoField'
-    name = 'ibms'
-    verbose_name = 'IBMS'
+    default_auto_field = "django.db.models.AutoField"
+    name = "ibms"
+    verbose_name = "IBMS"

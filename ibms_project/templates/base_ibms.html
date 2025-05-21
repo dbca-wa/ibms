@@ -50,7 +50,7 @@
                         {% endif %}
                         {% if superuser %}
                             <li>
-                                <a class="dropdown-item" href="{% url 'clearglpivot' %}">Clear GL Pivot entries</a>
+                                <a class="dropdown-item" href="{% url 'ibms:clearglpivot' %}">Clear GL Pivot entries</a>
                             </li>
                         {% endif %}
                     </ul>
@@ -87,38 +87,38 @@
                             </h5>
                             {% if superuser %}
                                 <li class="nav-item">
-                                    <a class="nav-link" id="superuser_upload" href="{% url 'upload' %}">Upload</a>
+                                    <a class="nav-link" id="superuser_upload" href="{% url 'ibms:upload' %}">Upload</a>
                                 </li>
                             {% endif %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'download' %}">Download</a>
+                                <a class="nav-link" href="{% url 'ibms:download' %}">Download</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'download_enhanced' %}">Enhanced Download</a>
+                                <a class="nav-link" href="{% url 'ibms:download_enhanced' %}">Enhanced Download</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'code_update' %}">Code Update</a>
+                                <a class="nav-link" href="{% url 'ibms:code_update' %}">Code Update</a>
                             </li>
                             {% if superuser %}
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'code_update_admin' %}">Code Update (Admin)</a>
+                                    <a class="nav-link" href="{% url 'ibms:code_update_admin' %}">Code Update (Admin)</a>
                                 </li>
                             {% endif %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'ibmdata_list' %}">Data Amendment</a>
+                                <a class="nav-link" href="{% url 'ibms:ibmdata_list' %}">Data Amendment</a>
                             </li>
                             <h5 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
                                 <span>OUTPUT TOOLS</span>
                             </h5>
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'outcome-entry' %}">Output Entry</a>
+                                <a class="nav-link" href="{% url 'sfm:outcome-entry' %}">Output Entry</a>
                             </li>
                             {% if superuser %}
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'output-upload' %}">Output Upload</a>
+                                    <a class="nav-link" href="{% url 'sfm:output-upload' %}">Output Upload</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'output-report' %}">Output Report</a>
+                                    <a class="nav-link" href="{% url 'sfm:output-report' %}">Output Report</a>
                                 </li>
                             {% endif %}
                         </ul>
