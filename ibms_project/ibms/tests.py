@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
+from faker import Faker
 from mixer.backend.django import mixer
 
 from ibms.models import FinancialYear, GLPivDownload, IBMData
@@ -13,23 +14,33 @@ class IbmsTestCase(TestCase):
     """Defines fixtures and setup common to all ibms test cases."""
 
     def setUp(self):
+        self.fake = Faker()
         User = get_user_model()
         self.admin = User.objects.create_superuser(
             username="admin",
-            email="admin@email.com",
-            first_name="Admin",
-            last_name="User",
             password="test",
+            email=self.fake.email(),
+            first_name=self.fake.first_name(),
+            last_name=self.fake.last_name(),
         )
         self.user = User.objects.create_user(
             username="testuser",
-            email="user@email.com",
-            first_name="Test",
-            last_name="User",
             password="test",
+            email=self.fake.email(),
+            first_name=self.fake.first_name(),
+            last_name=self.fake.last_name(),
         )
         self.user.save()
-        self.fy = mixer.blend(FinancialYear)
+        self.fy = mixer.blend(FinancialYear, financialYear="2024/25")
+        self.ibmdata = mixer.blend(
+            IBMData,
+            fy=self.fy,
+            costCentre="999",
+            budgetArea="Admin",
+            activity="AA1",
+            projectSponsor=self.fake.name(),
+        )
+        self.client.login(username="testuser", password="test")
 
 
 class IbmsViewsTest(IbmsTestCase):
@@ -49,22 +60,17 @@ class IbmsViewsTest(IbmsTestCase):
     def test_homepage_user(self):
         """Site homepage view should not contain some elements for a normal user"""
         url = reverse("site_home")
-        self.client.login(username="testuser", password="test")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "site_home.html")
         self.assertNotContains(response, '<li id="superuser_upload">')
 
-    def test_ibms_views_render(self):
-        """Test that all the IBMS views render"""
-        self.client.login(username="admin", password="test")
-
+    def test_ibms_views_get(self):
+        """Test that all the 'normal user' IBMS views respond"""
         for view in [
-            "upload",
             "download",
             "reload",
             "code_update",
-            "code_update_admin",
             "ibmdata_list",
         ]:
             url = reverse(view)
@@ -73,6 +79,7 @@ class IbmsViewsTest(IbmsTestCase):
 
     def test_ibms_views_req_auth(self):
         """Test that all the IBMS views will redirect a non-auth'ed user."""
+        self.client.logout()
         for view in [
             "site_home",
             "upload",
@@ -88,7 +95,6 @@ class IbmsViewsTest(IbmsTestCase):
 
     def test_upload_view_redirect(self):
         """Test upload view redirects normal users, but not superusers."""
-        self.client.login(username="testuser", password="test")
         url = reverse("upload")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
@@ -98,7 +104,6 @@ class IbmsViewsTest(IbmsTestCase):
 
     def test_clearglpivot_view_redirect(self):
         """Test clearglpivot view redirects normal users, but not superusers."""
-        self.client.login(username="testuser", password="test")
         url = reverse("clearglpivot")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
@@ -108,7 +113,6 @@ class IbmsViewsTest(IbmsTestCase):
 
     def test_code_update_admin_view_redirect(self):
         """Test code_update_admin view redirects normal users, but not superusers."""
-        self.client.login(username="testuser", password="test")
         url = reverse("code_update_admin")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
@@ -118,27 +122,23 @@ class IbmsViewsTest(IbmsTestCase):
 
     def test_ibms_admin_views(self):
         """Test that the Django ibms app admin works"""
-        mixer.cycle().blend(IBMData)
         self.client.login(username="admin", password="test")
         # Changelist view.
         url = reverse("admin:ibms_ibmdata_changelist")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         # Change view.
-        ibmdata = IBMData.objects.first()
-        url = reverse("admin:ibms_ibmdata_change", kwargs={"object_id": ibmdata.pk})
+        url = reverse("admin:ibms_ibmdata_change", kwargs={"object_id": self.ibmdata.pk})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_ibms_ajax_endpoints(self):
-        # For this, we need a few dozen dummy records.
+        """Test that the IBMS AJAX endpoints work"""
         for _ in range(20):
-            ibmdata = mixer.blend(IBMData)
             mixer.blend(
-                GLPivDownload, codeID=ibmdata.ibmIdentifier[0:29], downloadPeriod=date.today().strftime("%d/%m/%Y")
+                GLPivDownload, codeID=self.ibmdata.ibmIdentifier[0:29], downloadPeriod=date.today().strftime("%d/%m/%Y")
             )
 
-        self.client.login(username="admin", password="test")
         for endpoint in [
             "ajax_glpivdownload_financialyear",
             "ajax_ibmdata_costcentre",
@@ -155,3 +155,49 @@ class IbmsViewsTest(IbmsTestCase):
             url = reverse(endpoint)
             response = self.client.get(url, {"financialYear": self.fy.financialYear})
             self.assertEqual(response.status_code, 200)
+
+    def test_ibms_ibmdata_list_filter(self):
+        """Test that the IbmDataList view returns filtered records"""
+        url = reverse("ibmdata_list")
+        response = self.client.get(url, {"cost_centre": "999"})
+        self.assertContains(response, self.ibmdata.ibmIdentifier)
+
+    def test_ibms_ibmdata_list_rule_budgetarea(self):
+        """Test the IbmDataList view business rule: filter out blank budgetArea"""
+        ibmdata2 = mixer.blend(
+            IBMData, fy=self.fy, costCentre="999", budgetArea="", activity="AB1", projectSponsor=self.fake.name()
+        )
+        url = reverse("ibmdata_list")
+        response = self.client.get(url, {"cost_centre": "999"})
+        # The new IBMData record shouldn't be in the response.
+        self.assertNotContains(response, ibmdata2.ibmIdentifier)
+        self.assertContains(response, self.ibmdata.ibmIdentifier)
+
+    def test_ibms_ibmdata_list_rule_dj0(self):
+        """Test the IbmDataList view business rule: filter out activity DJ0"""
+        ibmdata2 = mixer.blend(IBMData, fy=self.fy, costCentre="999", activity="DJ0", projectSponsor=self.fake.name())
+        url = reverse("ibmdata_list")
+        response = self.client.get(url, {"cost_centre": "999"})
+        self.assertNotContains(response, ibmdata2.ibmIdentifier)
+        self.assertContains(response, self.ibmdata.ibmIdentifier)
+
+    def test_ibms_ibmdata_update_get(self):
+        """Test that the IbmDataUpdate view responds"""
+        url = reverse("ibmdata_update", kwargs={"pk": self.ibmdata.pk})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_cancel(self):
+        """Test the cancelling the IbmDataUpdate view redirects to the list view"""
+        url = reverse("ibmdata_update", kwargs={"pk": self.ibmdata.pk})
+        resp = self.client.post(url, {"cancel": "Cancel"})
+        self.assertEqual(resp.status_code, 302)
+        self.assertRedirects(resp, reverse("ibmdata_list"))
+
+    def test_ibms_ibmdata_update_post(self):
+        """Test that the IbmDataUpdate view responds correctly to a POST request"""
+        url = reverse("ibmdata_update", kwargs={"pk": self.ibmdata.pk})
+        response = self.client.post(url, {"budgetArea": "Operations"})
+        self.assertEqual(response.status_code, 302)
+        ibmdata = IBMData.objects.first()
+        self.assertEqual(ibmdata.budgetArea, "Operations")

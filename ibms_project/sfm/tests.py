@@ -22,6 +22,7 @@ class SfmViewsTest(IbmsTestCase):
 
     def test_sfm_views_req_auth(self):
         """Test that all the sfm views will redirect a non-auth'ed user."""
+        self.client.logout()
         for view in ["outcome-entry", "output-upload", "output-report"]:
             url = reverse(view)
             response = self.client.get(url)
