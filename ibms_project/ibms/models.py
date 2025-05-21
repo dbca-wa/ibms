@@ -123,14 +123,14 @@ class GLPivDownload(models.Model):
         verbose_name = "GL pivot download"
         verbose_name_plural = "GL pivot downloads"
 
-    def save(self, force_insert=False, force_update=False, *args, **kwargs):
+    def save(self, *args, **kwargs):
         """Overide save() to parse string date to a Python date."""
         if self.downloadPeriod:
             self.download_period = datetime.strptime(self.downloadPeriod, "%d/%m/%Y")
         # Set a linked IBMData object, if present.
         if not self.ibmdata:
             self.ibmdata = self.get_ibmdata()
-        super().save(force_insert, force_update)
+        super().save(*args, **kwargs)
 
     def get_ibmdata(self):
         """Returns a single matched IBMData object, if it exists."""
