@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Prepare the base environment.
-FROM python:3.12-slim-bookworm AS builder_base
+FROM python:3.13-slim-bookworm AS builder_base
 
 # This approximately follows this guide: https://hynek.me/articles/docker-uv/
 # Which creates a standalone environment with the dependencies.
@@ -14,7 +14,7 @@ ENV UV_LINK_MODE=copy \
   UV_PYTHON_DOWNLOADS=never \
   UV_PROJECT_ENVIRONMENT=/app/.venv
 
-COPY --from=ghcr.io/astral-sh/uv:0.5 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.6 /uv /uvx /bin/
 
 # Since there's no point in shipping lock files, we move them
 # into a directory that is NOT copied into the runtime image.
@@ -31,7 +31,7 @@ RUN --mount=type=cache,target=/root/.cache \
 
 ##################################################################################
 
-FROM python:3.12-slim-bookworm
+FROM python:3.13-slim-bookworm
 LABEL org.opencontainers.image.authors=asi@dbca.wa.gov.au
 LABEL org.opencontainers.image.source=https://github.com/dbca-wa/ibms
 
@@ -42,6 +42,8 @@ RUN groupadd -r -g 1000 app \
 COPY --from=builder_base --chown=app:app /app /app
 # Make sure we use the virtualenv by default
 ENV PATH="/app/.venv/bin:$PATH"
+# Run Python unbuffered
+ENV PYTHONUNBUFFERED=1
 
 # Install the project.
 WORKDIR /app

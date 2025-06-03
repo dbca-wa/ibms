@@ -8,28 +8,16 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic import TemplateView
+from django.views.generic import ListView, TemplateView, UpdateView
 from django.views.generic.detail import BaseDetailView
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormMixin, FormView
+from sfm.models import FinancialYear
 from xlrd import open_workbook
 from xlutils.copy import copy
 
-from ibms.forms import (
-    ClearGLPivotForm,
-    DownloadForm,
-    ManagerCodeUpdateForm,
-    ReloadForm,
-    ServicePriorityDataForm,
-    UploadForm,
-)
+from ibms.forms import ClearGLPivotForm, DownloadForm, IbmDataFilterForm, IbmDataForm, ManagerCodeUpdateForm, ReloadForm, UploadForm
 from ibms.models import GLPivDownload, IBMData, NCServicePriority, PVSServicePriority, SFMServicePriority
-from ibms.reports import (
-    code_update_report,
-    download_enhanced_report,
-    download_report,
-    reload_report,
-    service_priority_report,
-)
+from ibms.reports import code_update_report, download_enhanced_report, download_report, reload_report
 from ibms.utils import get_download_period, process_upload_file, validate_upload_file
 
 
@@ -37,12 +25,13 @@ class SiteHomeView(LoginRequiredMixin, TemplateView):
     """Static template view for the site homepage."""
 
     template_name = "site_home.html"
+    http_method_names = ["get", "head", "options"]
 
     def get_context_data(self, **kwargs):
         context = super(SiteHomeView, self).get_context_data(**kwargs)
         if self.request.user.is_superuser:
             context["superuser"] = True
-        context["page_title"] = settings.SITE_ACRONYM
+        context["page_title"] = f"{settings.SITE_ACRONYM} | Home"
         context["title"] = "HOME"
         context["managers"] = settings.MANAGERS
         return context
@@ -52,6 +41,7 @@ class IbmsFormView(LoginRequiredMixin, FormView):
     """Base FormView class, to set common context variables."""
 
     template_name = "ibms/form.html"
+    http_method_names = ["get", "post", "head", "options"]
 
     def get_context_data(self, **kwargs):
         context = super(IbmsFormView, self).get_context_data(**kwargs)
@@ -68,7 +58,7 @@ class ClearGLPivotView(IbmsFormView):
 
     def get_context_data(self, **kwargs):
         context = super(ClearGLPivotView, self).get_context_data(**kwargs)
-        context["page_title"] = " | ".join([settings.SITE_ACRONYM, "Clear GL Pivot entries"])
+        context["page_title"] = f"{settings.SITE_ACRONYM} | Clear GL Pivot entries"
         context["title"] = "CLEAR GL PIVOT ENTRIES"
         return context
 
@@ -93,7 +83,7 @@ class ClearGLPivotView(IbmsFormView):
         glpiv = GLPivDownload.objects.filter(fy=fy)
         if glpiv.exists():
             glpiv._raw_delete(glpiv.db)
-            messages.success(self.request, "GL Pivot entries for {} have been cleared.".format(fy))
+            messages.success(self.request, f"GL Pivot entries for {fy} have been cleared.")
         return super(ClearGLPivotView, self).form_valid(form)
 
 
@@ -109,12 +99,12 @@ class UploadView(IbmsFormView):
 
     def get_context_data(self, **kwargs):
         context = super(UploadView, self).get_context_data(**kwargs)
-        context["page_title"] = " | ".join([settings.SITE_ACRONYM, "Upload"])
+        context["page_title"] = f"{settings.SITE_ACRONYM} | Upload"
         context["title"] = "UPLOAD"
         return context
 
     def get_success_url(self):
-        return reverse("upload")
+        return reverse("ibms:upload")
 
     def form_valid(self, form):
         # Uploaded CSVs may contain characters with oddball encodings.
@@ -133,7 +123,7 @@ class UploadView(IbmsFormView):
         try:
             upload_valid = validate_upload_file(file, file_type)
         except Exception as e:
-            messages.warning(self.request, "Error: {}".format(str(e)))
+            messages.warning(self.request, f"Error: {str(e)}")
             return redirect("upload")
 
         # Upload may still not be valid, but at least no exception was thrown.
@@ -141,15 +131,15 @@ class UploadView(IbmsFormView):
             fy = form.cleaned_data["financial_year"]
             try:
                 process_upload_file(file.name, file_type, fy)
-                messages.success(self.request, "{} data imported successfully".format(file_type))
+                messages.success(self.request, f"{file_type} data imported successfully")
                 return redirect("upload")
             except Exception as e:
-                messages.warning(self.request, "Error: {}".format(str(e)))
+                messages.warning(self.request, f"Error: {str(e)}")
                 return redirect("upload")
         else:
             messages.warning(
                 self.request,
-                "This file appears to be of an incorrect type. Please choose a {} file.".format(file_type),
+                f"This file appears to be of an incorrect type. Please choose a {file_type} file.",
             )
             return redirect("upload")
 
@@ -165,16 +155,17 @@ class DownloadView(IbmsFormView):
 
     def get_context_data(self, **kwargs):
         context = super(DownloadView, self).get_context_data(**kwargs)
-        context["page_title"] = " | ".join([settings.SITE_ACRONYM, "Download"])
+        context["page_title"] = f"{settings.SITE_ACRONYM} | Download"
         context["title"] = "DOWNLOAD"
         return context
 
     def get_success_url(self):
-        return reverse("download")
+        return reverse("ibms:download")
 
     def form_valid(self, form):
         d = form.cleaned_data
         glpiv_qs = GLPivDownload.objects.filter(fy=d["financial_year"])
+        print(glpiv_qs)
         if d.get("cost_centre", None):
             glpiv_qs = glpiv_qs.filter(costCentre=d["cost_centre"])
         elif d.get("region", None):
@@ -191,12 +182,12 @@ class DownloadView(IbmsFormView):
 class DownloadEnhancedView(DownloadView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["page_title"] = " | ".join([settings.SITE_ACRONYM, "Enhanced Download"])
+        context["page_title"] = f"{settings.SITE_ACRONYM} | Enhanced Download"
         context["title"] = "ENHANCED DOWNLOAD"
         return context
 
     def get_success_url(self):
-        return reverse("download_enhanced")
+        return reverse("ibms:download_enhanced")
 
     def form_valid(self, form):
         d = form.cleaned_data
@@ -220,12 +211,12 @@ class ReloadView(IbmsFormView):
 
     def get_context_data(self, **kwargs):
         context = super(ReloadView, self).get_context_data(**kwargs)
-        context["page_title"] = " | ".join([settings.SITE_ACRONYM, "Reload"])
+        context["page_title"] = f"{settings.SITE_ACRONYM} | Reload"
         context["title"] = "RELOAD"
         return context
 
     def get_success_url(self):
-        return reverse("reload")
+        return reverse("ibms:reload")
 
     def form_valid(self, form):
         fy = form.cleaned_data["financial_year"]
@@ -253,13 +244,14 @@ class ReloadView(IbmsFormView):
 
 class CodeUpdateView(LoginRequiredMixin, TemplateView):
     template_name = "ibms/code_update.html"
+    http_method_names = ["get", "head", "options"]
 
     def get_context_data(self, **kwargs):
         context = super(CodeUpdateView, self).get_context_data(**kwargs)
         if self.request.user.is_superuser:
             context["superuser"] = True
         context["download_period"] = get_download_period()
-        context["page_title"] = " | ".join([settings.SITE_ACRONYM, "Code update"])
+        context["page_title"] = f"{settings.SITE_ACRONYM} | Code update"
         context["title"] = "CODE UPDATE"
         return context
 
@@ -270,7 +262,7 @@ class CodeUpdateAdminView(IbmsFormView):
 
     def get_context_data(self, **kwargs):
         context = super(CodeUpdateAdminView, self).get_context_data(**kwargs)
-        context["page_title"] = " | ".join([settings.SITE_ACRONYM, "Code update"])
+        context["page_title"] = f"{settings.SITE_ACRONYM} | Code update"
         context["title"] = "CODE UPDATE (ADMIN)"
         return context
 
@@ -281,7 +273,7 @@ class CodeUpdateAdminView(IbmsFormView):
         return super(CodeUpdateAdminView, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse("code_update")
+        return reverse("ibms:code_update")
 
     def form_valid(self, form):
         fy = form.cleaned_data["financial_year"]
@@ -328,15 +320,9 @@ class CodeUpdateAdminView(IbmsFormView):
         gl_codeids = sorted(set(gl.values_list("codeID", flat=True)))
 
         # Service priority checkboxes.
-        nc_sp = NCServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["ncChoice"]).order_by(
-            "servicePriorityNo"
-        )
-        pvs_sp = PVSServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["pvsChoice"]).order_by(
-            "servicePriorityNo"
-        )
-        fm_sp = SFMServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["fmChoice"]).order_by(
-            "servicePriorityNo"
-        )
+        nc_sp = NCServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["ncChoice"]).order_by("servicePriorityNo")
+        pvs_sp = PVSServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["pvsChoice"]).order_by("servicePriorityNo")
+        fm_sp = SFMServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["fmChoice"]).order_by("servicePriorityNo")
 
         # Style & populate the workbook.
         fpath = os.path.join(settings.STATIC_ROOT, "excel", "ibms_codeupdate_base.xls")
@@ -350,70 +336,10 @@ class CodeUpdateAdminView(IbmsFormView):
         return response
 
 
-class DataAmendmentView(LoginRequiredMixin, TemplateView):
-    template_name = "ibms/data_amendment.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(DataAmendmentView, self).get_context_data(**kwargs)
-        if self.request.user.is_superuser:
-            context["superuser"] = True
-        context["download_period"] = get_download_period()
-        context["page_title"] = " | ".join([settings.SITE_ACRONYM, "Data amendment"])
-        context["title"] = "DATA AMENDMENT"
-        return context
-
-
-class ServicePriorityDataView(IbmsFormView):
-    template_name = "ibms/service_priority_data.html"
-    form_class = ServicePriorityDataForm
-
-    def get_context_data(self, **kwargs):
-        context = super(ServicePriorityDataView, self).get_context_data(**kwargs)
-        context["page_title"] = " | ".join([settings.SITE_ACRONYM, "Service Priority data"])
-        context["title"] = "SERVICE PRIORITY DATA"
-        return context
-
-    def get_success_url(self):
-        return reverse("serviceprioritydata")
-
-    def form_valid(self, form):
-        fy = form.cleaned_data["financial_year"]
-        gl = GLPivDownload.objects.filter(fy=fy, account__in=[1, 2], resource__lt=4000)
-        gl = gl.order_by("codeID")
-        if form.cleaned_data["region"]:
-            gl = gl.filter(regionBranch=form.cleaned_data["region"])
-        if form.cleaned_data["service"]:
-            gl = gl.filter(service=form.cleaned_data["service"])
-
-        ibm = IBMData.objects.filter(fy=fy, servicePriorityID__iexact="GENERAL 01")
-
-        # Service priority checkboxes.
-        nc_sp = NCServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["ncChoice"]).order_by(
-            "servicePriorityNo"
-        )
-        pvs_sp = PVSServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["pvsChoice"]).order_by(
-            "servicePriorityNo"
-        )
-        fm_sp = SFMServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["fmChoice"]).order_by(
-            "servicePriorityNo"
-        )
-
-        fpath = os.path.join(settings.STATIC_ROOT, "excel", "service_priority_base.xls")
-        excel_template = open_workbook(fpath, formatting_info=True, on_demand=True)
-        workbook = copy(excel_template)
-
-        # Style & populate the worksheet.
-        service_priority_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp)
-
-        response = HttpResponse(content_type="application/vnd.ms-excel")
-        response["Content-Disposition"] = "attachment; filename=serviceprioritydata.xls"
-        workbook.save(response)  # Save the worksheet contents to the response.
-
-        return response
-
-
 class JSONResponseMixin(object):
     """View mixin to return a JSON response to requests."""
+
+    http_method_names = ["get", "head", "options"]
 
     def render_to_response(self, context):
         "Returns a JSON response containing 'context' as payload"
@@ -436,13 +362,14 @@ class ServicePriorityMappingsJSON(JSONResponseMixin, BaseDetailView):
     model = None
     fieldname = None
     return_pk = False
+    http_method_names = ["get", "head", "options"]
 
     def get(self, request, *args, **kwargs):
         try:
             for fieldname in self.fieldname.split(", "):
                 self.model._meta.get_field(fieldname)
         except ValueError:
-            return HttpResponseBadRequest("Invalid field name: {0}".format(self.fieldname))
+            return HttpResponseBadRequest(f"Invalid field name: {self.fieldname}")
         r = self.model.objects.all()
         if request.GET.get("financialYear", None):
             r = r.filter(fy=request.GET["financialYear"])
@@ -471,30 +398,33 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
     model = None
     fieldname = None
     return_pk = False
+    http_method_names = ["get", "head", "options"]
 
     def get(self, request, *args, **kwargs):
         # Sanity check: if the model hasn't got that field, return a
         # HTTPResponseBadRequest response.
         if not hasattr(self.model, self.fieldname):
-            return HttpResponseBadRequest("Invalid field name: {0}".format(self.fieldname))
+            return HttpResponseBadRequest(f"Invalid field name: {self.fieldname}")
         qs = self.model.objects.all()
         if request.GET.get("financialYear", None):
             qs = qs.filter(fy__financialYear=request.GET["financialYear"])
         if request.GET.get("costCentre", None):
             qs = qs.filter(costCentre=request.GET["costCentre"])
-        if request.GET.get("region", None):
-            qs = qs.filter(region=request.GET["region"])
-        # Check for fields that may not exist on the model.
-        try:
-            if request.GET.get("regionBranch", None) and self.model._meta.get_field("regionBranch"):
+        if request.GET.get("service", None):
+            qs = qs.filter(costCentre=request.GET["service"])
+
+        if request.GET.get("regionBranch", None):
+            if self.model == IBMData and request.GET.get("financialYear", None):
+                # As regionBranch is a field on GLPivDownload, we obtain the set of CC values for the given FY,
+                # then use those values to filter the IBMData queryset.
+                fy = FinancialYear.objects.get(financialYear=request.GET["financialYear"])
+                cost_centres = set(
+                    GLPivDownload.objects.filter(fy=fy, regionBranch=self.request.GET["regionBranch"]).values_list("costCentre", flat=True)
+                )
+                qs = qs.filter(costCentre__in=cost_centres)
+            else:
                 qs = qs.filter(regionBranch=request.GET["regionBranch"])
-        except self.model.FieldDoesNotExist:
-            pass
-        try:
-            if request.GET.get("service", None) and self.model._meta.get_field("service"):
-                qs = qs.filter(costCentre=request.GET["service"])
-        except self.model.FieldDoesNotExist:
-            pass
+
         # If we're not after PKs, then we need to reduce the qs to distinct values.
         if not self.return_pk:
             qs = qs.distinct(self.fieldname)
@@ -504,9 +434,137 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
                 choice_val = str(obj)
             else:
                 choice_val = getattr(obj, self.fieldname)
-            if self.return_pk:
-                choices.append([obj.pk, choice_val])
-            else:
-                choices.append([choice_val, choice_val])
+            if choice_val:
+                if self.return_pk:
+                    choices.append([obj.pk, choice_val])
+                else:
+                    choices.append([choice_val, choice_val])
         context = {"choices": choices}
         return self.render_to_response(context)
+
+
+class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
+    model = IBMData
+    http_method_names = ["get", "head", "options"]
+    form_class = IbmDataFilterForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        for key in [
+            "financial_year",
+            "cost_centre",
+            "region",
+            "service",
+            "budget_area",
+            "project",
+            "job",
+            "project_sponsor",
+        ]:
+            if self.request.GET.get(key, None):
+                kwargs["initial"][key] = self.request.GET[key]
+        # Always provide a default FY.
+        if "financial_year" not in self.request.GET:
+            fy = FinancialYear.objects.order_by("-financialYear").first()
+            kwargs["initial"]["financial_year"] = fy.financialYear
+
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_superuser:
+            context["superuser"] = True
+        context["javascript_context"] = {
+            "ajax_ibmdata_budgetarea_url": reverse("ibms:ajax_ibmdata_budgetarea"),
+            "ajax_ibmdata_projectsponsor_url": reverse("ibms:ajax_ibmdata_projectsponsor"),
+            "ajax_ibmdata_service_url": reverse("ibms:ajax_ibmdata_service"),
+            "ajax_ibmdata_project_url": reverse("ibms:ajax_ibmdata_project"),
+            "ajax_ibmdata_job_url": reverse("ibms:ajax_ibmdata_job"),
+        }
+        context["download_period"] = get_download_period()
+        context["page_title"] = f"{settings.SITE_ACRONYM} | Data amendment"
+        context["title"] = "DATA AMENDMENT"
+        context["object_count"] = self.get_queryset().count()
+        return context
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        # Financial year
+        if self.request.GET.get("financial_year"):
+            fy = FinancialYear.objects.get(financialYear=self.request.GET["financial_year"])
+        else:
+            # Filter by the newest financial year.
+            fy = FinancialYear.objects.order_by("-financialYear").first()
+
+        qs = qs.filter(fy=fy)
+
+        # Business rule: exclude activity == "DJ0".
+        qs = qs.exclude(activity="DJ0")
+        # Business rule: exclude records with an empty budgetArea.
+        qs = qs.exclude(budgetArea="")
+
+        # If we don't have either CC or region/branch filters, return an empty queryset.
+        if not (self.request.GET.get("cost_centre", None) or self.request.GET.get("region", None)):
+            return qs.none()
+
+        # Cost centre
+        if self.request.GET.get("cost_centre", None):
+            qs = qs.filter(costCentre=self.request.GET["cost_centre"])
+
+        # Region/branch
+        if self.request.GET.get("region", None):
+            # As regionBranch is a field on GLPivDownload, we obtain the set of CC values for the given FY,
+            # then use those values to filter the IBMData queryset.
+            region_branch = self.request.GET["region"]
+            cost_centres = set(GLPivDownload.objects.filter(fy=fy, regionBranch=region_branch).values_list("costCentre", flat=True))
+            qs = qs.filter(costCentre__in=cost_centres)
+
+        # Service
+        if self.request.GET.get("service", None):
+            qs = qs.filter(service=self.request.GET["service"])
+
+        # Project
+        if self.request.GET.get("project", None):
+            qs = qs.filter(project=self.request.GET["project"])
+
+        # Job
+        if self.request.GET.get("job", None):
+            qs = qs.filter(job=self.request.GET["job"])
+
+        # Budget area
+        if self.request.GET.get("budget_area", None):
+            qs = qs.filter(budgetArea=self.request.GET["budget_area"])
+
+        # Project sponsor
+        if self.request.GET.get("project_sponsor", None):
+            qs = qs.filter(projectSponsor=self.request.GET["project_sponsor"])
+
+        return qs.order_by("ibmIdentifier")
+
+
+class IbmDataUpdate(UpdateView):
+    model = IBMData
+    form_class = IbmDataForm
+    http_method_names = ["get", "post", "put", "patch", "head", "options"]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        obj = self.get_object()
+        if self.request.user.is_superuser:
+            context["superuser"] = True
+        context["page_title"] = f"{settings.SITE_ACRONYM} | Edit IBM data {obj.ibmIdentifier}"
+        context["title"] = f"EDIT IBM DATA {obj.ibmIdentifier}"
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get("cancel", None):
+            return redirect(reverse("ibms:ibmdata_list"))
+        return super().post(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse("ibms:ibmdata_list")
+
+    def form_valid(self, form):
+        obj = self.get_object()
+        messages.success(self.request, f"{obj.ibmIdentifier} ({obj.fy}) was amended successfully")
+        return super().form_valid(form)

@@ -5,16 +5,17 @@ from ibms.views import (
     ClearGLPivotView,
     CodeUpdateAdminView,
     CodeUpdateView,
-    DataAmendmentView,
     DownloadEnhancedView,
     DownloadView,
+    IbmDataList,
+    IbmDataUpdate,
     IbmsModelFieldJSON,
     ReloadView,
-    ServicePriorityDataView,
     ServicePriorityMappingsJSON,
     UploadView,
 )
 
+app_name = "ibms"
 urlpatterns = [
     path("upload/", UploadView.as_view(), name="upload"),
     path("download/", DownloadView.as_view(), name="download"),
@@ -22,8 +23,8 @@ urlpatterns = [
     path("reload/", ReloadView.as_view(), name="reload"),
     path("code-update/", CodeUpdateView.as_view(), name="code_update"),
     path("code-update-admin/", CodeUpdateAdminView.as_view(), name="code_update_admin"),
-    path("service-priority-data/", ServicePriorityDataView.as_view(), name="serviceprioritydata"),
-    path("data-amendment/", DataAmendmentView.as_view(), name="dataamendment"),
+    path("data-amendment/", IbmDataList.as_view(), name="ibmdata_list"),
+    path("data-amendment/<int:pk>/", IbmDataUpdate.as_view(), name="ibmdata_update"),
     path("clear-gl-pivot/", ClearGLPivotView.as_view(), name="clearglpivot"),
     # AJAX model field endpoints.
     # Note to future self: these views return JSON data suitable for insert
@@ -34,32 +35,15 @@ urlpatterns = [
     # In each URL, we define the model and the field value to return as a list
     # of tuples, serialised to JSON.
     # Review the IbmsModelFieldJSON view for further details.
-    # 2nd note to future self: you have already considered refactoring this
-    # using django-rest-framework, etc. Do not bother - this works fine.
-    path(
-        "ajax/ibmdata/budget-area/",
-        IbmsModelFieldJSON.as_view(model=IBMData, fieldname="budgetArea"),
-        name="ajax_ibmdata_budgetarea",
-    ),
-    path(
-        "ajax/ibmdata/project-sponsor/",
-        IbmsModelFieldJSON.as_view(model=IBMData, fieldname="projectSponsor"),
-        name="ajax_ibmdata_projectsponsor",
-    ),
-    path(
-        "ajax/ibmdata/service/",
-        IbmsModelFieldJSON.as_view(model=IBMData, fieldname="service"),
-        name="ajax_ibmdata_service",
-    ),
     path(
         "ajax/glpivdownload/financial-year/",
         IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname="fy"),
         name="ajax_glpivdownload_financialyear",
     ),
     path(
-        "ajax/glpivdownload/service/",
-        IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname="service"),
-        name="ajax_glpivdownload_service",
+        "ajax/glpivdownload/cost-centre/",
+        IbmsModelFieldJSON.as_view(model=IBMData, fieldname="costCentre"),
+        name="ajax_ibmdata_costcentre",
     ),
     path(
         "ajax/glpivdownload/cost-centre/",
@@ -70,6 +54,31 @@ urlpatterns = [
         "ajax/glpivdownload/region-branch/",
         IbmsModelFieldJSON.as_view(model=GLPivDownload, fieldname="regionBranch"),
         name="ajax_glpivdownload_regionbranch",
+    ),
+    path(
+        "ajax/ibmdata/service/",
+        IbmsModelFieldJSON.as_view(model=IBMData, fieldname="service"),
+        name="ajax_ibmdata_service",
+    ),
+    path(
+        "ajax/ibmdata/project/",
+        IbmsModelFieldJSON.as_view(model=IBMData, fieldname="project"),
+        name="ajax_ibmdata_project",
+    ),
+    path(
+        "ajax/ibmdata/job/",
+        IbmsModelFieldJSON.as_view(model=IBMData, fieldname="job"),
+        name="ajax_ibmdata_job",
+    ),
+    path(
+        "ajax/ibmdata/budget-area/",
+        IbmsModelFieldJSON.as_view(model=IBMData, fieldname="budgetArea"),
+        name="ajax_ibmdata_budgetarea",
+    ),
+    path(
+        "ajax/ibmdata/project-sponsor/",
+        IbmsModelFieldJSON.as_view(model=IBMData, fieldname="projectSponsor"),
+        name="ajax_ibmdata_projectsponsor",
     ),
     path(
         "ajax/glpivdownload/division/",

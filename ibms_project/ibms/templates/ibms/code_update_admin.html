@@ -14,7 +14,7 @@
         $("select#id_cost_centre")[0].disabled = true;
         $.ajax({
             type: "GET",
-            url: "{% url 'ajax_glpivdownload_costcentre' %}",
+            url: "{% url 'ibms:ajax_glpivdownload_costcentre' %}",
             data: {"financialYear": finYear},
             success: function(data) {
                 select = $("select#id_cost_centre")[0];
@@ -32,7 +32,7 @@
     function updateMappings(finYear, costCentreNo) {
         $.ajax({
             type: "GET",
-            url: "{% url 'ajax_mappings' %}",
+            url: "{% url 'ibms:ajax_mappings' %}",
             data: {"financialYear": finYear, "costCentreNo": costCentreNo},
             success : function(data) {
                 checkMappedBoxes(data.choices);

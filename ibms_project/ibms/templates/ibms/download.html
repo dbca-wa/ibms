@@ -1,13 +1,12 @@
 {% extends "ibms/form.html" %}
-
 {% block extra_js %}
-<script type="text/javascript">
+    <script type="text/javascript">
     // Utility function to update Cost Centre select field when financial year changes.
     function updateCostCentre(finYear) {
         $("select#id_cost_centre")[0].disabled = true;
         $.ajax({
             type: "GET",
-            url: "{% url 'ajax_glpivdownload_costcentre' %}",
+            url: "{% url 'ibms:ajax_glpivdownload_costcentre' %}",
             data: {"financialYear": finYear},
             success: function(data) {
                 select = $("select#id_cost_centre")[0];
@@ -26,7 +25,7 @@
         $("select#id_region")[0].disabled = true;
         $.ajax({
             type: "GET",
-            url: "{% url 'ajax_glpivdownload_regionbranch' %}",
+            url: "{% url 'ibms:ajax_glpivdownload_regionbranch' %}",
             data: {"financialYear": finYear},
             success: function(data) {
                 select = $("select#id_region")[0];
@@ -45,7 +44,7 @@
         $("select#id_division")[0].disabled = true;
         $.ajax({
             type: "GET",
-            url: "{% url 'ajax_glpivdownload_division' %}",
+            url: "{% url 'ibms:ajax_glpivdownload_division' %}",
             data: {"financialYear": finYear},
             success: function(data) {
                 select = $("select#id_division")[0];
@@ -80,5 +79,5 @@
             updateDivison(finYear);
         });
     });
-</script>
+    </script>
 {% endblock %}

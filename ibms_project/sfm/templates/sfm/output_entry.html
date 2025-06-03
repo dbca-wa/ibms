@@ -1,27 +1,25 @@
 {% extends "ibms/form.html" %}
-
 {% block page_content_inner %}
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-  <div id="saveConfirm" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="d-flex">
-        <div class="toast-body">
-          Measurement value saved successfully.
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="saveConfirm"
+             class="toast align-items-center text-white bg-success border-0"
+             role="alert"
+             aria-live="assertive"
+             aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">Measurement value saved successfully.</div>
+            </div>
         </div>
-      </div>
-  </div>
-</div>
-
-{{ block.super }}
+    </div>
+    {{ block.super }}
 {% endblock %}
-
 {% block extra_js %}
-<script type="text/javascript">
-
+    <script type="text/javascript">
     // Utility function to update Quarter select field when financial year changes.
     function updateQuarter(finYear) {
         $.ajax({
             type: "GET",
-            url: "{% url 'ajax_quarter' %}",
+            url: "{% url 'sfm:ajax_quarter' %}",
             data: {"financialYear": finYear},
             success: function(data) {
                 select = $("select#id_quarter")[0];
@@ -46,7 +44,7 @@
         }
         $.ajax({
             type: "GET",
-            url: "{% url 'ajax_sfmmetric_metricid' %}",
+            url: "{% url 'sfm:ajax_sfmmetric_metricid' %}",
             data: params,
             success: function(data) {
                 select = $("select#id_sfm_metric_id")[0];
@@ -64,7 +62,7 @@
     function updateMeasurementValue(quarter, region, sfmMetric) {
         $.ajax({
             type: "GET",
-            url: "{% url 'ajax_measurementvalue' %}",
+            url: "{% url 'sfm:ajax_measurementvalue' %}",
             data: {
                 "quarter": quarter,
                 "region": region,
@@ -124,7 +122,7 @@
         };
         $.ajax({
             type: "POST",
-            url: "{% url 'ajax_measurementvalue' %}",
+            url: "{% url 'sfm:ajax_measurementvalue' %}",
             data: data,
             success: function(data) {
                 var toastElement = document.getElementById('saveConfirm');
@@ -188,5 +186,5 @@
             checkValues();
         });
     });
-</script>
+    </script>
 {% endblock %}

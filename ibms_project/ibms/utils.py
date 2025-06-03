@@ -90,7 +90,7 @@ def import_to_ibmdata(file_name, fy):
 
 @transaction.atomic
 def import_to_glpivotdownload(file_name, fy):
-    reader, file, file_name = csvload(file_name)
+    reader, _, file_name = csvload(file_name)
     glpiv = []
     for row in reader:
         try:
@@ -178,9 +178,7 @@ def import_to_nc_strategic_plan(file_name, fy):
     except NCServicePriority.DoesNotExist:
         file.close()
         raise Exception(
-            "Row {}:{}\nPlease import NC Service Priority data before proceeding, otherwise database integrity will be compromised.".format(
-                i, row[0]
-            )
+            f"Row {i}:{row[0]}\nPlease import NC Service Priority data before proceeding, otherwise database integrity will be compromised."
         )
 
 
@@ -344,22 +342,11 @@ def download_ibms_data(glrows):
         "fy",
         "budgetArea",
         "projectSponsor",
-        # "corporatePlanNo",
-        # "strategicPlanNo",
         "regionalSpecificInfo",
         "servicePriorityID",
         "annualWPInfo",
     )
     ibmdict = dict(((r["ibmIdentifier"] + "_" + r["fy"], r) for r in ibmrows))
-
-    csrows = CorporateStrategy.objects.values("corporateStrategyNo", "fy", "description1", "description2")
-    csdict = dict(((r["corporateStrategyNo"] + "_" + r["fy"], r) for r in csrows))
-
-    ncrows = NCStrategicPlan.objects.values(
-        "strategicPlanNo", "fy", "directionNo", "direction", "aimNo", "aim1", "aim2", "actionNo", "action"
-    )
-    ncdict = dict(((r["strategicPlanNo"] + "_" + r["fy"], r) for r in ncrows))
-
     spdict = dict()
     ncsprows = NCServicePriority.objects.values_list("servicePriorityNo", "fy", "action", "milestone")
     sfmsprows = SFMServicePriority.objects.values_list("servicePriorityNo", "fy", "description", "description2")
@@ -432,20 +419,6 @@ def download_ibms_data(glrows):
     for row_num, row in enumerate(rows, 1):
         outputdict = row
         outputdict.update(ibmdict.get(row["codeID"] + "_" + row["fy"], dict()))
-        # if "corporatePlanNo" in outputdict.keys():
-        #     outputdict.update(
-        #         csdict.get(
-        #             outputdict["corporatePlanNo"] +
-        #             "_" +
-        #             row["fy"],
-        #             dict()))
-        # if "strategicPlanNo" in outputdict.keys():
-        #     outputdict.update(
-        #         ncdict.get(
-        #             outputdict["strategicPlanNo"] +
-        #             "_" +
-        #             row["fy"],
-        #             dict()))
         if "servicePriorityID" in outputdict.keys():
             d1, d2 = spdict.get(outputdict["servicePriorityID"] + "_" + row["fy"], ("", "", "", ""))[2:]
             outputdict.update({"d1": d1, "d2": d2})
@@ -485,8 +458,6 @@ def download_ibms_data(glrows):
             "mPRACategory",
             "budgetArea",
             "projectSponsor",
-            # "corporatePlanNo",
-            # "strategicPlanNo",
             "regionalSpecificInfo",
             "servicePriorityID",
             "annualWPInfo",
@@ -544,7 +515,7 @@ def process_upload_file(file_name, file_type, fy):
     elif file_type == "ServicePriorityMappings":
         import_to_service_priority_mappings(file_name, fy)
     else:
-        raise Exception("process_upload_file : file type {} unknown".format(file_type))
+        raise Exception(f"process_upload_file : file type {file_type} unknown")
 
 
 def validate_headers(row, valid_count, headings):
@@ -749,4 +720,4 @@ def validate_upload_file(file, file_type):
         )
 
     else:
-        raise Exception("Unknown file type {}".format(file_type))
+        raise Exception(f"Unknown file type {file_type}")

@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.db import models
+from django.urls import reverse
 from sfm.models import FinancialYear
 
 FINYEAR_CHOICES = (
@@ -18,16 +19,23 @@ FINYEAR_CHOICES = (
 
 
 class IBMData(models.Model):
-    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, verbose_name="financial year")
+    """IBM data table stores IBMS related data that is being input through IBMS budget templates, Code Update templates
+    and Data Amendment templates by end users.
+    """
+
     ibmIdentifier = models.CharField(max_length=100, verbose_name="IBM identifer")
+
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, verbose_name="financial year")
     costCentre = models.CharField(max_length=4, null=True, blank=True, db_index=True, verbose_name="cost centre")
-    account = models.IntegerField(null=True, blank=True)
+
     service = models.IntegerField(null=True, blank=True, db_index=True)
-    activity = models.CharField(max_length=4, null=True, blank=True)
     project = models.CharField(max_length=6, null=True, blank=True)
     job = models.CharField(max_length=6, null=True, blank=True)
     budgetArea = models.CharField(max_length=100, db_index=True, verbose_name="budget area")
     projectSponsor = models.CharField(max_length=100, db_index=True, verbose_name="project sponsor")
+
+    activity = models.CharField(max_length=4, null=True, blank=True)
+    account = models.IntegerField(null=True, blank=True)
     regionalSpecificInfo = models.TextField(verbose_name="regional specific info")
     servicePriorityID = models.CharField(max_length=100, verbose_name="service priority ID")
     annualWPInfo = models.TextField(verbose_name="annual WP info")
@@ -46,20 +54,35 @@ class IBMData(models.Model):
         verbose_name = "IBM data"
         verbose_name_plural = "IBM data"
 
+    def get_absolute_url(self):
+        return reverse("ibms:ibmdata_update", kwargs={"pk": self.pk})
+
+    def get_glpivdownload(self):
+        """Returns a single matched GLPivDownload object, if it exists."""
+        return GLPivDownload.objects.filter(codeID=self.ibmIdentifier).first() or None
+
 
 class GLPivDownload(models.Model):
+    """GLPivDownload source is from WebReporting data (Finance Service Branch).
+    The link between IBMData to GLPivDownload is the codeID column ie. concatenate of CC-Account-Service-Activity-Project-Job.
+    There are instances where a line transaction (IBM ID) in IBM data does not have a match with IBM ID in GLPivotDownload
+    (as there isn't any transaction yet (no YTD actual/FY budget). It will come through later in the financial year.
+    """
+
     fy = models.ForeignKey(
         FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name="financial year"
     )
-    download_period = models.DateField(blank=True, null=True)
-    downloadPeriod = models.CharField(max_length=10)
     costCentre = models.CharField(max_length=4, db_index=True, verbose_name="cost centre")
-    account = models.IntegerField(db_index=True)
+    regionBranch = models.CharField(max_length=100, db_index=True, verbose_name="region branch")
     service = models.IntegerField(db_index=True)
-    activity = models.CharField(max_length=4, db_index=True)
-    resource = models.IntegerField(db_index=True)
     project = models.CharField(max_length=6)
     job = models.CharField(max_length=6)
+
+    download_period = models.DateField(blank=True, null=True)
+    downloadPeriod = models.CharField(max_length=10)
+    account = models.IntegerField(db_index=True)
+    activity = models.CharField(max_length=4, db_index=True)
+    resource = models.IntegerField(db_index=True)
     shortCode = models.CharField(max_length=20, verbose_name="short code")
     shortCodeName = models.CharField(max_length=200, verbose_name="short code name")
     gLCode = models.CharField(max_length=30, verbose_name="GL code")
@@ -84,7 +107,6 @@ class GLPivDownload(models.Model):
     resNameNo = models.CharField(max_length=100)
     actNameNo = models.CharField(max_length=100)
     projNameNo = models.CharField(max_length=100)
-    regionBranch = models.CharField(max_length=100, db_index=True, verbose_name="region branch")
     division = models.CharField(max_length=100, db_index=True)
     resourceCategory = models.CharField(max_length=100, verbose_name="resource category")
     wildfire = models.CharField(max_length=30)
@@ -92,16 +114,31 @@ class GLPivDownload(models.Model):
     fireActivities = models.CharField(max_length=50, verbose_name="fire activities")
     mPRACategory = models.CharField(max_length=100)
 
+    ibmdata = models.ForeignKey(
+        IBMData,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="glpivdownload",
+    )
+
     class Meta:
         unique_together = [("gLCode", "fy")]
         verbose_name = "GL pivot download"
         verbose_name_plural = "GL pivot downloads"
 
-    def save(self, force_insert=False, force_update=False, *args, **kwargs):
+    def save(self, *args, **kwargs):
         """Overide save() to parse string date to a Python date."""
         if self.downloadPeriod:
             self.download_period = datetime.strptime(self.downloadPeriod, "%d/%m/%Y")
-        super().save(force_insert, force_update)
+        # Set a linked IBMData object, if present.
+        if not self.ibmdata:
+            self.ibmdata = self.get_ibmdata()
+        super().save(*args, **kwargs)
+
+    def get_ibmdata(self):
+        """Returns a single matched IBMData object, if it exists."""
+        return IBMData.objects.filter(ibmIdentifier=self.codeID).first() or None
 
 
 class CorporateStrategy(models.Model):

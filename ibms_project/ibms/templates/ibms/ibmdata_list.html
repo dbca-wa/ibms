@@ -1,0 +1,79 @@
+{% extends "base_ibms.html" %}
+{% load static crispy_forms_tags %}
+{% block page_content_inner %}
+    <div class="row py-1">
+        <div class="col">
+            <h1>{{ title }}</h1>
+            <p>
+                Downloads as of: <strong>{{ download_period }}</strong>
+            </p>
+            <p>Please click on either of the two options below.</p>
+            <div class="alert alert-primary hover-pointer"
+                 role="alert"
+                 id="id_option_one">
+                <strong>Option 1</strong>: click the link below to download a spreadsheet used to bulk-update codes.
+            </div>
+            <div id="id_template_link" class="initially-hidden">
+                <p>
+                    <a href="{{ sharepoint_ibms }}Shared Documents/IBMS Admin/IBMS Data Amendment.xlsx?download=1"
+                       target="_blank">IBMS Data Amendment template download</a>
+                </p>
+            </div>
+            <div class="alert alert-primary hover-pointer"
+                 role="alert"
+                 id="id_option_two">
+                <strong>Option 2</strong>: use the options below to filter data and amend individual codes.
+            </div>
+            <div id="id_filter_form" class="initially-hidden">{% crispy form %}</div>
+        </div>
+    </div>
+    {% if object_list %}
+        <div class="row" id="id_result_table">
+            <div class="col">
+                <p>Results: {{ object_count }}</p>
+                <table class="table table-sm table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Fin. year</th>
+                            <th>Identifier</th>
+                            <th>Cost centre</th>
+                            <th>Region/branch</th>
+                            <th>Service</th>
+                            <th>Project</th>
+                            <th>Job</th>
+                            <th>Budget area</th>
+                            <th>Sponsor</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for object in object_list %}
+                            <tr>
+                                <td>{{ object.fy }}</td>
+                                <td>{{ object.ibmIdentifier }}</td>
+                                <td>{{ object.costCentre }}</td>
+                                <td>
+                                    {% if object.get_glpivdownload %}{{ object.get_glpivdownload.regionBranch }}{% endif %}
+                                </td>
+                                <td>
+                                    {% if object.get_glpivdownload %}{{ object.get_glpivdownload.service }}{% endif %}
+                                </td>
+                                <td>{{ object.project }}</td>
+                                <td>{{ object.job }}</td>
+                                <td>{{ object.budgetArea }}</td>
+                                <td>{{ object.projectSponsor }}</td>
+                                <td>
+                                    <a href="{% url 'ibms:ibmdata_update' pk=object.pk %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+{% block extra_js %}
+    {{ javascript_context|json_script:"javascript_context" }}
+    <script type="text/javascript" src="{% static 'js/ibmdata_list.js' %}"></script>
+{% endblock %}

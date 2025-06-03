@@ -91,7 +91,9 @@ TEMPLATES = [
 ]
 SITE_TITLE = "Integrated Business Management System"
 SITE_ACRONYM = "IBMS"
-project = tomllib.load(open(os.path.join(BASE_DIR, "pyproject.toml"), "rb"))
+pyproject = open(os.path.join(BASE_DIR, "pyproject.toml"), "rb")
+project = tomllib.load(pyproject)
+pyproject.close()
 APPLICATION_VERSION_NO = project["project"]["version"]
 MANAGERS = (
     ("Zen Wee", "zen.wee@dbca.wa.gov.au", "9219 9928"),
@@ -116,6 +118,14 @@ DATABASES = {
     # Defined in DATABASE_URL env variable.
     "default": dj_database_url.config(),
 }
+
+DATABASES["default"]["TIME_ZONE"] = "Australia/Perth"
+# Use PostgreSQL connection pool if using that DB engine (use ConnectionPool defaults).
+if "ENGINE" in DATABASES["default"] and any(eng in DATABASES["default"]["ENGINE"] for eng in ["postgresql", "postgis"]):
+    if "OPTIONS" in DATABASES["default"]:
+        DATABASES["default"]["OPTIONS"]["pool"] = True
+    else:
+        DATABASES["default"]["OPTIONS"] = {"pool": True}
 
 
 # Static files (CSS, JavaScript, Images)

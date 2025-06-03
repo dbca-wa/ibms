@@ -1,13 +1,12 @@
 {% extends "ibms/form.html" %}
-
 {% block extra_js %}
-<script type="text/javascript">
+    <script type="text/javascript">
     // Utility function to update Cost Centre select field when financial year changes.
     function updateCostCentre(finYear) {
         $("select#id_cost_centre")[0].disabled = true;
         $.ajax({
             type: "GET",
-            url: "{% url 'ajax_glpivdownload_costcentre' %}",
+            url: "{% url 'ibms:ajax_glpivdownload_costcentre' %}",
             data: {"financialYear": finYear},
             success: function(data) {
                 select = $("select#id_cost_centre")[0];
@@ -25,7 +24,7 @@
     function updateMappings(finYear, costCentreNo) {
         $.ajax({
             type: "GET",
-            url: "{% url 'ajax_mappings' %}",
+            url: "{% url 'ibms:ajax_mappings' %}",
             data: {"financialYear": finYear, "costCentreNo": costCentreNo},
             success : function(data) {
                 checkMappedBoxes(data.choices);
@@ -87,5 +86,5 @@
             this.disabled = false;
         });
     };
-</script>
+    </script>
 {% endblock %}

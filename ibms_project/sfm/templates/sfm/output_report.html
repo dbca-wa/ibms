@@ -1,13 +1,12 @@
 {% extends "ibms/form.html" %}
-
 {% block extra_js %}
-<script type="text/javascript">
+    <script type="text/javascript">
     // Utility function to update Quarter select field when financial year changes.
     function updateQuarter(finYear) {
         $("select#id_quarter")[0].disabled = true;
         $.ajax({
             type: "GET",
-            url: "{% url 'ajax_quarter' %}",
+            url: "{% url 'sfm:ajax_quarter' %}",
             data: {"financialYear": finYear},
             success: function(data) {
                 select = $("select#id_quarter")[0];
@@ -38,5 +37,5 @@
             updateQuarter(finYear);
         });
     });
-</script>
+    </script>
 {% endblock %}

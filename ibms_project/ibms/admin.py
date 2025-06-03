@@ -18,9 +18,7 @@ from .models import (
 )
 
 
-def export_as_csv_action(
-    fields=None, translations=None, exclude=None, header=True, description="Export selected objects to CSV"
-):
+def export_as_csv_action(fields=None, translations=None, exclude=None, header=True, description="Export selected objects to CSV"):
     """
     This function adds an "Export as CSV" action to a model in the Django admin site.
     Register the action using the ModelAdmin ``action`` option.

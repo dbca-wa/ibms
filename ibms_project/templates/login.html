@@ -1,19 +1,29 @@
 {% extends "base_ibms.html" %}
-
 {% block sidebar %}{% endblock %}
-
 {% block page_content_inner %}
-<h4>Please log in with your Department username and password:</h4>
-<form method="post">
-    {% csrf_token %}
-    <div id="div_id_username" class="mb-3">
-        <label for="id_username" class="form-label">Username<span class="asteriskField">*</span></label>
-        <input class="form-control" name="username" required id="id_username" autofocus>
-    </div>
-    <div id="div_id_password" class="mb-3">
-        <label for="id_password" class="form-label">Password<span class="asteriskField">*</span> </label>
-        <input type="password" class="form-control" name="password" required id="id_password">
-    </div>
-    <button type="submit" class="btn btn-primary">Log in</button>
-</form>
+    <h4>Please log in with your Department username and password:</h4>
+    <form method="post">
+        {% csrf_token %}
+        <div id="div_id_username" class="mb-3">
+            <label for="id_username" class="form-label">
+                Username<span class="asteriskField">*</span>
+            </label>
+            <input class="form-control"
+                   name="username"
+                   required
+                   id="id_username"
+                   autofocus>
+        </div>
+        <div id="div_id_password" class="mb-3">
+            <label for="id_password" class="form-label">
+                Password<span class="asteriskField">*</span>
+            </label>
+            <input type="password"
+                   class="form-control"
+                   name="password"
+                   required
+                   id="id_password">
+        </div>
+        <button type="submit" class="btn btn-primary">Log in</button>
+    </form>
 {% endblock %}

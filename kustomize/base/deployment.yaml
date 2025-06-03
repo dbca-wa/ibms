@@ -84,3 +84,4 @@ spec:
             readOnlyRootFilesystem: false
       restartPolicy: Always
       terminationGracePeriodSeconds: 180
+      automountServiceAccountToken: false
