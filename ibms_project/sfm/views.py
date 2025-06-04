@@ -30,7 +30,7 @@ class OutputEntry(LoginRequiredMixin, FormView):
     http_method_names = ["get", "post", "head", "options"]
 
     def get_context_data(self, **kwargs):
-        context = super(OutputEntry, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["page_title"] = " | ".join([settings.SITE_ACRONYM, "Output Entry"])
         context["download_period"] = get_download_period()
         context["title"] = "Output Entry"
@@ -58,7 +58,7 @@ class OutputEntry(LoginRequiredMixin, FormView):
             mv.save()
 
         messages.success(self.request, "Output values updated successfully.")
-        return super(OutputEntry, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class OutputUpload(LoginRequiredMixin, FormView):
@@ -69,10 +69,10 @@ class OutputUpload(LoginRequiredMixin, FormView):
     def get(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             return redirect(reverse("sfm:output-upload"))
-        return super(OutputUpload, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(OutputUpload, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["page_title"] = " | ".join([settings.SITE_ACRONYM, "Output Upload"])
         context["download_period"] = get_download_period()
         context["title"] = "Output Upload"
@@ -101,8 +101,8 @@ class OutputUpload(LoginRequiredMixin, FormView):
             process_upload_file(file.name, file_type, fy)
             messages.success(self.request, "Output upload values updated successfully.")
         else:
-            messages.error(self.request, "This file appears to be of an incorrect type. Please choose a {} file.".format(file_type))
-        return super(OutputUpload, self).form_valid(form)
+            messages.error(self.request, f"This file appears to be of an incorrect type. Please choose a {file_type} file.")
+        return super().form_valid(form)
 
 
 class OutputReport(LoginRequiredMixin, FormView):
@@ -111,7 +111,7 @@ class OutputReport(LoginRequiredMixin, FormView):
     http_method_names = ["get", "post", "head", "options"]
 
     def get_context_data(self, **kwargs):
-        context = super(OutputReport, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["page_title"] = " | ".join([settings.SITE_ACRONYM, "Output Report"])
         context["download_period"] = get_download_period()
         context["title"] = "Output Report"

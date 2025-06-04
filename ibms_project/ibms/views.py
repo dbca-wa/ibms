@@ -28,7 +28,7 @@ class SiteHomeView(LoginRequiredMixin, TemplateView):
     http_method_names = ["get", "head", "options"]
 
     def get_context_data(self, **kwargs):
-        context = super(SiteHomeView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         if self.request.user.is_superuser:
             context["superuser"] = True
         context["page_title"] = f"{settings.SITE_ACRONYM} | Home"
@@ -44,7 +44,7 @@ class IbmsFormView(LoginRequiredMixin, FormView):
     http_method_names = ["get", "post", "head", "options"]
 
     def get_context_data(self, **kwargs):
-        context = super(IbmsFormView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["download_period"] = get_download_period()
         if self.request.user.is_superuser:
             context["superuser"] = True
@@ -57,26 +57,26 @@ class ClearGLPivotView(IbmsFormView):
     form_class = ClearGLPivotForm
 
     def get_context_data(self, **kwargs):
-        context = super(ClearGLPivotView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["page_title"] = f"{settings.SITE_ACRONYM} | Clear GL Pivot entries"
         context["title"] = "CLEAR GL PIVOT ENTRIES"
         return context
 
+    def get_success_url(self):
+        return reverse("site_home")
+
     def get(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             messages.error(self.request, "You are not authorised to carry out this operation")
-            return redirect("site_home")
-        return super(ClearGLPivotView, self).get(request, *args, **kwargs)
-
-    def get_success_url(self):
-        return reverse("site_home")
+            return redirect(self.get_success_url())
+        return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
         if not self.request.user.is_superuser:
             messages.error(self.request, "You are not authorised to carry out this operation.")
-            return redirect("site_home")
+            return self.get_success_url()
         if self.request.POST.get("cancel"):
-            return redirect("site_home")
+            return redirect(self.get_success_url())
         # Do the bulk delete. We can use the private method _raw_delete because we don't
         # have any signals or cascade deletes to worry about.
         fy = form.cleaned_data["financial_year"]
@@ -84,7 +84,7 @@ class ClearGLPivotView(IbmsFormView):
         if glpiv.exists():
             glpiv._raw_delete(glpiv.db)
             messages.success(self.request, f"GL Pivot entries for {fy} have been cleared.")
-        return super(ClearGLPivotView, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class UploadView(IbmsFormView):
@@ -92,19 +92,20 @@ class UploadView(IbmsFormView):
 
     form_class = UploadForm
 
-    def get(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            return redirect("site_home")
-        return super(UploadView, self).get(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs):
-        context = super(UploadView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["page_title"] = f"{settings.SITE_ACRONYM} | Upload"
         context["title"] = "UPLOAD"
         return context
 
     def get_success_url(self):
         return reverse("ibms:upload")
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            messages.error(self.request, "You are not authorised to carry out this operation.")
+            return redirect("site_home")
+        return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
         # Uploaded CSVs may contain characters with oddball encodings.
@@ -124,7 +125,7 @@ class UploadView(IbmsFormView):
             upload_valid = validate_upload_file(file, file_type)
         except Exception as e:
             messages.warning(self.request, f"Error: {str(e)}")
-            return redirect("upload")
+            return super().form_invalid(form)
 
         # Upload may still not be valid, but at least no exception was thrown.
         if upload_valid:
@@ -132,16 +133,15 @@ class UploadView(IbmsFormView):
             try:
                 process_upload_file(file.name, file_type, fy)
                 messages.success(self.request, f"{file_type} data imported successfully")
-                return redirect("upload")
             except Exception as e:
                 messages.warning(self.request, f"Error: {str(e)}")
-                return redirect("upload")
         else:
             messages.warning(
                 self.request,
                 f"This file appears to be of an incorrect type. Please choose a {file_type} file.",
             )
-            return redirect("upload")
+
+        return super().form_valid(form)
 
 
 class DownloadView(IbmsFormView):
@@ -149,12 +149,12 @@ class DownloadView(IbmsFormView):
     form_class = DownloadForm
 
     def get_form_kwargs(self):
-        kwargs = super(DownloadView, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs.update({"request": self.request})
         return kwargs
 
     def get_context_data(self, **kwargs):
-        context = super(DownloadView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["page_title"] = f"{settings.SITE_ACRONYM} | Download"
         context["title"] = "DOWNLOAD"
         return context
@@ -210,7 +210,7 @@ class ReloadView(IbmsFormView):
     form_class = ReloadForm
 
     def get_context_data(self, **kwargs):
-        context = super(ReloadView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["page_title"] = f"{settings.SITE_ACRONYM} | Reload"
         context["title"] = "RELOAD"
         return context
@@ -247,7 +247,7 @@ class CodeUpdateView(LoginRequiredMixin, TemplateView):
     http_method_names = ["get", "head", "options"]
 
     def get_context_data(self, **kwargs):
-        context = super(CodeUpdateView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         if self.request.user.is_superuser:
             context["superuser"] = True
         context["download_period"] = get_download_period()
@@ -261,7 +261,7 @@ class CodeUpdateAdminView(IbmsFormView):
     form_class = ManagerCodeUpdateForm
 
     def get_context_data(self, **kwargs):
-        context = super(CodeUpdateAdminView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["page_title"] = f"{settings.SITE_ACRONYM} | Code update"
         context["title"] = "CODE UPDATE (ADMIN)"
         return context
@@ -270,7 +270,7 @@ class CodeUpdateAdminView(IbmsFormView):
         if not request.user.is_superuser:
             messages.error(self.request, "You are not authorised to carry out this operation")
             return redirect("site_home")
-        return super(CodeUpdateAdminView, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def get_success_url(self):
         return reverse("ibms:code_update")
@@ -556,13 +556,13 @@ class IbmDataUpdate(UpdateView):
         context["title"] = f"EDIT IBM DATA {obj.ibmIdentifier}"
         return context
 
-    def post(self, request, *args, **kwargs):
-        if request.POST.get("cancel", None):
-            return redirect(reverse("ibms:ibmdata_list"))
-        return super().post(request, *args, **kwargs)
-
     def get_success_url(self):
         return reverse("ibms:ibmdata_list")
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get("cancel", None):
+            return redirect(self.get_success_url())
+        return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         obj = self.get_object()
