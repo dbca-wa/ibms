@@ -70,7 +70,7 @@
             <div class="row">
                 <div class="col">
                     {% for message in messages %}
-                        <div class="alert{% if message.tags %} alert-{{ message.tags }}{% endif %}">{{ message|safe }}</div>
+                        <div class="mt-1 alert{% if message.tags %} alert-{{ message.tags }}{% endif %}">{{ message|safe }}</div>
                     {% endfor %}
                 </div>
             </div>
