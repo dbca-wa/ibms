@@ -45,7 +45,7 @@ def csvload(file_name):
     return reader, csvfile, file_name
 
 
-def saverow(model, data, query):
+def save_record(model, data, query):
     # Query the database for an existing object based on ``query``, and update it with ``data``.
     # Alternatively, just create a new object with ``data``.
     if model.objects.filter(**query).exists():
@@ -83,7 +83,7 @@ def import_to_ibmdata(file_name, fy):
             "regionDescription": str(row[16]),
         }
         query = {"fy": fy, "ibmIdentifier": str(row[0])}
-        saverow(IBMData, data, query)
+        save_record(IBMData, data, query)
 
     csvfile.close()
 
@@ -150,7 +150,7 @@ def import_to_corporate_strategy(file_name, fy):
             "description2": str(row[2]),
         }
         query = {"fy": fy, "corporateStrategyNo": str(row[0])}
-        saverow(CorporateStrategy, data, query)
+        save_record(CorporateStrategy, data, query)
     file.close()
 
 
@@ -171,7 +171,7 @@ def import_to_nc_strategic_plan(file_name, fy):
                 "action": str(row[7]),
             }
             query = {"fy": fy, "strategicPlanNo": str(row[0])}
-            saverow(NCStrategicPlan, data, query)
+            save_record(NCStrategicPlan, data, query)
             i += 1
 
         file.close()
@@ -198,7 +198,7 @@ def import_to_pvs_service_priority(file_name, fy):
         }
 
         query = {"fy": fy, "servicePriorityNo": str(row[1])}
-        saverow(PVSServicePriority, data, query)
+        save_record(PVSServicePriority, data, query)
 
     file.close()
 
@@ -217,7 +217,7 @@ def import_to_sfm_service_priority(file_name, fy):
             "description2": str(row[6]),
         }
         query = {"fy": fy, "servicePriorityNo": validate_char_field("servicePriorityNo", 20, row[2])}
-        saverow(SFMServicePriority, data, query)
+        save_record(SFMServicePriority, data, query)
 
     file.close()
 
@@ -235,7 +235,7 @@ def import_to_er_service_priority(file_name, fy):
             "description": str(row[5]),
         }
         query = {"fy": fy, "servicePriorityNo": str(row[1])}
-        saverow(ERServicePriority, data, query)
+        save_record(ERServicePriority, data, query)
 
     file.close()
 
@@ -254,7 +254,7 @@ def import_to_general_service_priority(file_name, fy):
         }
         query = {"fy": fy, "servicePriorityNo": str(row[1])}
 
-        saverow(GeneralServicePriority, data, query)
+        save_record(GeneralServicePriority, data, query)
 
     file.close()
 
@@ -278,7 +278,7 @@ def import_to_nc_service_priority(file_name, fy):
             "milestone": str(row[11]),
         }
         query = {"fy": fy, "servicePriorityNo": str(row[1])}
-        saverow(NCServicePriority, data, query)
+        save_record(NCServicePriority, data, query)
 
     file.close()
 
