@@ -241,6 +241,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "ipdb" },
     { name = "ipython" },
     { name = "mixer" },
     { name = "pre-commit" },
@@ -268,6 +269,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "ipdb", specifier = ">=0.13.13" },
     { name = "ipython", specifier = ">=8.31.0" },
     { name = "mixer", specifier = ">=7.2.2" },
     { name = "pre-commit", specifier = ">=4.0.1" },
@@ -280,6 +282,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/0c/83/b6ea0334e2e7327084a46aaaf71f2146fc061a192d6518c0d020120cd0aa/identify-2.6.10.tar.gz", hash = "sha256:45e92fd704f3da71cc3880036633f48b4b7265fd4de2b57627cb157216eb7eb8", size = 99201 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2b/d3/85feeba1d097b81a44bcffa6a0beab7b4dfffe78e82fc54978d3ac380736/identify-2.6.10-py2.py3-none-any.whl", hash = "sha256:5f34248f54136beed1a7ba6a6b5c4b6cf21ff495aac7c359e1ef831ae3b8ab25", size = 99101 },
+]
+
+[[package]]
+name = "ipdb"
+version = "0.13.13"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "decorator" },
+    { name = "ipython" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3d/1b/7e07e7b752017f7693a0f4d41c13e5ca29ce8cbcfdcc1fd6c4ad8c0a27a0/ipdb-0.13.13.tar.gz", hash = "sha256:e3ac6018ef05126d442af680aad863006ec19d02290561ac88b8b1c0b0cfc726", size = 17042 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0c/4c/b075da0092003d9a55cf2ecc1cae9384a1ca4f650d51b00fc59875fe76f6/ipdb-0.13.13-py3-none-any.whl", hash = "sha256:45529994741c4ab6d2388bfa5d7b725c2cf7fe9deffabdb8a6113aa5ed449ed4", size = 12130 },
 ]
 
 [[package]]
