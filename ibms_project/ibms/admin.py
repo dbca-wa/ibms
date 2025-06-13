@@ -58,8 +58,9 @@ def export_as_csv_action(fields=None, translations=None, exclude=None, header=Tr
 
 @register(IBMData)
 class IBMDataAdmin(ModelAdmin):
-    search_fields = ("fy__financialYear", "ibmIdentifier", "budgetArea")
-    list_display = ("fy", "ibmIdentifier", "budgetArea")
+    date_hierarchy = "modified"
+    search_fields = ("fy__financialYear", "ibmIdentifier", "budgetArea", "modifier__username")
+    list_display = ("ibmIdentifier", "fy", "budgetArea", "modified", "modifier")
     list_filter = ("fy__financialYear", "costCentre", "budgetArea", "service")
     readonly_fields = (
         "fy",
@@ -80,6 +81,36 @@ class IBMDataAdmin(ModelAdmin):
         "marineKPI",
         "regionProject",
         "regionDescription",
+        "modified",
+        "modifier",
+    )
+    fieldsets = (
+        (
+            "IBM data record",
+            {
+                "fields": (
+                    "fy",
+                    "ibmIdentifier",
+                    "budgetArea",
+                    "projectSponsor",
+                    "regionalSpecificInfo",
+                    "servicePriorityID",
+                    "annualWPInfo",
+                    "costCentre",
+                    "account",
+                    "service",
+                    "activity",
+                    "project",
+                    "job",
+                    "priorityActionNo",
+                    "priorityLevel",
+                    "marineKPI",
+                    "regionProject",
+                    "regionDescription",
+                )
+            },
+        ),
+        ("Audit fields", {"fields": ("modified", "modifier")}),
     )
     actions = [
         export_as_csv_action(

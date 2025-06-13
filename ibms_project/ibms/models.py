@@ -1,9 +1,13 @@
 from datetime import datetime
 
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 from sfm.models import FinancialYear
 
+from ibms_project.middleware import get_current_user
+
+User = get_user_model()
 FINYEAR_CHOICES = (
     ("2011/12", "2011/12"),
     ("2012/13", "2012/13"),
@@ -45,14 +49,33 @@ class IBMData(models.Model):
     regionProject = models.TextField(null=True, verbose_name="region project")
     regionDescription = models.TextField(null=True, verbose_name="region description")
 
-    def __str__(self):
-        return f"{self.fy} {self.ibmIdentifier}"
+    # Audit fields
+    modifier = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        related_name="ibms_ibmdata_modifier",
+        editable=False,
+        verbose_name="last modified by",
+    )
+    modified = models.DateTimeField(null=True, blank=True, auto_now=True, editable=False, verbose_name="last modified")
 
     class Meta:
         # Financial year and ibmIdentifier should make a natural key for this model.
         unique_together = [("ibmIdentifier", "fy")]
         verbose_name = "IBM data"
         verbose_name_plural = "IBM data"
+
+    def __str__(self):
+        return f"{self.fy} {self.ibmIdentifier}"
+
+    def save(self, *args, **kwargs):
+        user = get_current_user()
+        if user:
+            self.modifier = user
+
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse("ibms:ibmdata_update", kwargs={"pk": self.pk})
@@ -69,9 +92,7 @@ class GLPivDownload(models.Model):
     (as there isn't any transaction yet (no YTD actual/FY budget). It will come through later in the financial year.
     """
 
-    fy = models.ForeignKey(
-        FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name="financial year"
-    )
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name="financial year")
     costCentre = models.CharField(max_length=4, db_index=True, verbose_name="cost centre")
     regionBranch = models.CharField(max_length=100, db_index=True, verbose_name="region branch")
     service = models.IntegerField(db_index=True)
@@ -142,9 +163,7 @@ class GLPivDownload(models.Model):
 
 
 class CorporateStrategy(models.Model):
-    fy = models.ForeignKey(
-        FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name="financial year"
-    )
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name="financial year")
     corporateStrategyNo = models.CharField(max_length=100, verbose_name="corporate strategy no")
     description1 = models.TextField(null=True)
     description2 = models.TextField(null=True)
@@ -167,13 +186,9 @@ class ServicePriority(models.Model):
     Abstract base class.
     """
 
-    fy = models.ForeignKey(
-        FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name="financial year"
-    )
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name="financial year")
     categoryID = models.CharField(max_length=100, null=True, blank=True, db_index=True, verbose_name="category ID")
-    servicePriorityNo = models.CharField(
-        max_length=100, null=False, default="-1", db_index=True, verbose_name="service priority no"
-    )
+    servicePriorityNo = models.CharField(max_length=100, null=False, default="-1", db_index=True, verbose_name="service priority no")
     strategicPlanNo = models.CharField(max_length=100, null=True, blank=True, verbose_name="strategic plan no")
     corporateStrategyNo = models.CharField(max_length=100, null=True, blank=True, verbose_name="corporate strategy no")
     description = models.TextField(null=True)
@@ -237,9 +252,7 @@ class ERServicePriority(ServicePriority):
 
 
 class NCStrategicPlan(models.Model):
-    fy = models.ForeignKey(
-        FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name="financial year"
-    )
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name="financial year")
     strategicPlanNo = models.CharField(max_length=100, verbose_name="strategic plan no")
     directionNo = models.CharField(max_length=100, verbose_name="direction no")
     direction = models.TextField()
@@ -256,9 +269,7 @@ class NCStrategicPlan(models.Model):
 
 
 class Outcomes(models.Model):
-    fy = models.ForeignKey(
-        FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name="financial year"
-    )
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name="financial year")
     q1Input = models.TextField()
     q2Input = models.TextField(blank=True)
     q3Input = models.TextField(blank=True)
@@ -272,9 +283,7 @@ class Outcomes(models.Model):
 
 
 class ServicePriorityMappings(models.Model):
-    fy = models.ForeignKey(
-        FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name="financial year"
-    )
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name="financial year")
     costCentreNo = models.CharField(max_length=4, verbose_name="cost centre no")
     wildlifeManagement = models.CharField(max_length=100, verbose_name="wildlife management")
     parksManagement = models.CharField(max_length=100, verbose_name="parks management")

@@ -43,14 +43,45 @@ class HealthCheckMiddleware(object):
         return HttpResponse("OK")
 
 
+def get_current_user(_return_false=False):
+    """Return the user associated with the current request thread."""
+    from .signals import current_user_getter
+
+    top_priority = -9999
+    top_user = False if _return_false else None
+    results = current_user_getter.send_robust(get_current_user)
+
+    for receiver, response in results:
+        priority = 0
+        if isinstance(response, Exception):
+            LOGGER.exception(f"{receiver} raised exception: {response}")
+            continue
+        elif isinstance(response, (tuple, list)) and response:
+            user = response[0]
+            if len(response) > 1:
+                priority = response[1]
+        elif response or response in (None, False):
+            user = response
+        else:
+            LOGGER.error(f"{receiver} returned invalid response: {response}")
+            continue
+        if user is not False:
+            if priority > top_priority:
+                top_priority = priority
+                top_user = user
+
+    return top_user
+
+
 def set_current_user(user=None):
     """Update the user associated with the current request thread."""
     from .signals import current_user_setter
 
     results = current_user_setter.send_robust(set_current_user, user=user)
+
     for receiver, response in results:
         if isinstance(response, Exception):
-            LOGGER.exception("%r raised exception: %s", receiver, response)
+            LOGGER.exception(f"{receiver} raised exception: {response}")
 
 
 def get_current_request():
