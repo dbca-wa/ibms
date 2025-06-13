@@ -2,6 +2,7 @@ import csv
 
 from django.contrib.admin import ModelAdmin, register
 from django.http import HttpResponse
+from reversion.admin import VersionAdmin
 
 from .models import (
     CorporateStrategy,
@@ -57,7 +58,7 @@ def export_as_csv_action(fields=None, translations=None, exclude=None, header=Tr
 
 
 @register(IBMData)
-class IBMDataAdmin(ModelAdmin):
+class IBMDataAdmin(VersionAdmin):
     date_hierarchy = "modified"
     search_fields = ("fy__financialYear", "ibmIdentifier", "budgetArea", "modifier__username")
     list_display = ("ibmIdentifier", "fy", "budgetArea", "modified", "modifier")

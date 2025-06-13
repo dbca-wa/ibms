@@ -11,6 +11,8 @@ from django.urls import reverse
 from django.views.generic import ListView, TemplateView, UpdateView
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.edit import FormMixin, FormView
+from reversion import set_comment
+from reversion.views import RevisionMixin
 from sfm.models import FinancialYear
 from xlrd import open_workbook
 from xlutils.copy import copy
@@ -87,7 +89,7 @@ class ClearGLPivotView(IbmsFormView):
         return super().form_valid(form)
 
 
-class UploadView(IbmsFormView):
+class UploadView(RevisionMixin, IbmsFormView):
     """Upload view for superusers only."""
 
     form_class = UploadForm
@@ -542,7 +544,7 @@ class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
         return qs.order_by("ibmIdentifier")
 
 
-class IbmDataUpdate(UpdateView):
+class IbmDataUpdate(RevisionMixin, UpdateView):
     model = IBMData
     form_class = IbmDataForm
     http_method_names = ["get", "post", "put", "patch", "head", "options"]
@@ -567,4 +569,5 @@ class IbmDataUpdate(UpdateView):
     def form_valid(self, form):
         obj = self.get_object()
         messages.success(self.request, f"{obj.ibmIdentifier} ({obj.fy}) was amended successfully")
+        set_comment(f"{obj.ibmIdentifier} ({obj.fy}) amended in the update form")
         return super().form_valid(form)

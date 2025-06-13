@@ -50,6 +50,7 @@ INSTALLED_APPS = (
     "django_extensions",
     "crispy_forms",
     "crispy_bootstrap5",
+    "reversion",
     "webtemplate_dbca",
     "ibms",
     "sfm",
