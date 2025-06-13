@@ -63,6 +63,7 @@ class IBMDataAdmin(VersionAdmin):
     search_fields = ("fy__financialYear", "ibmIdentifier", "budgetArea", "modifier__username")
     list_display = ("ibmIdentifier", "fy", "budgetArea", "modified", "modifier")
     list_filter = ("fy__financialYear", "costCentre", "budgetArea", "service")
+    ordering = ("ibmIdentifier",)
     readonly_fields = (
         "fy",
         "ibmIdentifier",
