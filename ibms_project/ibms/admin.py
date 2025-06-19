@@ -135,6 +135,8 @@ class IBMDataAdmin(VersionAdmin):
                 "marineKPI",
                 "regionProject",
                 "regionDescription",
+                "last modified by",
+                "last modified",
             ],
             fields=[
                 "fy",
@@ -155,6 +157,8 @@ class IBMDataAdmin(VersionAdmin):
                 "marineKPI",
                 "regionProject",
                 "regionDescription",
+                "modifier",
+                "modified",
             ],
         )
     ]
