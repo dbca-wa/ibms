@@ -70,11 +70,29 @@ class IbmsViewsTest(IbmsTestCase):
 
     def test_upload_view_ibmdata_post(self):
         """Test a valid CSV upload for IBM data."""
+        # Start with one IBMData object.
+        self.assertEqual(IBMData.objects.count(), 1)
         url = reverse("ibms:upload")
         test_data = open(os.path.join("ibms_project", "ibms", "test_data", "ibmdata_upload_test.csv"), "rb")
         upload = SimpleUploadedFile("ibmdata_upload.csv", test_data.read())
-        resp = self.client.post(url, {"upload_file_type": "IBMData", "upload_file": upload})
+        resp = self.client.post(url, data={"upload_file_type": "IBMData", "upload_file": upload, "financial_year": "2024/25"}, follow=True)
         self.assertEqual(resp.status_code, 200)
+        # Conclude with 5 IBMData objects.
+        self.assertEqual(IBMData.objects.count(), 5)
+
+    def test_upload_view_glpivot_post(self):
+        """Test a valid CSV upload for GL pivot download data."""
+        # Start with zero GLPivDownload objects.
+        self.assertEqual(GLPivDownload.objects.count(), 0)
+        url = reverse("ibms:upload")
+        test_data = open(os.path.join("ibms_project", "ibms", "test_data", "glpivot_upload_test.csv"), "rb")
+        upload = SimpleUploadedFile("glpivot_upload.csv", test_data.read())
+        resp = self.client.post(
+            url, data={"upload_file_type": "GLPivotDownload", "upload_file": upload, "financial_year": "2024/25"}, follow=True
+        )
+        self.assertEqual(resp.status_code, 200)
+        # Conclude with 4 GLPivDownload objects.
+        self.assertEqual(GLPivDownload.objects.count(), 4)
 
     def test_clearglpivot_view_redirect(self):
         """Test clearglpivot view redirects normal users, but not superusers."""

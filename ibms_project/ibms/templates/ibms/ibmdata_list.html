@@ -63,7 +63,7 @@
                                 <td>{{ object.budgetArea }}</td>
                                 <td>{{ object.projectSponsor }}</td>
                                 <td>
-                                    <a href="{% url 'ibms:ibmdata_update' pk=object.pk %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
+                                    <a href="{% url 'ibms:ibmdata_update' pk=object.pk %}{% if preserved_filters %}?{{ preserved_filters }}{% endif %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
                                 </td>
                             </tr>
                         {% endfor %}

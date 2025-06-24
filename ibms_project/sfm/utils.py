@@ -2,7 +2,7 @@ import csv
 
 from sfm.models import CostCentre, MeasurementValue, Quarter, SFMMetric
 
-from ibms.utils import csvload, saverow
+from ibms.utils import csvload, save_record
 
 COLS_SFM_METRICS = 5
 COLS_COSTCENTRES = 3
@@ -88,7 +88,7 @@ def import_measurementvalues(fileName, fy):
                 "status": row[4].lower(),
                 "comment": row[5],
             }
-            saverow(MeasurementValue, data, query)
+            save_record(MeasurementValue, data, query)
             i += 1
 
     except Exception as e:

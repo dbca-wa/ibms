@@ -5,15 +5,18 @@ import tempfile
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, QueryDict
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.http import urlencode
 from django.views.generic import ListView, TemplateView, UpdateView
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.edit import FormMixin, FormView
+from reversion import set_comment
+from reversion.views import RevisionMixin
 from sfm.models import FinancialYear
 from xlrd import open_workbook
-from xlutils.copy import copy
+from xlutils.copy import copy as copy_xl
 
 from ibms.forms import ClearGLPivotForm, DownloadForm, IbmDataFilterForm, IbmDataForm, ManagerCodeUpdateForm, ReloadForm, UploadForm
 from ibms.models import GLPivDownload, IBMData, NCServicePriority, PVSServicePriority, SFMServicePriority
@@ -87,7 +90,7 @@ class ClearGLPivotView(IbmsFormView):
         return super().form_valid(form)
 
 
-class UploadView(IbmsFormView):
+class UploadView(RevisionMixin, IbmsFormView):
     """Upload view for superusers only."""
 
     form_class = UploadForm
@@ -165,7 +168,6 @@ class DownloadView(IbmsFormView):
     def form_valid(self, form):
         d = form.cleaned_data
         glpiv_qs = GLPivDownload.objects.filter(fy=d["financial_year"])
-        print(glpiv_qs)
         if d.get("cost_centre", None):
             glpiv_qs = glpiv_qs.filter(costCentre=d["cost_centre"])
         elif d.get("region", None):
@@ -231,7 +233,7 @@ class ReloadView(IbmsFormView):
 
         fpath = os.path.join(settings.STATIC_ROOT, "excel", "reload_base.xls")
         excel_template = open_workbook(fpath, formatting_info=True, on_demand=True)
-        workbook = copy(excel_template)
+        workbook = copy_xl(excel_template)
 
         # Style & populate the worksheet.
         reload_report(workbook, ibm, nc_sp, pvs_sp, fm_sp, gl)
@@ -327,7 +329,7 @@ class CodeUpdateAdminView(IbmsFormView):
         # Style & populate the workbook.
         fpath = os.path.join(settings.STATIC_ROOT, "excel", "ibms_codeupdate_base.xls")
         excel_template = open_workbook(fpath, formatting_info=True, on_demand=True)
-        workbook = copy(excel_template)
+        workbook = copy_xl(excel_template)
         code_update_report(excel_template, workbook, gl, gl_codeids, nc_sp, pvs_sp, fm_sp, ibm)
 
         response = HttpResponse(content_type="application/vnd.ms-excel")
@@ -450,6 +452,8 @@ class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
+
+        # Check for any preserved filters.
         for key in [
             "financial_year",
             "cost_centre",
@@ -462,12 +466,28 @@ class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
         ]:
             if self.request.GET.get(key, None):
                 kwargs["initial"][key] = self.request.GET[key]
+
         # Always provide a default FY.
         if "financial_year" not in self.request.GET:
             fy = FinancialYear.objects.order_by("-financialYear").first()
             kwargs["initial"]["financial_year"] = fy.financialYear
 
         return kwargs
+
+    def get_preserved_filters(self, request):
+        filters = {}
+
+        for k in ["cost_centre", "region", "budget_area", "project_sponsor", "service", "project", "job"]:
+            if request.GET.get(k):
+                filters[k] = request.GET[k]
+
+        if filters:
+            # Instantiate a QueryDict and use that to return a URL-encoded string.
+            list_filters = QueryDict("", mutable=True)
+            list_filters.update(filters)
+            return urlencode({"_changelist_filters": list_filters.urlencode()})
+
+        return ""
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -484,6 +504,7 @@ class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
         context["page_title"] = f"{settings.SITE_ACRONYM} | Data amendment"
         context["title"] = "DATA AMENDMENT"
         context["object_count"] = self.get_queryset().count()
+        context["preserved_filters"] = self.get_preserved_filters(self.request)
         return context
 
     def get_queryset(self):
@@ -542,7 +563,7 @@ class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
         return qs.order_by("ibmIdentifier")
 
 
-class IbmDataUpdate(UpdateView):
+class IbmDataUpdate(RevisionMixin, UpdateView):
     model = IBMData
     form_class = IbmDataForm
     http_method_names = ["get", "post", "put", "patch", "head", "options"]
@@ -557,6 +578,9 @@ class IbmDataUpdate(UpdateView):
         return context
 
     def get_success_url(self):
+        if self.request.GET.get("_changelist_filters"):
+            filters = self.request.GET.get("_changelist_filters")
+            return reverse("ibms:ibmdata_list") + f"?{filters}"
         return reverse("ibms:ibmdata_list")
 
     def post(self, request, *args, **kwargs):
@@ -567,4 +591,5 @@ class IbmDataUpdate(UpdateView):
     def form_valid(self, form):
         obj = self.get_object()
         messages.success(self.request, f"{obj.ibmIdentifier} ({obj.fy}) was amended successfully")
+        set_comment(f"{obj.ibmIdentifier} ({obj.fy}) amended in the update form")
         return super().form_valid(form)
