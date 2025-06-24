@@ -5,6 +5,7 @@ from datetime import datetime
 import xlwt
 from django.conf import settings
 from django.db import transaction
+from reversion import create_revision, set_comment
 
 from ibms.models import (
     CorporateStrategy,
@@ -82,8 +83,30 @@ def import_to_ibmdata(file_name, fy):
             "regionProject": str(row[15]),
             "regionDescription": str(row[16]),
         }
-        query = {"fy": fy, "ibmIdentifier": str(row[0])}
-        save_record(IBMData, data, query)
+        with create_revision():
+            if IBMData.objects.filter(fy=fy, ibmIdentifier=str(row[0])).exists():
+                ibmdata = IBMData.objects.get(fy=fy, ibmIdentifier=str(row[0]))
+                ibmdata.costCentre = row[1]
+                ibmdata.account = row[2]
+                ibmdata.service = row[3]
+                ibmdata.activity = row[4]
+                ibmdata.project = row[5]
+                ibmdata.job = row[6]
+                ibmdata.budgetArea = row[7]
+                ibmdata.projectSponsor = row[8]
+                ibmdata.regionalSpecificInfo = row[9]
+                ibmdata.servicePriorityID = row[10]
+                ibmdata.annualWPInfo = row[11]
+                ibmdata.priorityActionNo = row[12]
+                ibmdata.priorityLevel = row[13]
+                ibmdata.marineKPI = row[14]
+                ibmdata.regionProject = row[15]
+                ibmdata.regionDescription = row[16]
+                ibmdata.save()
+                set_comment(f"{ibmdata} amended via upload")
+            else:
+                obj = IBMData(**data)
+                obj.save()
 
     csvfile.close()
 
