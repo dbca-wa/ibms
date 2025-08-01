@@ -3,7 +3,6 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: ibms-deployment-hpa
 spec:
-  # Set a min of 2 replicas in order to allow our PDB.
   minReplicas: 2
   maxReplicas: 5
   scaleTargetRef:
