@@ -10,7 +10,7 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: IBMS_URL
-              value: "https://ibms.dbca.wa.gov.au"
+              value: 'https://ibms.dbca.wa.gov.au'
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:

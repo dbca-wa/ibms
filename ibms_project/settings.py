@@ -166,7 +166,10 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "console": {"format": "%(asctime)s %(levelname)-8s %(message)s"},
+        "console": {
+            "format": "{asctime} {levelname} {name} {message}",
+            "style": "{",
+        },
     },
     "handlers": {
         "console": {"level": "INFO", "class": "logging.StreamHandler", "stream": sys.stdout, "formatter": "console"},

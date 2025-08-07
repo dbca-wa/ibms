@@ -6,5 +6,5 @@ spec:
   minAvailable: 1
   selector:
     matchLabels:
-      app: ibms-prod
+      app: ibms-deployment
       variant: prod
