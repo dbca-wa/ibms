@@ -1,13 +1,13 @@
 [project]
 name = "ibms"
-version = "2.10.2"
+version = "2.10.3"
 description = "Integrated Business Management System corporate application"
 authors = [{ name = "Ashley Felton", email = "ashley.felton@dbca.wa.gov.au" }]
 license = "Apache-2.0"
 readme = "README.md"
-requires-python = ">=3.13,<4.0"
+requires-python = ">=3.13,<4"
 dependencies = [
-  "django==5.2.3",
+  "django==5.2.4",
   "psycopg[binary,pool]==3.2.9",
   "dbca-utils==2.1.3",
   "python-dotenv==1.1.0",
@@ -26,12 +26,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = [
-  "ipdb>=0.13.13",
-  "ipython >= 8.31.0",
-  "mixer >= 7.2.2",
-  "pre-commit >= 4.0.1",
-]
+dev = ["ipython>=9.4.0", "ipdb>=0.13.13", "mixer>=7.2.2", "pre-commit>=4.2.0"]
 
 # Reference: https://docs.astral.sh/ruff/configuration/
 [tool.ruff]

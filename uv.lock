@@ -1,6 +1,6 @@
 version = 1
 revision = 1
-requires-python = ">=3.13, <4.0"
+requires-python = ">=3.13, <4"
 
 [[package]]
 name = "asgiref"
@@ -117,16 +117,16 @@ wheels = [
 
 [[package]]
 name = "django"
-version = "5.2.3"
+version = "5.2.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "asgiref" },
     { name = "sqlparse" },
     { name = "tzdata", marker = "sys_platform == 'win32'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c6/af/77b403926025dc6f7fd7b31256394d643469418965eb528eab45d0505358/django-5.2.3.tar.gz", hash = "sha256:335213277666ab2c5cac44a792a6d2f3d58eb79a80c14b6b160cd4afc3b75684", size = 10850303 }
+sdist = { url = "https://files.pythonhosted.org/packages/9c/7e/034f0f9fb10c029a02daaf44d364d6bf2eced8c73f0d38c69da359d26b01/django-5.2.4.tar.gz", hash = "sha256:a1228c384f8fa13eebc015196db7b3e08722c5058d4758d20cb287503a540d8f", size = 10831909 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1b/11/7aff961db37e1ea501a2bb663d27a8ce97f3683b9e5b83d3bfead8b86fa4/django-5.2.3-py3-none-any.whl", hash = "sha256:c517a6334e0fd940066aa9467b29401b93c37cec2e61365d663b80922542069d", size = 8301935 },
+    { url = "https://files.pythonhosted.org/packages/14/ae/706965237a672434c8b520e89a818e8b047af94e9beb342d0bee405c26c7/django-5.2.4-py3-none-any.whl", hash = "sha256:60c35bd96201b10c6e7a78121bd0da51084733efa303cc19ead021ab179cef5e", size = 8302187 },
 ]
 
 [[package]]
@@ -218,7 +218,7 @@ wheels = [
 
 [[package]]
 name = "ibms"
-version = "2.10.1"
+version = "2.10.2"
 source = { virtual = "." }
 dependencies = [
     { name = "crispy-bootstrap5" },
@@ -252,7 +252,7 @@ requires-dist = [
     { name = "crispy-bootstrap5", specifier = "==2025.6" },
     { name = "dbca-utils", specifier = "==2.1.3" },
     { name = "dj-database-url", specifier = "==3.0.0" },
-    { name = "django", specifier = "==5.2.3" },
+    { name = "django", specifier = "==5.2.4" },
     { name = "django-crispy-forms", specifier = "==2.4" },
     { name = "django-extensions", specifier = "==4.1" },
     { name = "django-reversion", specifier = "==5.1.0" },
@@ -270,9 +270,9 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "ipdb", specifier = ">=0.13.13" },
-    { name = "ipython", specifier = ">=8.31.0" },
+    { name = "ipython", specifier = ">=9.4.0" },
     { name = "mixer", specifier = ">=7.2.2" },
-    { name = "pre-commit", specifier = ">=4.0.1" },
+    { name = "pre-commit", specifier = ">=4.2.0" },
 ]
 
 [[package]]
@@ -299,7 +299,7 @@ wheels = [
 
 [[package]]
 name = "ipython"
-version = "9.2.0"
+version = "9.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorama", marker = "sys_platform == 'win32'" },
@@ -313,9 +313,9 @@ dependencies = [
     { name = "stack-data" },
     { name = "traitlets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9d/02/63a84444a7409b3c0acd1de9ffe524660e0e5d82ee473e78b45e5bfb64a4/ipython-9.2.0.tar.gz", hash = "sha256:62a9373dbc12f28f9feaf4700d052195bf89806279fc8ca11f3f54017d04751b", size = 4424394 }
+sdist = { url = "https://files.pythonhosted.org/packages/54/80/406f9e3bde1c1fd9bf5a0be9d090f8ae623e401b7670d8f6fdf2ab679891/ipython-9.4.0.tar.gz", hash = "sha256:c033c6d4e7914c3d9768aabe76bbe87ba1dc66a92a05db6bfa1125d81f2ee270", size = 4385338 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/78/ce/5e897ee51b7d26ab4e47e5105e7368d40ce6cfae2367acdf3165396d50be/ipython-9.2.0-py3-none-any.whl", hash = "sha256:fef5e33c4a1ae0759e0bba5917c9db4eb8c53fee917b6a526bd973e1ca5159f6", size = 604277 },
+    { url = "https://files.pythonhosted.org/packages/63/f8/0031ee2b906a15a33d6bfc12dd09c3dfa966b3cb5b284ecfb7549e6ac3c4/ipython-9.4.0-py3-none-any.whl", hash = "sha256:25850f025a446d9b359e8d296ba175a36aedd32e83ca9b5060430fe16801f066", size = 611021 },
 ]
 
 [[package]]
