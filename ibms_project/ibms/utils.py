@@ -549,7 +549,7 @@ def validate_headers(row, valid_count, headings):
         bad_headings = ""
         for k, heading in enumerate(headings):
             # If the given heading value doesn't match, append it to the error message.
-            if row[k].strip() != heading:
+            if row[k].strip().upper() != heading.upper():
                 bad_headings += f"{row[k]} does not match {heading}\n"
 
         if bad_headings:
