@@ -181,6 +181,46 @@ class GLPivDownloadAdmin(ModelAdmin):
     )
     list_display = ("fy", "costCentre", "account", "service", "activity", "ccName")
     list_filter = ("fy__financialYear", "division", "regionBranch", "costCentre")
+    readonly_fields = (
+        "fy",
+        "costCentre",
+        "regionBranch",
+        "service",
+        "project",
+        "job",
+        "download_period",
+        "downloadPeriod",
+        "account",
+        "activity",
+        "resource",
+        "shortCode",
+        "shortCodeName",
+        "gLCode",
+        "ptdActual",
+        "ptdBudget",
+        "ytdActual",
+        "ytdBudget",
+        "fybudget",
+        "ytdVariance",
+        "ccName",
+        "serviceName",
+        "activityName",
+        "resourceName",
+        "projectName",
+        "jobName",
+        "codeID",
+        "resNameNo",
+        "actNameNo",
+        "projNameNo",
+        "regionBranch",
+        "division",
+        "resourceCategory",
+        "wildfire",
+        "expenseRevenue",
+        "fireActivities",
+        "mPRACategory",
+        "ibmdata",
+    )
     actions = [
         export_as_csv_action(
             translations=[
