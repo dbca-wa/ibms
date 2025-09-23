@@ -28,7 +28,7 @@ FILE_CHOICES = (
             ("PVSServicePriorityData", "Parks & Visitor Services"),
             ("ERServicePriorityData", "Fire Services"),
             ("SFMServicePriorityData", "Forest Management"),
-            ("ServicePriorityMappings", "Service Priority Mapping"),
+            ("ServicePriorityMapping", "Service Priority Mapping"),
         ),
     ),
 )

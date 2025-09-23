@@ -356,7 +356,7 @@ class JSONResponseMixin(object):
         return json.dumps(context)
 
 
-class ServicePriorityMappingsJSON(JSONResponseMixin, BaseDetailView):
+class ServicePriorityMappingJSON(JSONResponseMixin, BaseDetailView):
     """View to return a filtered list of mappings.
     Cannot use below as we require multiple fields without PKs
     """

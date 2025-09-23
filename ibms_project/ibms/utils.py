@@ -16,7 +16,7 @@ from ibms.models import (
     NCServicePriority,
     NCStrategicPlan,
     PVSServicePriority,
-    ServicePriorityMappings,
+    ServicePriorityMapping,
     SFMServicePriority,
 )
 
@@ -308,7 +308,7 @@ def import_to_nc_service_priority(file_name, fy):
 
 def import_to_service_priority_mappings(file_name, fy):
     reader, file, file_name = csvload(file_name)
-    query_results = ServicePriorityMappings.objects.filter(fy=fy)
+    query_results = ServicePriorityMapping.objects.filter(fy=fy)
     if query_results.exists():
         query_results.delete()
     for row in reader:
@@ -319,7 +319,7 @@ def import_to_service_priority_mappings(file_name, fy):
             "parksManagement": validate_char_field("parksManagement", 100, row[2]),
             "forestManagement": validate_char_field("forestManagement", 100, row[3]),
         }
-        obj = ServicePriorityMappings(**data)
+        obj = ServicePriorityMapping(**data)
         obj.save()
     file.close()
 
@@ -535,7 +535,7 @@ def process_upload_file(file_name, file_type, fy):
         import_to_general_service_priority(file_name, fy)
     elif file_type == "NCServicePriorityData":
         import_to_nc_service_priority(file_name, fy)
-    elif file_type == "ServicePriorityMappings":
+    elif file_type == "ServicePriorityMapping":
         import_to_service_priority_mappings(file_name, fy)
     else:
         raise Exception(f"process_upload_file : file type {file_type} unknown")
@@ -730,7 +730,7 @@ def validate_upload_file(file, file_type):
                 "Milestone",
             ],
         )
-    elif file_type == "ServicePriorityMappings":
+    elif file_type == "ServicePriorityMapping":
         return validate_headers(
             row,
             valid_count=4,

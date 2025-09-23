@@ -282,7 +282,7 @@ class Outcomes(models.Model):
         verbose_name_plural = "outcomes"
 
 
-class ServicePriorityMappings(models.Model):
+class ServicePriorityMapping(models.Model):
     fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, blank=True, null=True, verbose_name="financial year")
     costCentreNo = models.CharField(max_length=4, verbose_name="cost centre no")
     wildlifeManagement = models.CharField(max_length=100, verbose_name="wildlife management")
@@ -291,6 +291,3 @@ class ServicePriorityMappings(models.Model):
 
     def __str__(self):
         return self.costCentreNo
-
-    class Meta:
-        verbose_name_plural = "Service Priority Mappings"

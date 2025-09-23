@@ -14,7 +14,7 @@ from .models import (
     NCStrategicPlan,
     Outcomes,
     PVSServicePriority,
-    ServicePriorityMappings,
+    ServicePriorityMapping,
     SFMServicePriority,
 )
 
@@ -548,8 +548,8 @@ class OutcomesAdmin(ModelAdmin):
     ]
 
 
-@register(ServicePriorityMappings)
-class ServicePriorityMappings(ModelAdmin):
+@register(ServicePriorityMapping)
+class ServicePriorityMappingAdmin(ModelAdmin):
     list_display = ["costCentreNo", "fy", "wildlifeManagement", "parksManagement", "forestManagement"]
     list_filter = ["fy__financialYear", "costCentreNo"]
     actions = [

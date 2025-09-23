@@ -1,6 +1,6 @@
 from django.urls import path
 
-from ibms.models import GLPivDownload, IBMData, ServicePriorityMappings
+from ibms.models import GLPivDownload, IBMData, ServicePriorityMapping
 from ibms.views import (
     ClearGLPivotView,
     CodeUpdateAdminView,
@@ -11,7 +11,7 @@ from ibms.views import (
     IbmDataUpdate,
     IbmsModelFieldJSON,
     ReloadView,
-    ServicePriorityMappingsJSON,
+    ServicePriorityMappingJSON,
     UploadView,
 )
 
@@ -87,9 +87,7 @@ urlpatterns = [
     ),
     path(
         "ajax/mappings",
-        ServicePriorityMappingsJSON.as_view(
-            model=ServicePriorityMappings, fieldname="wildlifeManagement, parksManagement, forestManagement"
-        ),
+        ServicePriorityMappingJSON.as_view(model=ServicePriorityMapping, fieldname="wildlifeManagement, parksManagement, forestManagement"),
         name="ajax_mappings",
     ),
 ]
