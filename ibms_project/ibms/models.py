@@ -305,5 +305,8 @@ class DepartmentProgram(models.Model):
     dept_program2 = models.CharField(max_length=500, verbose_name="department program 2", null=True, blank=True)
     dept_program3 = models.CharField(max_length=500, verbose_name="department program 3", null=True, blank=True)
 
+    class Meta:
+        unique_together = [("fy", "ibmdata")]
+
     def __str__(self):
         return f"{self.fy} {self.ibmdata.ibmIdentifier}"
