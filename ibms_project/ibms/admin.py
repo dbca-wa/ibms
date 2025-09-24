@@ -1,11 +1,13 @@
 import csv
 
+from django import forms
 from django.contrib.admin import ModelAdmin, register
 from django.http import HttpResponse
 from reversion.admin import VersionAdmin
 
 from .models import (
     CorporateStrategy,
+    DepartmentProgram,
     ERServicePriority,
     GeneralServicePriority,
     GLPivDownload,
@@ -163,6 +165,9 @@ class IBMDataAdmin(VersionAdmin):
         )
     ]
 
+    def has_change_permission(self, request, obj=None):
+        return False
+
 
 @register(GLPivDownload)
 class GLPivDownloadAdmin(ModelAdmin):
@@ -181,7 +186,7 @@ class GLPivDownloadAdmin(ModelAdmin):
     )
     list_display = ("fy", "costCentre", "account", "service", "activity", "ccName")
     list_filter = ("fy__financialYear", "division", "regionBranch", "costCentre")
-    readonly_fields = (
+    fields = (
         "fy",
         "costCentre",
         "regionBranch",
@@ -212,14 +217,12 @@ class GLPivDownloadAdmin(ModelAdmin):
         "resNameNo",
         "actNameNo",
         "projNameNo",
-        "regionBranch",
         "division",
         "resourceCategory",
         "wildfire",
         "expenseRevenue",
         "fireActivities",
         "mPRACategory",
-        "ibmdata",
     )
     actions = [
         export_as_csv_action(
@@ -301,6 +304,12 @@ class GLPivDownloadAdmin(ModelAdmin):
             ],
         )
     ]
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
 
 
 @register(CorporateStrategy)
@@ -556,5 +565,32 @@ class ServicePriorityMappingAdmin(ModelAdmin):
         export_as_csv_action(
             translations=["financialYear", "costCentreNo", "wildlifeManagement", "parksManagement", "forestManagement"],
             fields=["fy", "costCentreNo", "wildlifeManagement", "parksManagement", "forestManagement"],
+        )
+    ]
+
+
+class DepartmentProgramAdminForm(forms.ModelForm):
+    class Meta:
+        model = DepartmentProgram
+        fields = ["fy", "ibmdata", "dept_program1", "dept_program2", "dept_program3"]
+        widgets = {
+            "dept_program1": forms.Textarea(attrs={"cols": "80", "rows": "4"}),
+            "dept_program2": forms.Textarea(attrs={"cols": "80", "rows": "4"}),
+            "dept_program3": forms.Textarea(attrs={"cols": "80", "rows": "4"}),
+        }
+
+
+@register(DepartmentProgram)
+class DepartmentProgramAdmin(ModelAdmin):
+    form = DepartmentProgramAdminForm
+    list_display = ["fy"]
+    list_filter = [
+        "fy__financialYear",
+    ]
+    raw_id_fields = ["ibmdata"]
+    actions = [
+        export_as_csv_action(
+            translations=["financialYear", "ibmIdentifier", "DeptProgram1", "DeptProgram2", "DeptProgram3"],
+            fields=["fy", "ibmdata", "dept_program1", "dept_program2", "dept_program3"],
         )
     ]
