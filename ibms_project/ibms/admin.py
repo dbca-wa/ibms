@@ -14,7 +14,7 @@ from .models import (
     IBMData,
     NCServicePriority,
     NCStrategicPlan,
-    Outcomes,
+    Outcome,
     PVSServicePriority,
     ServicePriorityMapping,
     SFMServicePriority,
@@ -545,8 +545,8 @@ class NCStrategicPlanAdmin(ModelAdmin):
     ]
 
 
-@register(Outcomes)
-class OutcomesAdmin(ModelAdmin):
+@register(Outcome)
+class OutcomeAdmin(ModelAdmin):
     list_display = ["fy", "q1Input"]
     list_filter = ["fy__financialYear"]
     actions = [

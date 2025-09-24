@@ -276,7 +276,7 @@ class NCStrategicPlan(models.Model):
         verbose_name_plural = "NC strategic plans"
 
 
-class Outcomes(models.Model):
+class Outcome(models.Model):
     fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, verbose_name="financial year")
     q1Input = models.TextField()
     q2Input = models.TextField(blank=True)
@@ -285,9 +285,6 @@ class Outcomes(models.Model):
 
     def __str__(self):
         return self.fy
-
-    class Meta:
-        verbose_name_plural = "outcomes"
 
 
 class ServicePriorityMapping(models.Model):
