@@ -10,7 +10,6 @@ from ibms.views import (
     IbmDataList,
     IbmDataUpdate,
     IbmsModelFieldJSON,
-    ReloadView,
     ServicePriorityMappingJSON,
     UploadView,
 )
@@ -20,7 +19,6 @@ urlpatterns = [
     path("upload/", UploadView.as_view(), name="upload"),
     path("download/", DownloadView.as_view(), name="download"),
     path("download-enhanced/", DownloadEnhancedView.as_view(), name="download_enhanced"),
-    path("reload/", ReloadView.as_view(), name="reload"),
     path("code-update/", CodeUpdateView.as_view(), name="code_update"),
     path("code-update-admin/", CodeUpdateAdminView.as_view(), name="code_update_admin"),
     path("data-amendment/", IbmDataList.as_view(), name="ibmdata_list"),
