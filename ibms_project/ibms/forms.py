@@ -16,22 +16,6 @@ def get_generic_choices(model, key, allow_null=False):
     return CHOICES
 
 
-FILE_CHOICES = (
-    ("", "--Please Select--"),
-    ("General", (("GLPivotDownload", "GL Pivot Download"), ("IBMData", "IBM Data"))),
-    ("Strategic", (("CorporateStrategyData", "IBMS Corporate Strategy"), ("NCStrategyData", "Nature Conservation"))),
-    (
-        "Service Priorities",
-        (
-            ("GeneralServicePriorityData", "General"),
-            ("NCServicePriorityData", "Nature Conservation"),
-            ("PVSServicePriorityData", "Parks & Visitor Services"),
-            ("ERServicePriorityData", "Fire Services"),
-            ("SFMServicePriorityData", "Forest Management"),
-            ("ServicePriorityMapping", "Service Priority Mapping"),
-        ),
-    ),
-)
 REPORT_CHOICES = (
     (None, "--Please Select--"),
     ("dj0", "DJ0 activities only"),
@@ -75,7 +59,31 @@ class ClearGLPivotForm(FinancialYearFilterForm):
 
 
 class UploadForm(FinancialYearFilterForm):
-    upload_file_type = forms.ChoiceField(choices=FILE_CHOICES)
+    upload_file_type = forms.ChoiceField(
+        choices=(
+            ("", "--Please Select--"),
+            ("General", (("gl_pivot_download", "GL Pivot Download"), ("ibm_data", "IBM Data"))),
+            (
+                "Strategic",
+                (
+                    ("corp_strategy", "IBMS Corporate Strategy"),
+                    ("nature_conservation", "Nature Conservation"),
+                    ("dept_program", "Department Program"),
+                ),
+            ),
+            (
+                "Service Priorities",
+                (
+                    ("general_sp", "General"),
+                    ("nc_sp", "Nature Conservation"),
+                    ("pvs_sp", "Parks & Visitor Services"),
+                    ("er_sp", "Fire Services"),
+                    ("sfm_sp", "Forest Management"),
+                    ("service_priority_mapping", "Service Priority Mapping"),
+                ),
+            ),
+        )
+    )
     upload_file = forms.FileField(label="Select file")
 
     def __init__(self, *args, **kwargs):

@@ -9,6 +9,7 @@ from reversion import create_revision, set_comment
 
 from ibms.models import (
     CorporateStrategy,
+    DepartmentProgram,
     ERServicePriority,
     GeneralServicePriority,
     GLPivDownload,
@@ -109,6 +110,7 @@ def import_to_ibmdata(file_name, fy):
                 obj.save()
 
     csvfile.close()
+    return "IBM Data"
 
 
 @transaction.atomic
@@ -161,6 +163,7 @@ def import_to_glpivotdownload(file_name, fy):
             )
         )
     GLPivDownload.objects.bulk_create(glpiv)
+    return "GL Pivot Download"
 
 
 def import_to_corporate_strategy(file_name, fy):
@@ -175,6 +178,7 @@ def import_to_corporate_strategy(file_name, fy):
         query = {"fy": fy, "corporateStrategyNo": str(row[0])}
         save_record(CorporateStrategy, data, query)
     file.close()
+    return "IBMS Corporate strategy"
 
 
 def import_to_nc_strategic_plan(file_name, fy):
@@ -203,6 +207,7 @@ def import_to_nc_strategic_plan(file_name, fy):
         raise Exception(
             f"Row {i}:{row[0]}\nPlease import NC Service Priority data before proceeding, otherwise database integrity will be compromised."
         )
+    return "Nature Conservation Strategic Plan"
 
 
 def import_to_pvs_service_priority(file_name, fy):
@@ -224,6 +229,7 @@ def import_to_pvs_service_priority(file_name, fy):
         save_record(PVSServicePriority, data, query)
 
     file.close()
+    return "Parks & Visitor Services Service priority"
 
 
 def import_to_sfm_service_priority(file_name, fy):
@@ -243,6 +249,7 @@ def import_to_sfm_service_priority(file_name, fy):
         save_record(SFMServicePriority, data, query)
 
     file.close()
+    return "Forest Management Service Priority"
 
 
 def import_to_er_service_priority(file_name, fy):
@@ -261,6 +268,7 @@ def import_to_er_service_priority(file_name, fy):
         save_record(ERServicePriority, data, query)
 
     file.close()
+    return "Fire Services Service Priority"
 
 
 def import_to_general_service_priority(file_name, fy):
@@ -280,6 +288,7 @@ def import_to_general_service_priority(file_name, fy):
         save_record(GeneralServicePriority, data, query)
 
     file.close()
+    return "General Service Priority"
 
 
 def import_to_nc_service_priority(file_name, fy):
@@ -304,6 +313,7 @@ def import_to_nc_service_priority(file_name, fy):
         save_record(NCServicePriority, data, query)
 
     file.close()
+    return "Nature Conservation Service Priority"
 
 
 def import_to_service_priority_mappings(file_name, fy):
@@ -321,7 +331,38 @@ def import_to_service_priority_mappings(file_name, fy):
         }
         obj = ServicePriorityMapping(**data)
         obj.save()
+
     file.close()
+    return "Service Priority Mapping"
+
+
+def import_dept_program(file_name, fy):
+    """Function to generate DepartmentProgram records from the passed-in CSV and financial year.
+    Validates import data per row (safe to throw exception midway through iterator).
+    """
+    reader, file, file_name = csvload(file_name)
+    for row in reader:
+        # Validate input data
+        try:
+            ibmdata = IBMData.objects.get(ibmIdentifier=row[0], fy=fy)
+        except IBMData.DoesNotExist:
+            # If a matching IBMData object does not exist, skip this record.
+            continue
+        validate_char_field("ibmIdentifier", 50, row[0])
+        validate_char_field("deptProgram1", 500, row[1])
+        validate_char_field("deptProgram2", 500, row[2])
+        validate_char_field("deptProgram3", 500, row[3])
+        # Create/update the record
+        DepartmentProgram.objects.get_or_create(
+            fy=fy,
+            ibmdata=ibmdata,
+            dept_program1=row[1],
+            dept_program2=row[2],
+            dept_program3=row[3],
+        )
+
+    file.close()
+    return "Department Program"
 
 
 def download_ibms_data(glrows):
@@ -516,29 +557,34 @@ def download_ibms_data(glrows):
 
 
 def process_upload_file(file_name, file_type, fy):
-    """Utility function to process an uploaded CSV file."""
-    if file_type == "GLPivotDownload":
-        import_to_glpivotdownload(file_name, fy)
-    elif file_type == "IBMData":
-        import_to_ibmdata(file_name, fy)
-    elif file_type == "CorporateStrategyData":
-        import_to_corporate_strategy(file_name, fy)
-    elif file_type == "ERServicePriorityData":
-        import_to_er_service_priority(file_name, fy)
-    elif file_type == "PVSServicePriorityData":
-        import_to_pvs_service_priority(file_name, fy)
-    elif file_type == "SFMServicePriorityData":
-        import_to_sfm_service_priority(file_name, fy)
-    elif file_type == "NCStrategyData":
-        import_to_nc_strategic_plan(file_name, fy)
-    elif file_type == "GeneralServicePriorityData":
-        import_to_general_service_priority(file_name, fy)
-    elif file_type == "NCServicePriorityData":
-        import_to_nc_service_priority(file_name, fy)
-    elif file_type == "ServicePriorityMapping":
-        import_to_service_priority_mappings(file_name, fy)
+    """Utility function to process an uploaded CSV file.
+    Returns the type of data generated by the import."""
+    if file_type == "gl_pivot_download":
+        data_type = import_to_glpivotdownload(file_name, fy)
+    elif file_type == "ibm_data":
+        data_type = import_to_ibmdata(file_name, fy)
+    elif file_type == "corp_strategy":
+        data_type = import_to_corporate_strategy(file_name, fy)
+    elif file_type == "er_sp":
+        data_type = import_to_er_service_priority(file_name, fy)
+    elif file_type == "pvs_sp":
+        data_type = import_to_pvs_service_priority(file_name, fy)
+    elif file_type == "sfm_sp":
+        data_type = import_to_sfm_service_priority(file_name, fy)
+    elif file_type == "nature_conservation":
+        data_type = import_to_nc_strategic_plan(file_name, fy)
+    elif file_type == "dept_program":
+        data_type = import_dept_program(file_name, fy)
+    elif file_type == "general_sp":
+        data_type = import_to_general_service_priority(file_name, fy)
+    elif file_type == "nc_sp":
+        data_type = import_to_nc_service_priority(file_name, fy)
+    elif file_type == "service_priority_mapping":
+        data_type = import_to_service_priority_mappings(file_name, fy)
     else:
         raise Exception(f"process_upload_file : file type {file_type} unknown")
+
+    return data_type
 
 
 def validate_headers(row, valid_count, headings):
@@ -570,7 +616,7 @@ def validate_upload_file(file, file_type):
     reader = csv.reader(file, dialect="excel")
     row = next(reader)  # Get the first (header) row.
 
-    if file_type == "GLPivotDownload":
+    if file_type == "gl_pivot_download":
         return validate_headers(
             row,
             valid_count=34,
@@ -611,7 +657,7 @@ def validate_upload_file(file, file_type):
                 "MPRA Category",
             ],
         )
-    elif file_type == "IBMData":
+    elif file_type == "ibm_data":
         return validate_headers(
             row,
             valid_count=17,
@@ -635,13 +681,13 @@ def validate_upload_file(file, file_type):
                 "regionDescription",
             ],
         )
-    elif file_type == "CorporateStrategyData":
+    elif file_type == "corp_strategy":
         return validate_headers(
             row,
             valid_count=3,
             headings=["IBMSCSNo", "IBMSCSDesc1", "IBMSCSDesc2"],
         )
-    elif file_type == "NCStrategyData":
+    elif file_type == "nature_conservation":
         return validate_headers(
             row,
             valid_count=8,
@@ -656,7 +702,18 @@ def validate_upload_file(file, file_type):
                 "action",
             ],
         )
-    elif file_type == "ERServicePriorityData":
+    elif file_type == "dept_program":
+        return validate_headers(
+            row,
+            valid_count=4,
+            headings=[
+                "ibmIdentifier",
+                "deptProgram1",
+                "deptProgram2",
+                "deptProgram3",
+            ],
+        )
+    elif file_type == "er_sp":
         return validate_headers(
             row,
             valid_count=6,
@@ -669,7 +726,7 @@ def validate_upload_file(file, file_type):
                 "Env Regs Specific Description",
             ],
         )
-    elif file_type == "PVSServicePriorityData":
+    elif file_type == "pvs_sp":
         return validate_headers(
             row,
             valid_count=8,
@@ -684,7 +741,7 @@ def validate_upload_file(file, file_type):
                 "PVSExampleActNo",
             ],
         )
-    elif file_type == "SFMServicePriorityData":
+    elif file_type == "sfm_sp":
         return validate_headers(
             row,
             valid_count=7,
@@ -698,7 +755,7 @@ def validate_upload_file(file, file_type):
                 "SerPri2",
             ],
         )
-    elif file_type == "GeneralServicePriorityData":
+    elif file_type == "general_sp":
         return validate_headers(
             row,
             valid_count=6,
@@ -711,7 +768,7 @@ def validate_upload_file(file, file_type):
                 "Description 2",
             ],
         )
-    elif file_type == "NCServicePriorityData":
+    elif file_type == "nc_sp":
         return validate_headers(
             row,
             valid_count=12,
@@ -730,7 +787,7 @@ def validate_upload_file(file, file_type):
                 "Milestone",
             ],
         )
-    elif file_type == "ServicePriorityMapping":
+    elif file_type == "service_priority_mapping":
         return validate_headers(
             row,
             valid_count=4,
