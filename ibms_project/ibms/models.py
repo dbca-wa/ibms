@@ -105,6 +105,13 @@ class IBMData(models.Model):
         else:
             return ""
 
+    def get_region_branch(self):
+        """This value belongs to linked GLPivDownload objects."""
+        if self.glpivdownload.exists():
+            return self.glpivdownload.first().regionBranch
+        else:
+            return ""
+
 
 class DepartmentProgram(models.Model):
     fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, verbose_name="financial year")
