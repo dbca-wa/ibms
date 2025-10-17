@@ -124,7 +124,7 @@ class DepartmentProgram(models.Model):
         unique_together = [("ibmIdentifier", "fy")]
 
     def __str__(self):
-        return f"{self.fy} {self.ibmIdentifier} {self.dept_program1}"
+        return f"{self.fy} {self.dept_program1}"
 
 
 class GLPivDownload(models.Model):
@@ -378,6 +378,12 @@ class GeneralServicePriority(ServicePriority):
     class Meta(ServicePriority.Meta):
         verbose_name_plural = "general service priorities"
 
+    def get_d1(self):
+        return self.description
+
+    def get_d2(self):
+        return self.description2
+
 
 class NCServicePriority(ServicePriority):
     assetNo = models.CharField(max_length=5, verbose_name="asset no")
@@ -422,6 +428,12 @@ class NCServicePriority(ServicePriority):
         verbose_name = "NC service priority"
         verbose_name_plural = "NC service priorities"
 
+    def get_d1(self):
+        return self.action
+
+    def get_d2(self):
+        return self.milestone
+
 
 class PVSServicePriority(ServicePriority):
     servicePriority1 = models.TextField(verbose_name="service priority 1")
@@ -458,6 +470,12 @@ class PVSServicePriority(ServicePriority):
     class Meta(ServicePriority.Meta):
         verbose_name = "PVS service priority"
         verbose_name_plural = "PVS service priorities"
+
+    def get_d1(self):
+        return self.servicePriority1
+
+    def get_d2(self):
+        return self.description
 
 
 class SFMServicePriority(ServicePriority):
@@ -497,6 +515,12 @@ class SFMServicePriority(ServicePriority):
         verbose_name = "SFM service priority"
         verbose_name_plural = "SFM service priorities"
 
+    def get_d1(self):
+        return self.description
+
+    def get_d2(self):
+        return self.description2
+
 
 class ERServicePriority(ServicePriority):
     classification = models.TextField()
@@ -533,6 +557,12 @@ class ERServicePriority(ServicePriority):
     class Meta(ServicePriority.Meta):
         verbose_name = "ER service priority"
         verbose_name_plural = "ER service priorities"
+
+    def get_d1(self):
+        return self.classification
+
+    def get_d2(self):
+        return self.description
 
 
 class Outcome(models.Model):
