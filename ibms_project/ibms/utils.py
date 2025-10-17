@@ -342,20 +342,15 @@ def import_dept_program(file_name, fy):
     """
     reader, file, file_name = csvload(file_name)
     for row in reader:
-        # Validate input data
-        try:
-            ibmdata = IBMData.objects.get(ibmIdentifier=row[0], fy=fy)
-        except IBMData.DoesNotExist:
-            # If a matching IBMData object does not exist, skip this record.
-            continue
-        validate_char_field("ibmIdentifier", 50, row[0])
+        # Validate input data.
+        validate_char_field("ibmIdentifier", 100, row[0])
         validate_char_field("deptProgram1", 500, row[1])
         validate_char_field("deptProgram2", 500, row[2])
         validate_char_field("deptProgram3", 500, row[3])
         # Create/update the record
         DepartmentProgram.objects.get_or_create(
             fy=fy,
-            ibmdata=ibmdata,
+            ibmIdentifier=row[0],
             dept_program1=row[1],
             dept_program2=row[2],
             dept_program3=row[3],

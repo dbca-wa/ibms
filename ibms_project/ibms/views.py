@@ -20,7 +20,7 @@ from xlutils.copy import copy as copy_xl
 
 from ibms.forms import ClearGLPivotForm, DownloadForm, IbmDataFilterForm, IbmDataForm, ManagerCodeUpdateForm, ReloadForm, UploadForm
 from ibms.models import GLPivDownload, IBMData, NCServicePriority, PVSServicePriority, SFMServicePriority
-from ibms.reports import code_update_report, download_enhanced_report, download_report, reload_report
+from ibms.reports import code_update_report, download_report, reload_report
 from ibms.utils import get_download_period, process_upload_file, validate_upload_file
 
 
@@ -168,6 +168,7 @@ class DownloadView(IbmsFormView):
     def form_valid(self, form):
         d = form.cleaned_data
         glpiv_qs = GLPivDownload.objects.filter(fy=d["financial_year"])
+
         if d.get("cost_centre", None):
             glpiv_qs = glpiv_qs.filter(costCentre=d["cost_centre"])
         elif d.get("region", None):
@@ -175,9 +176,11 @@ class DownloadView(IbmsFormView):
         elif d.get("division", None):
             glpiv_qs = glpiv_qs.filter(division=d["division"])
 
+        glpiv_qs = glpiv_qs.select_related("ibmdata", "department_program")
+
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=ibms_data_download.csv"
-        response = download_report(glpiv_qs, response)  # Write CSV data.
+        response = download_report(glpiv_qs, response)
         return response
 
 
@@ -201,9 +204,40 @@ class DownloadEnhancedView(DownloadView):
         elif d.get("division", None):
             glpiv_qs = glpiv_qs.filter(division=d["division"])
 
+        glpiv_qs = glpiv_qs.select_related("ibmdata", "department_program")
+
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=ibms_data_enhanced_download.csv"
-        response = download_enhanced_report(glpiv_qs, response)  # Write CSV data.
+        response = download_report(glpiv_qs, response, enhanced=True)
+        return response
+
+
+class DownloadDeptProgramView(DownloadView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["page_title"] = f"{settings.SITE_ACRONYM} | Download Department Programs"
+        context["title"] = "DOWNLOAD DEPARTMENT PROGRAMS"
+        return context
+
+    def get_success_url(self):
+        return reverse("ibms:download_dept_program")
+
+    def form_valid(self, form):
+        d = form.cleaned_data
+        glpiv_qs = GLPivDownload.objects.filter(fy=d["financial_year"])
+
+        if d.get("cost_centre", None):
+            glpiv_qs = glpiv_qs.filter(costCentre=d["cost_centre"])
+        elif d.get("region", None):
+            glpiv_qs = glpiv_qs.filter(regionBranch=d["region"])
+        elif d.get("division", None):
+            glpiv_qs = glpiv_qs.filter(division=d["division"])
+
+        glpiv_qs = glpiv_qs.select_related("ibmdata", "department_program")
+
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = "attachment; filename=ibms_department_program_download.csv"
+        response = download_report(glpiv_qs, response, enhanced=True, dept_programs=True)
         return response
 
 
@@ -432,15 +466,22 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
             qs = qs.distinct(self.fieldname)
         choices = []
         for obj in qs:
-            if self.fieldname == "__str__":
-                choice_val = str(obj)
+            # Choice value
+            if self.return_pk:
+                choice_val = obj.pk
             else:
                 choice_val = getattr(obj, self.fieldname)
-            if choice_val:
-                if self.return_pk:
-                    choices.append([obj.pk, choice_val])
-                else:
-                    choices.append([choice_val, choice_val])
+
+            # Choice display
+            if self.fieldname == "service":
+                choice_disp = obj.get_service_display()
+            elif self.fieldname == "project":
+                choice_disp = obj.get_project_display()
+            else:
+                choice_disp = getattr(obj, self.fieldname)
+
+            choices.append([choice_disp, choice_val])
+
         context = {"choices": choices}
         return self.render_to_response(context)
 

@@ -6,17 +6,6 @@ from django.db.models import Sum
 from xlrd import cellname
 from xlwt import Formula, XFStyle, easyxf
 
-from ibms.models import (
-    CorporateStrategy,
-    ERServicePriority,
-    GeneralServicePriority,
-    IBMData,
-    NCServicePriority,
-    NCStrategicPlan,
-    PVSServicePriority,
-    SFMServicePriority,
-)
-
 
 def service_priority_report(workbook, gl, ibm, nc_sp, pvs_sp, fm_sp):
     # Sheet 1
@@ -439,120 +428,10 @@ def write_service_priorities(sheet, nc_sp, pvs_sp, fm_sp):
         row += 1
 
 
-def download_report(glpiv_qs, response):
-    """Convenience function to write a CSV to a passed-in HTTPResponse.
-    This is an extremely obtuse function (as originally written), so here is a summary:
-    The ibms app models contain almost no FK link between each other due to their regularly being
-    replaced from external data (Oracle Financials), however they do generally have natural keys
-    of <Identier> + <Financial year>. Subsequently, this function constructs a dictionary for
-    each object class having the keys being that constructed natural key.
-    Starting from a passed-in queryset of GLPivDownload objects (filtered to a single FY), the
-    function
-    """
-    # Initial validation check: glpiv_qs may contain a maximum of one FY value.
-    fys = set(glpiv_qs.values_list("fy", flat=True))
-    if len(fys) > 1:
-        raise ValueError("GLPivDownload queryset contains >1 financial year value")
-
-    glpiv_qs = glpiv_qs.values(
-        "codeID",
-        "fy",
-        "downloadPeriod",
-        "costCentre",
-        "account",
-        "service",
-        "activity",
-        "resource",
-        "project",
-        "job",
-        "shortCode",
-        "shortCodeName",
-        "gLCode",
-        "ptdActual",
-        "ptdBudget",
-        "ytdActual",
-        "ytdBudget",
-        "fybudget",
-        "ytdVariance",
-        "ccName",
-        "serviceName",
-        "jobName",
-        "resNameNo",
-        "actNameNo",
-        "projNameNo",
-        "regionBranch",
-        "division",
-        "resourceCategory",
-        "wildfire",
-        "expenseRevenue",
-        "fireActivities",
-        "mPRACategory",
-    )
-
-    # Get a values queryset of all IBMData objects.
-    ibmdata_qs = IBMData.objects.values(
-        "ibmIdentifier",
-        "fy",
-        "budgetArea",
-        "projectSponsor",
-        "regionalSpecificInfo",
-        "servicePriorityID",
-        "annualWPInfo",
-    )
-    # Construct a dict of the IBMData queryset, keys being a natural key of <ibmIdentifier>_<fy>
-    ibmdict = dict([(r["ibmIdentifier"] + "_" + r["fy"], r) for r in ibmdata_qs])
-
-    # Do the same for CorporateStrategy objects.
-    corpstrat_qs = CorporateStrategy.objects.values(
-        "corporateStrategyNo",
-        "fy",
-        "description1",
-        "description2",
-    )
-    csdict = dict([(r["corporateStrategyNo"] + "_" + r["fy"], r) for r in corpstrat_qs])
-
-    # Do the same for NCStrategicPlan objects.
-    ncstratplan_qs = NCStrategicPlan.objects.values(
-        "strategicPlanNo",
-        "fy",
-        "directionNo",
-        "direction",
-        "aimNo",
-        "aim1",
-        "aim2",
-        "actionNo",
-        "action",
-    )
-    ncdict = dict([(r["strategicPlanNo"] + "_" + r["fy"], r) for r in ncstratplan_qs])
-
-    # Construct a dict of the various service priority class objects as value lists.
-    ncsprows = NCServicePriority.objects.values_list(
-        "servicePriorityNo", "fy", "strategicPlanNo", "corporateStrategyNo", "action", "milestone"
-    )
-    sfmsprows = SFMServicePriority.objects.values_list(
-        "servicePriorityNo", "fy", "strategicPlanNo", "corporateStrategyNo", "description", "description2"
-    )
-    pvssprows = PVSServicePriority.objects.values_list(
-        "servicePriorityNo", "fy", "strategicPlanNo", "corporateStrategyNo", "servicePriority1", "description"
-    )
-    gensprows = GeneralServicePriority.objects.values_list(
-        "servicePriorityNo", "fy", "strategicPlanNo", "corporateStrategyNo", "description", "description2"
-    )
-    ersprows = ERServicePriority.objects.values_list(
-        "servicePriorityNo", "fy", "strategicPlanNo", "corporateStrategyNo", "classification", "description"
-    )
-
-    # Collapse the multiple querysets into a single dictionary.
-    spdict = {}
-    # NOTE: Order is important here.
-    for sprows in [ncsprows, sfmsprows, pvssprows, gensprows, ersprows]:
-        for row in sprows:
-            key = f"{row[0]}_{row[1]}"
-            spdict.update({key: row})
-
-    # Now that we've constructed our dictionaries, begin writing the CSV output
-    # to the passed-in HTTP Response object.
+def download_report(glpiv_qs, response, enhanced=False, dept_programs=False):
+    """The Download Report views all return variations on the same CSV output, with additional columns for some reports."""
     writer = csv.writer(response)
+
     headers = [
         "IBMS ID",
         "Financial Year",
@@ -568,11 +447,9 @@ def download_report(glpiv_qs, response):
         "Short Code Name",
         "GL Code",
         "ptd Actual",
-        "ptd Budget",
         "ytd Actual",
         "ytd Budget",
         "fy Budget",
-        "ytd Variance",
         "cc Name",
         "Service Name",
         "Job Name",
@@ -605,405 +482,110 @@ def download_report(glpiv_qs, response):
         "Service Priority Description 1",
         "Service Priority Description 2",
     ]
-    writer.writerow(headers)
-
-    for row in glpiv_qs:
-        # outputdict will be used to generate each row in the final CSV output.
-        outputdict = row
-
-        # Find the matching IBMData object natural key (codeID_fy == ibmIdentifier_fy)
-        ibmdata_key = row["codeID"] + "_" + row["fy"]
-        if ibmdata_key in ibmdict:
-            ibmdata_obj = ibmdict[ibmdata_key]
-            # Enrich the dict with the IBMData object values.
-            outputdict.update(ibmdata_obj)
-
-        # The output row won't necessarily contain 'link' field values but if it does,
-        # enrich the dict with the matching object values.
-        if "servicePriorityID" in outputdict.keys():
-            sp_key = outputdict["servicePriorityID"] + "_" + row["fy"]
-            # Service priorities are handled slightly differently, each having been flattened
-            # into lists (instead of dictionaries).
-            if sp_key in spdict:
-                service_priority = spdict[sp_key]
-                strategic_plan_no = service_priority[2]
-                corporate_strategy_no = service_priority[3]
-                d1 = service_priority[4]
-                d2 = service_priority[5]
-            else:
-                strategic_plan_no = ""
-                corporate_strategy_no = ""
-                d1 = ""
-                d2 = ""
-
-            outputdict.update(
-                {"corporatePlanNo": corporate_strategy_no, "strategicPlanNo": strategic_plan_no, "d1": d1, "d2": d2}
-            )
-
-        # If corporatePlanNo and/or strategicPlanNo values are present in the dict,
-        # they came from the service priorities above. Hence, this part needs to
-        # come afterwards.
-        if "corporatePlanNo" in outputdict.keys():
-            corp_plan_key = outputdict["corporatePlanNo"] + "_" + row["fy"]
-            if corp_plan_key in csdict:
-                outputdict.update(csdict[corp_plan_key])
-
-        if "strategicPlanNo" in outputdict.keys():
-            strat_plan_key = outputdict["strategicPlanNo"] + "_" + row["fy"]
-            if strat_plan_key in ncdict:
-                outputdict.update(ncdict[strat_plan_key])
-
-        csvrow = []
-        # For each of the following list of keys, append EITHER the matching dict value
-        # OR an empty string into the csvrow list.
-        # The final output will be a sparsely-filled list of values.
-        for key in [
-            "codeID",
-            "fy",
-            "downloadPeriod",
-            "costCentre",
-            "account",
-            "service",
-            "activity",
-            "resource",
-            "project",
-            "job",
-            "shortCode",
-            "shortCodeName",
-            "gLCode",
-            "ptdActual",
-            "ptdBudget",
-            "ytdActual",
-            "ytdBudget",
-            "fybudget",
-            "ytdVariance",
-            "ccName",
-            "serviceName",
-            "jobName",
-            "resNameNo",
-            "actNameNo",
-            "projNameNo",
-            "regionBranch",
-            "division",
-            "resourceCategory",
-            "wildfire",
-            "expenseRevenue",
-            "fireActivities",
-            "mPRACategory",
-            "budgetArea",
-            "projectSponsor",
-            "corporatePlanNo",
-            "strategicPlanNo",
-            "regionalSpecificInfo",
-            "servicePriorityID",
-            "annualWPInfo",
-            "description1",
-            "description2",
-            "directionNo",
-            "direction",
-            "aimNo",
-            "aim1",
-            "aim2",
-            "actionNo",
-            "action",
-            "d1",
-            "d2",
-        ]:
-            csvrow.append(outputdict.get(key, ""))
-
-        # Conditionally cast some string values as integers.
-        if csvrow[3] and csvrow[3].isdigit():
-            csvrow[3] = int(csvrow[3])  # costCentre
-        if csvrow[8] and csvrow[8].isdigit():
-            csvrow[8] = int(csvrow[8])  # project
-        if csvrow[9] and csvrow[9].isdigit():
-            csvrow[9] = int(csvrow[9])  # job
-
-        # Finally, write the row to the CSV output.
-        writer.writerow(csvrow)
-
-    return response
-
-
-def download_enhanced_report(glpiv_qs, response):
-    """Convenience function to write a CSV to a passed-in HTTPResponse."""
-    glpiv_qs = glpiv_qs.values(
-        "codeID",
-        "fy",
-        "downloadPeriod",
-        "costCentre",
-        "account",
-        "service",
-        "activity",
-        "resource",
-        "project",
-        "job",
-        "shortCode",
-        "shortCodeName",
-        "gLCode",
-        "ptdActual",
-        "ytdActual",
-        "ytdBudget",
-        "fybudget",
-        "ccName",
-        "serviceName",
-        "jobName",
-        "resNameNo",
-        "actNameNo",
-        "projNameNo",
-        "regionBranch",
-        "division",
-        "resourceCategory",
-        "wildfire",
-        "expenseRevenue",
-        "fireActivities",
-        "mPRACategory",
-    )
-
-    # Get a queryset of all IBMData objects.
-    ibmrows = IBMData.objects.values(
-        "ibmIdentifier",
-        "fy",
-        "budgetArea",
-        "projectSponsor",
-        "regionalSpecificInfo",
-        "servicePriorityID",
-        "annualWPInfo",
-        # These are the additional columns in the "Enhanced" download.
-        "priorityActionNo",
-        "priorityLevel",
-        "marineKPI",
-        "regionProject",
-        "regionDescription",
-    )
-
-    # Construct a dict of IBMData objects, keys being a natural key of <ibmIdentifier>_<fy>
-    ibmdict = dict([(r["ibmIdentifier"] + "_" + r["fy"], r) for r in ibmrows])
-
-    corpstrat_qs = CorporateStrategy.objects.values(
-        "corporateStrategyNo",
-        "fy",
-        "description1",
-        "description2",
-    )
-    csdict = dict([(r["corporateStrategyNo"] + "_" + r["fy"], r) for r in corpstrat_qs])
-
-    ncstratplan_qs = NCStrategicPlan.objects.values(
-        "strategicPlanNo",
-        "fy",
-        "directionNo",
-        "direction",
-        "aimNo",
-        "aim1",
-        "aim2",
-        "actionNo",
-        "action",
-    )
-    ncdict = dict([(r["strategicPlanNo"] + "_" + r["fy"], r) for r in ncstratplan_qs])
-
-    # Construct a dict of the various service priority class objects as value lists.
-    ncsprows = NCServicePriority.objects.values_list(
-        "servicePriorityNo", "fy", "strategicPlanNo", "corporateStrategyNo", "action", "milestone"
-    )
-    sfmsprows = SFMServicePriority.objects.values_list(
-        "servicePriorityNo", "fy", "strategicPlanNo", "corporateStrategyNo", "description", "description2"
-    )
-    pvssprows = PVSServicePriority.objects.values_list(
-        "servicePriorityNo", "fy", "strategicPlanNo", "corporateStrategyNo", "servicePriority1", "description"
-    )
-    gensprows = GeneralServicePriority.objects.values_list(
-        "servicePriorityNo", "fy", "strategicPlanNo", "corporateStrategyNo", "description", "description2"
-    )
-    ersprows = ERServicePriority.objects.values_list(
-        "servicePriorityNo", "fy", "strategicPlanNo", "corporateStrategyNo", "classification", "description"
-    )
-
-    # Collapse the multiple querysets into a single dictionary.
-    spdict = {}
-    # NOTE: Order is important here.
-    for sprows in [ncsprows, sfmsprows, pvssprows, gensprows, ersprows]:
-        for row in sprows:
-            key = f"{row[0]}_{row[1]}"
-            spdict.update({key: row})
-
-    # Now that we've constructed our dictionaries, begin writing the CSV output
-    # to the passed-in HTTP Response object.
-    writer = csv.writer(response)
-    headers = [
-        "IBMS ID",
-        "Financial Year",
-        "Download Period",
-        "Cost Centre",
-        "Account",
-        "Service",
-        "Activity",
-        "Resource",
-        "Project",
-        "Job",
-        "Short Code",
-        "Short Code Name",
-        "GL Code",
-        "ptd Actual",
-        "ytd Actual",
-        "ytd Budget",
-        "fy Budget",
-        "cc Name",
-        "Service Name",
-        "Job Name",
-        "Res Name No",
-        "Act Name No",
-        "Proj Name No",
-        "Region/Branch",
-        "Division",
-        "Resource Category",
-        "Wildfire",
-        "Expense Revenue",
-        "Fire Activities",
-        "mPRACategory",
-        "Budget Area",
-        "Project Sponsor",
-        "Corporate Strategy No",
-        "Strategic Plan No",
-        "Regional Specific Info",
-        "Service Priority No",
-        "Annual Works Plan",
-        "Corp Strategy Description 1",
-        "Corp Strategy Description 2",
-        "Nat Cons Strategic Direction No",
-        "Nat Cons Strat Direction Desc",
-        "Nat Cons Strat Plan Aim No",
-        "Nat Cons Strat Plan Aim Desc 1",
-        "Nat Cons Strat Plan Aim Desc 2",
-        "Nat Cons Strat Plan Action No",
-        "Nat Cons Strat Plan Action Description",
-        "Service Priority Description 1",
-        "Service Priority Description 2",
-        # Extra columns in the enhanced report
+    enhanced_report_headers = [
         "Priority Action No",
         "Priority Level",
         "Marine KPI",
         "Region Project",
         "Region Description",
     ]
+    department_programs_headers = [
+        "AEA Program Name",
+        "AEA Activity Name",
+    ]
 
-    writer.writerow(headers)
+    # Write the CSV header row.
+    if enhanced and dept_programs:
+        writer.writerow(headers + enhanced_report_headers + department_programs_headers)
+    elif enhanced:
+        writer.writerow(headers + enhanced_report_headers)
+    else:
+        writer.writerow(headers)
 
-    for row in glpiv_qs:
-        # outputdict will be used to generate each row in the final CSV output.
-        outputdict = row
+    for glpiv in glpiv_qs:
+        # For each object in the passed-in queryset, construct row content.
+        ibmdata = glpiv.ibmdata
+        department_program = glpiv.department_program
+        service_priority = None
+        corporate_strategy = None
+        strategic_plan = None
 
-        # Find the matching IBMData object natural key (codeID_fy == ibmIdentifier_fy)
-        ibmdata_key = row["codeID"] + "_" + row["fy"]
-        if ibmdata_key in ibmdict:
-            ibmdata_obj = ibmdict[ibmdata_key]
-            # Enrich the dict with the IBMData object values.
-            outputdict.update(ibmdata_obj)
+        if ibmdata:
+            service_priority = ibmdata.get_service_priority()
+            if service_priority:
+                corporate_strategy = service_priority.corporate_strategy
+                strategic_plan = service_priority.strategic_plan
 
-        # The output row won't necessarily contain 'link' field values but if it does,
-        # enrich the dict with the matching object values.
-        if "servicePriorityID" in outputdict.keys():
-            sp_key = outputdict["servicePriorityID"] + "_" + row["fy"]
-            # Service priorities are handled slightly differently, each having been flattened
-            # into lists (instead of dictionaries).
-            if sp_key in spdict:
-                service_priority = spdict[sp_key]
-                strategic_plan_no = service_priority[2]
-                corporate_strategy_no = service_priority[3]
-                d1 = service_priority[4]
-                d2 = service_priority[5]
-            else:
-                strategic_plan_no = ""
-                corporate_strategy_no = ""
-                d1 = ""
-                d2 = ""
+        report_row = [
+            glpiv.codeID,
+            glpiv.fy,
+            glpiv.downloadPeriod,
+            glpiv.costCentre,
+            glpiv.account,
+            glpiv.service,
+            glpiv.activity,
+            glpiv.resource,
+            glpiv.project,
+            glpiv.job,
+            glpiv.shortCode,
+            glpiv.shortCodeName,
+            glpiv.gLCode,
+            glpiv.ptdActual,
+            glpiv.ytdActual,
+            glpiv.ytdBudget,
+            glpiv.fybudget,
+            glpiv.ccName,
+            glpiv.serviceName,
+            glpiv.jobName,
+            glpiv.resNameNo,
+            glpiv.actNameNo,
+            glpiv.projNameNo,
+            glpiv.regionBranch,
+            glpiv.division,
+            glpiv.resourceCategory,
+            glpiv.wildfire,
+            glpiv.expenseRevenue,
+            glpiv.fireActivities,
+            glpiv.mPRACategory,
+            ibmdata.budgetArea if ibmdata else "",
+            ibmdata.projectSponsor if ibmdata else "",
+            corporate_strategy.corporateStrategyNo if corporate_strategy else "",
+            strategic_plan.strategicPlanNo if strategic_plan else "",
+            ibmdata.regionalSpecificInfo if ibmdata else "",
+            ibmdata.servicePriorityID if ibmdata else "",
+            ibmdata.annualWPInfo if ibmdata else "",
+            corporate_strategy.description1 if corporate_strategy else "",
+            corporate_strategy.description2 if corporate_strategy else "",
+            strategic_plan.directionNo if strategic_plan else "",
+            strategic_plan.direction if strategic_plan else "",
+            strategic_plan.aimNo if strategic_plan else "",
+            strategic_plan.aim1 if strategic_plan else "",
+            strategic_plan.aim2 if strategic_plan else "",
+            strategic_plan.actionNo if strategic_plan else "",
+            strategic_plan.action if strategic_plan else "",
+            service_priority.get_d1() if service_priority else "",
+            service_priority.get_d2() if service_priority else "",
+        ]
 
-            outputdict.update(
-                {"corporatePlanNo": corporate_strategy_no, "strategicPlanNo": strategic_plan_no, "d1": d1, "d2": d2}
-            )
+        enhanced_report_row = [
+            ibmdata.priorityActionNo if ibmdata else "",
+            ibmdata.priorityLevel if ibmdata else "",
+            ibmdata.marineKPI if ibmdata else "",
+            ibmdata.regionProject if ibmdata else "",
+            ibmdata.regionDescription if ibmdata else "",
+        ]
 
-        # If corporatePlanNo and/or strategicPlanNo values are present in the dict,
-        # they came from the service priorities above. Hence, this part needs to
-        # come afterwards.
-        if "corporatePlanNo" in outputdict.keys():
-            corp_plan_key = outputdict["corporatePlanNo"] + "_" + row["fy"]
-            if corp_plan_key in csdict:
-                outputdict.update(csdict[corp_plan_key])
+        department_programs_row = [
+            department_program.dept_program1 if department_program else "",
+            department_program.dept_program2 if department_program else "",
+        ]
 
-        if "strategicPlanNo" in outputdict.keys():
-            strat_plan_key = outputdict["strategicPlanNo"] + "_" + row["fy"]
-            if strat_plan_key in ncdict:
-                outputdict.update(ncdict[strat_plan_key])
-
-        csvrow = list()
-        for key in [
-            "codeID",
-            "fy",
-            "downloadPeriod",
-            "costCentre",
-            "account",
-            "service",
-            "activity",
-            "resource",
-            "project",
-            "job",
-            "shortCode",
-            "shortCodeName",
-            "gLCode",
-            "ptdActual",
-            "ytdActual",
-            "ytdBudget",
-            "fybudget",
-            "ccName",
-            "serviceName",
-            "jobName",
-            "resNameNo",
-            "actNameNo",
-            "projNameNo",
-            "regionBranch",
-            "division",
-            "resourceCategory",
-            "wildfire",
-            "expenseRevenue",
-            "fireActivities",
-            "mPRACategory",
-            "budgetArea",
-            "projectSponsor",
-            "corporatePlanNo",
-            "strategicPlanNo",
-            "regionalSpecificInfo",
-            "servicePriorityID",
-            "annualWPInfo",
-            "description1",
-            "description2",
-            "directionNo",
-            "direction",
-            "aimNo",
-            "aim1",
-            "aim2",
-            "actionNo",
-            "action",
-            "d1",
-            "d2",
-            "priorityActionNo",
-            "priorityLevel",
-            "marineKPI",
-            "regionProject",
-            "regionDescription",
-        ]:
-            csvrow.append(outputdict.get(key, ""))
-
-        # Conditionally cast some string values as ints.
-        csvrow[3] = int(csvrow[3])  # costCentre
-        try:
-            csvrow[8] = int(csvrow[8])  # project
-        except:
-            pass
-        try:
-            csvrow[9] = int(csvrow[9])  # job
-        except:
-            pass
-
-        # Finally, write the row to the CSV output.
-        writer.writerow(csvrow)
+        # Write the report output row.
+        if enhanced and dept_programs:
+            writer.writerow(report_row + enhanced_report_row + department_programs_row)
+        elif enhanced:
+            writer.writerow(report_row + enhanced_report_row)
+        else:
+            writer.writerow(report_row)
 
     return response
