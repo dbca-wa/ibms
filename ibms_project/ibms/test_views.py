@@ -110,7 +110,7 @@ class IbmsViewsTest(IbmsTestCase):
             url, data={"upload_file_type": "dept_program", "upload_file": upload, "financial_year": "2024/25"}, follow=True
         )
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(DepartmentProgram.objects.count(), 1)
+        self.assertEqual(DepartmentProgram.objects.count(), 4)
 
     def test_clearglpivot_view_redirect(self):
         """Test clearglpivot view redirects normal users, but not superusers."""
