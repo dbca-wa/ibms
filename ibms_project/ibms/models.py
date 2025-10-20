@@ -50,7 +50,6 @@ class IBMData(models.Model):
     modified = models.DateTimeField(null=True, blank=True, auto_now=True, editable=False, verbose_name="last modified")
 
     class Meta:
-        # Financial year and ibmIdentifier should make a natural key for this model.
         unique_together = [("ibmIdentifier", "fy")]
         verbose_name = "IBM data"
         verbose_name_plural = "IBM data"
@@ -125,6 +124,20 @@ class DepartmentProgram(models.Model):
 
     def __str__(self):
         return f"{self.fy} {self.dept_program1}"
+
+
+class CorporateStrategy(models.Model):
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, verbose_name="financial year")
+    corporateStrategyNo = models.CharField(max_length=100, verbose_name="corporate strategy no")
+    description1 = models.TextField(null=True)
+    description2 = models.TextField(null=True)
+
+    def __str__(self):
+        return f"{self.fy} {self.corporateStrategyNo}"
+
+    class Meta:
+        unique_together = [("corporateStrategyNo", "fy")]
+        verbose_name_plural = "corporate strategies"
 
 
 class GLPivDownload(models.Model):
@@ -236,20 +249,6 @@ class GLPivDownload(models.Model):
             return str(self.project).zfill(4)
         else:
             return ""
-
-
-class CorporateStrategy(models.Model):
-    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, verbose_name="financial year")
-    corporateStrategyNo = models.CharField(max_length=100, verbose_name="corporate strategy no")
-    description1 = models.TextField(null=True)
-    description2 = models.TextField(null=True)
-
-    def __str__(self):
-        return f"{self.fy} {self.corporateStrategyNo}"
-
-    class Meta:
-        unique_together = [("corporateStrategyNo", "fy")]
-        verbose_name_plural = "corporate strategies"
 
 
 class NCStrategicPlan(models.Model):
