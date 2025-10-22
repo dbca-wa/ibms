@@ -5,7 +5,7 @@ import tempfile
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse, HttpResponseBadRequest, QueryDict
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, QueryDict
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.http import urlencode
@@ -20,7 +20,7 @@ from xlutils.copy import copy as copy_xl
 
 from ibms.forms import ClearGLPivotForm, DownloadForm, IbmDataFilterForm, IbmDataForm, ManagerCodeUpdateForm, ReloadForm, UploadForm
 from ibms.models import GLPivDownload, IBMData, NCServicePriority, PVSServicePriority, SFMServicePriority
-from ibms.reports import code_update_report, download_enhanced_report, download_report, reload_report
+from ibms.reports import code_update_report, download_report, reload_report
 from ibms.utils import get_download_period, process_upload_file, validate_upload_file
 
 
@@ -133,11 +133,11 @@ class UploadView(RevisionMixin, IbmsFormView):
         # Upload may still not be valid, but at least no exception was thrown.
         if upload_valid:
             fy = form.cleaned_data["financial_year"]
-            try:
-                process_upload_file(file.name, file_type, fy)
-                messages.success(self.request, f"{file_type} data imported successfully")
-            except Exception as e:
-                messages.warning(self.request, f"Error: {str(e)}")
+            # try:
+            data_type = process_upload_file(file.name, file_type, fy)
+            messages.success(self.request, f"{data_type} data imported successfully")
+            # except Exception as e:
+            #     messages.warning(self.request, f"Error: {str(e)}")
         else:
             messages.warning(
                 self.request,
@@ -168,6 +168,7 @@ class DownloadView(IbmsFormView):
     def form_valid(self, form):
         d = form.cleaned_data
         glpiv_qs = GLPivDownload.objects.filter(fy=d["financial_year"])
+
         if d.get("cost_centre", None):
             glpiv_qs = glpiv_qs.filter(costCentre=d["cost_centre"])
         elif d.get("region", None):
@@ -175,13 +176,20 @@ class DownloadView(IbmsFormView):
         elif d.get("division", None):
             glpiv_qs = glpiv_qs.filter(division=d["division"])
 
+        glpiv_qs = glpiv_qs.select_related("ibmdata", "department_program")
+
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=ibms_data_download.csv"
-        response = download_report(glpiv_qs, response)  # Write CSV data.
+        response = download_report(glpiv_qs, response)
         return response
 
 
 class DownloadEnhancedView(DownloadView):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return HttpResponseForbidden("You do not have permission to use this function.")
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["page_title"] = f"{settings.SITE_ACRONYM} | Enhanced Download"
@@ -201,9 +209,45 @@ class DownloadEnhancedView(DownloadView):
         elif d.get("division", None):
             glpiv_qs = glpiv_qs.filter(division=d["division"])
 
+        glpiv_qs = glpiv_qs.select_related("ibmdata", "department_program")
+
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=ibms_data_enhanced_download.csv"
-        response = download_enhanced_report(glpiv_qs, response)  # Write CSV data.
+        response = download_report(glpiv_qs, response, enhanced=True)
+        return response
+
+
+class DownloadDeptProgramView(DownloadView):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return HttpResponseForbidden("You do not have permission to use this function.")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["page_title"] = f"{settings.SITE_ACRONYM} | Download Department Programs"
+        context["title"] = "DOWNLOAD DEPARTMENT PROGRAMS"
+        return context
+
+    def get_success_url(self):
+        return reverse("ibms:download_dept_program")
+
+    def form_valid(self, form):
+        d = form.cleaned_data
+        glpiv_qs = GLPivDownload.objects.filter(fy=d["financial_year"])
+
+        if d.get("cost_centre", None):
+            glpiv_qs = glpiv_qs.filter(costCentre=d["cost_centre"])
+        elif d.get("region", None):
+            glpiv_qs = glpiv_qs.filter(regionBranch=d["region"])
+        elif d.get("division", None):
+            glpiv_qs = glpiv_qs.filter(division=d["division"])
+
+        glpiv_qs = glpiv_qs.select_related("ibmdata", "department_program")
+
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = "attachment; filename=ibms_department_program_download.csv"
+        response = download_report(glpiv_qs, response, enhanced=True, dept_programs=True)
         return response
 
 
@@ -356,7 +400,7 @@ class JSONResponseMixin(object):
         return json.dumps(context)
 
 
-class ServicePriorityMappingsJSON(JSONResponseMixin, BaseDetailView):
+class ServicePriorityMappingJSON(JSONResponseMixin, BaseDetailView):
     """View to return a filtered list of mappings.
     Cannot use below as we require multiple fields without PKs
     """
@@ -432,15 +476,22 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
             qs = qs.distinct(self.fieldname)
         choices = []
         for obj in qs:
-            if self.fieldname == "__str__":
-                choice_val = str(obj)
+            # Choice value
+            if self.return_pk:
+                choice_val = obj.pk
             else:
                 choice_val = getattr(obj, self.fieldname)
-            if choice_val:
-                if self.return_pk:
-                    choices.append([obj.pk, choice_val])
-                else:
-                    choices.append([choice_val, choice_val])
+
+            # Choice display
+            if self.fieldname == "service":
+                choice_disp = obj.get_service_display()
+            elif self.fieldname == "project":
+                choice_disp = obj.get_project_display()
+            else:
+                choice_disp = getattr(obj, self.fieldname)
+
+            choices.append([choice_disp, choice_val])
+
         context = {"choices": choices}
         return self.render_to_response(context)
 

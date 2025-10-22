@@ -1,17 +1,17 @@
 from django.urls import path
 
-from ibms.models import GLPivDownload, IBMData, ServicePriorityMappings
+from ibms.models import GLPivDownload, IBMData, ServicePriorityMapping
 from ibms.views import (
     ClearGLPivotView,
     CodeUpdateAdminView,
     CodeUpdateView,
+    DownloadDeptProgramView,
     DownloadEnhancedView,
     DownloadView,
     IbmDataList,
     IbmDataUpdate,
     IbmsModelFieldJSON,
-    ReloadView,
-    ServicePriorityMappingsJSON,
+    ServicePriorityMappingJSON,
     UploadView,
 )
 
@@ -20,7 +20,7 @@ urlpatterns = [
     path("upload/", UploadView.as_view(), name="upload"),
     path("download/", DownloadView.as_view(), name="download"),
     path("download-enhanced/", DownloadEnhancedView.as_view(), name="download_enhanced"),
-    path("reload/", ReloadView.as_view(), name="reload"),
+    path("download-dept-program/", DownloadDeptProgramView.as_view(), name="download_dept_program"),
     path("code-update/", CodeUpdateView.as_view(), name="code_update"),
     path("code-update-admin/", CodeUpdateAdminView.as_view(), name="code_update_admin"),
     path("data-amendment/", IbmDataList.as_view(), name="ibmdata_list"),
@@ -87,9 +87,7 @@ urlpatterns = [
     ),
     path(
         "ajax/mappings",
-        ServicePriorityMappingsJSON.as_view(
-            model=ServicePriorityMappings, fieldname="wildlifeManagement, parksManagement, forestManagement"
-        ),
+        ServicePriorityMappingJSON.as_view(model=ServicePriorityMapping, fieldname="wildlifeManagement, parksManagement, forestManagement"),
         name="ajax_mappings",
     ),
 ]
