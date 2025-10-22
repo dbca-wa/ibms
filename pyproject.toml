@@ -26,7 +26,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["ipython>=9.5.0", "ipdb>=0.13.13", "mixer>=7.2.2", "pre-commit>=4.3.0"]
+dev = ["ipython>=9.6.0", "ipdb>=0.13.13", "mixer>=7.2.2", "pre-commit>=4.3.0"]
 
 # Reference: https://docs.astral.sh/ruff/configuration/
 [tool.ruff]
