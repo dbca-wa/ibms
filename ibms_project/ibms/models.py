@@ -70,7 +70,7 @@ class IBMData(models.Model):
         if user:
             self.modifier = user
 
-        if not self.service_priority:
+        if self.pk and not self.service_priority:
             sp = self.get_service_priority()
             if sp:
                 self.content_type = ContentType.objects.get_for_model(sp._meta.model)
