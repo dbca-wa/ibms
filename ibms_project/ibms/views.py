@@ -133,11 +133,11 @@ class UploadView(RevisionMixin, IbmsFormView):
         # Upload may still not be valid, but at least no exception was thrown.
         if upload_valid:
             fy = form.cleaned_data["financial_year"]
-            try:
-                data_type = process_upload_file(file.name, file_type, fy)
-                messages.success(self.request, f"{data_type} data imported successfully")
-            except Exception as e:
-                messages.warning(self.request, f"Error: {str(e)}")
+            # try:
+            data_type = process_upload_file(file.name, file_type, fy)
+            messages.success(self.request, f"{data_type} data imported successfully")
+            # except Exception as e:
+            #     messages.warning(self.request, f"Error: {str(e)}")
         else:
             messages.warning(
                 self.request,
