@@ -270,7 +270,6 @@ class GLPivDownloadAdmin(ModelAdmin):
     actions = [
         export_as_csv_action(
             translations=[
-                "id",
                 "financialYear",
                 "Download Period",
                 "CC",
@@ -308,7 +307,6 @@ class GLPivDownloadAdmin(ModelAdmin):
                 "MPRA Category",
             ],
             fields=[
-                "id",
                 "fy",
                 "downloadPeriod",
                 "costCentre",
@@ -387,8 +385,8 @@ class CorporateStrategyAdmin(ModelAdmin):
     search_fields = ["corporateStrategyNo", "description1", "description2"]
     actions = [
         export_as_csv_action(
-            translations=["id", "financialYear", "IBMSCSNo", "IBMSCSDesc1", "IBMSCSDesc2"],
-            fields=["id", "fy", "corporateStrategyNo", "description1", "description2"],
+            translations=["financialYear", "IBMSCSNo", "IBMSCSDesc1", "IBMSCSDesc2"],
+            fields=["fy", "corporateStrategyNo", "description1", "description2"],
         )
     ]
 
@@ -413,7 +411,6 @@ class NCStrategicPlanAdmin(ModelAdmin):
     actions = [
         export_as_csv_action(
             translations=[
-                "id",
                 "financialYear",
                 "StratPlanNo",
                 "StratDirNo",
@@ -425,7 +422,6 @@ class NCStrategicPlanAdmin(ModelAdmin):
                 "Action",
             ],
             fields=[
-                "id",
                 "fy",
                 "strategicPlanNo",
                 "directionNo",
@@ -488,7 +484,6 @@ class GeneralServicePriorityAdmin(ServicePriorityAdmin):
     actions = [
         export_as_csv_action(
             translations=[
-                "id",
                 "financialYear",
                 "CategoryID",
                 "SerPriNo",
@@ -498,7 +493,6 @@ class GeneralServicePriorityAdmin(ServicePriorityAdmin):
                 "Description 2",
             ],
             fields=[
-                "id",
                 "fy",
                 "categoryID",
                 "servicePriorityNo",
@@ -522,7 +516,6 @@ class NCServicePriorityAdmin(ServicePriorityAdmin):
     actions = [
         export_as_csv_action(
             translations=[
-                "id",
                 "financialYear",
                 "CategoryID",
                 "SerPriNo",
@@ -538,7 +531,6 @@ class NCServicePriorityAdmin(ServicePriorityAdmin):
                 "Milestone",
             ],
             fields=[
-                "id",
                 "fy",
                 "categoryID",
                 "servicePriorityNo",
@@ -563,7 +555,6 @@ class PVSServicePriorityAdmin(ServicePriorityAdmin):
     actions = [
         export_as_csv_action(
             translations=[
-                "id",
                 "financialYear",
                 "CategoryID",
                 "SerPriNo",
@@ -575,7 +566,6 @@ class PVSServicePriorityAdmin(ServicePriorityAdmin):
                 "PVSExampleActNo",
             ],
             fields=[
-                "id",
                 "fy",
                 "categoryID",
                 "servicePriorityNo",
@@ -596,7 +586,6 @@ class SFMServicePriorityAdmin(ServicePriorityAdmin):
     actions = [
         export_as_csv_action(
             translations=[
-                "id",
                 "financialYear",
                 "CategoryID",
                 "Region",
@@ -607,7 +596,6 @@ class SFMServicePriorityAdmin(ServicePriorityAdmin):
                 "SerPri2",
             ],
             fields=[
-                "id",
                 "fy",
                 "categoryID",
                 "regionBranch",
@@ -627,7 +615,6 @@ class ERServicePriorityAdmin(ServicePriorityAdmin):
     actions = [
         export_as_csv_action(
             translations=[
-                "id",
                 "financialYear",
                 "categoryID",
                 "servicePriorityNo",
@@ -639,7 +626,6 @@ class ERServicePriorityAdmin(ServicePriorityAdmin):
                 "classification",
             ],
             fields=[
-                "id",
                 "fy",
                 "categoryID",
                 "servicePriorityNo",
@@ -660,8 +646,8 @@ class OutcomeAdmin(ModelAdmin):
     list_filter = ["fy__financialYear"]
     actions = [
         export_as_csv_action(
-            translations=["id", "financialYear", "q1Input", "q2Input", "q3Input", "q4Input"],
-            fields=["id", "fy", "q1Input", "q2Input", "q3Input", "q4Input"],
+            translations=["financialYear", "q1Input", "q2Input", "q3Input", "q4Input"],
+            fields=["fy", "q1Input", "q2Input", "q3Input", "q4Input"],
         )
     ]
 
