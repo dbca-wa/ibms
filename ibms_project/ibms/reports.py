@@ -490,8 +490,9 @@ def download_report(glpiv_qs, response, enhanced=False, dept_programs=False):
         "Region Description",
     ]
     department_programs_headers = [
-        "AEA Program Name",
-        "AEA Activity Name",
+        "Dept Program 1",
+        "Dept Program 2",
+        "Dept Program 3",
     ]
 
     # Write the CSV header row.
@@ -578,6 +579,7 @@ def download_report(glpiv_qs, response, enhanced=False, dept_programs=False):
         department_programs_row = [
             department_program.dept_program1 if department_program else "",
             department_program.dept_program2 if department_program else "",
+            department_program.dept_program3 if department_program else "",
         ]
 
         # Write the report output row.
