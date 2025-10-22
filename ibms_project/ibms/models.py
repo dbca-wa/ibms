@@ -1,6 +1,8 @@
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
 from sfm.models import FinancialYear
@@ -49,10 +51,16 @@ class IBMData(models.Model):
     )
     modified = models.DateTimeField(null=True, blank=True, auto_now=True, editable=False, verbose_name="last modified")
 
+    # Generic relationship to Service Priority model classes.
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True, editable=False)
+    object_id = models.PositiveBigIntegerField(null=True, blank=True, editable=False)
+    service_priority = GenericForeignKey("content_type", "object_id")
+
     class Meta:
         unique_together = [("ibmIdentifier", "fy")]
         verbose_name = "IBM data"
         verbose_name_plural = "IBM data"
+        indexes = [models.Index(fields=["content_type", "object_id"])]
 
     def __str__(self):
         return f"{self.fy} {self.ibmIdentifier}"
@@ -62,13 +70,19 @@ class IBMData(models.Model):
         if user:
             self.modifier = user
 
+        if not self.service_priority:
+            sp = self.get_service_priority()
+            if sp:
+                self.content_type = ContentType.objects.get_for_model(sp._meta.model)
+                self.object_id = sp.pk
+
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse("ibms:ibmdata_update", kwargs={"pk": self.pk})
 
     def get_service_priority(self):
-        # Returns the ServicePriority object which links to this IBMData object.
+        # Returns any Service Priority object which links to this IBMData object.
         # Through database constraints, it should be 0-1 object.
         if self.ncservicepriority.exists():
             return self.ncservicepriority.first()
@@ -124,20 +138,6 @@ class DepartmentProgram(models.Model):
 
     def __str__(self):
         return f"{self.fy} {self.dept_program1}"
-
-
-class CorporateStrategy(models.Model):
-    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, verbose_name="financial year")
-    corporateStrategyNo = models.CharField(max_length=100, verbose_name="corporate strategy no")
-    description1 = models.TextField(null=True)
-    description2 = models.TextField(null=True)
-
-    def __str__(self):
-        return f"{self.fy} {self.corporateStrategyNo}"
-
-    class Meta:
-        unique_together = [("corporateStrategyNo", "fy")]
-        verbose_name_plural = "corporate strategies"
 
 
 class GLPivDownload(models.Model):
@@ -249,6 +249,20 @@ class GLPivDownload(models.Model):
             return str(self.project).zfill(4)
         else:
             return ""
+
+
+class CorporateStrategy(models.Model):
+    fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, verbose_name="financial year")
+    corporateStrategyNo = models.CharField(max_length=100, verbose_name="corporate strategy no")
+    description1 = models.TextField(null=True)
+    description2 = models.TextField(null=True)
+
+    def __str__(self):
+        return f"{self.fy} {self.corporateStrategyNo}"
+
+    class Meta:
+        unique_together = [("corporateStrategyNo", "fy")]
+        verbose_name_plural = "corporate strategies"
 
 
 class NCStrategicPlan(models.Model):

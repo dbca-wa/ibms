@@ -505,17 +505,20 @@ def download_report(glpiv_qs, response, enhanced=False, dept_programs=False):
 
     for glpiv in glpiv_qs:
         # For each object in the passed-in queryset, construct row content.
-        ibmdata = glpiv.ibmdata
         department_program = glpiv.department_program
-        service_priority = None
-        corporate_strategy = None
-        strategic_plan = None
+        ibmdata = glpiv.ibmdata
 
         if ibmdata:
-            service_priority = ibmdata.get_service_priority()
-            if service_priority:
-                corporate_strategy = service_priority.corporate_strategy
-                strategic_plan = service_priority.strategic_plan
+            service_priority = ibmdata.service_priority
+        else:
+            service_priority = None
+
+        if service_priority:
+            corporate_strategy = service_priority.corporate_strategy
+            strategic_plan = service_priority.strategic_plan
+        else:
+            corporate_strategy = None
+            strategic_plan = None
 
         report_row = [
             glpiv.codeID,
