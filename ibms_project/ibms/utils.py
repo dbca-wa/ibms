@@ -58,6 +58,8 @@ def save_record(model, data, query):
         obj = model(**data)
         obj.save()
 
+    return obj
+
 
 def import_to_ibmdata(file_name, fy):
     """Utility function to import data from the uploaded CSV to the IBMData table."""
@@ -350,7 +352,11 @@ def import_dept_program(file_name, fy):
             "dept_program3": validate_char_field("DeptProgram3", 500, row[3]),
         }
         query = {"fy": fy, "ibmIdentifier": str(row[0])}
-        save_record(DepartmentProgram, data, query)
+        department_program = save_record(DepartmentProgram, data, query)
+
+        # Filter any GLPivDownload objects that should be linked to this object
+        for gl in GLPivDownload.objects.filter(fy=fy, codeID=department_program.ibmIdentifier, department_program__isnull=True):
+            gl.save()  # Sets the FK link on save.
 
     file.close()
     return "Department Program"
