@@ -6,7 +6,7 @@ from django.test.client import Client
 from django.urls import reverse
 from mixer.backend.django import mixer
 
-from ibms.models import GLPivDownload, IBMData
+from ibms.models import DepartmentProgram, GLPivDownload, IBMData
 from ibms.tests import IbmsTestCase
 
 
@@ -14,6 +14,7 @@ class IbmsViewsTest(IbmsTestCase):
     """Test the ibms app views load ok."""
 
     client = Client()
+    test_data_path = os.path.join("ibms_project", "ibms", "test_data")
 
     def test_homepage_superuser(self):
         """Test homepage view contains required elements for a superuser"""
@@ -36,7 +37,6 @@ class IbmsViewsTest(IbmsTestCase):
         """Test that all the 'normal user' IBMS views respond"""
         for view in [
             "download",
-            "reload",
             "code_update",
             "ibmdata_list",
         ]:
@@ -50,7 +50,6 @@ class IbmsViewsTest(IbmsTestCase):
         for view in [
             "upload",
             "download",
-            "reload",
             "code_update",
             "code_update_admin",
             "ibmdata_list",
@@ -73,9 +72,9 @@ class IbmsViewsTest(IbmsTestCase):
         # Start with one IBMData object.
         self.assertEqual(IBMData.objects.count(), 1)
         url = reverse("ibms:upload")
-        test_data = open(os.path.join("ibms_project", "ibms", "test_data", "ibmdata_upload_test.csv"), "rb")
+        test_data = open(os.path.join(self.test_data_path, "ibmdata_upload_test.csv"), "rb")
         upload = SimpleUploadedFile("ibmdata_upload.csv", test_data.read())
-        resp = self.client.post(url, data={"upload_file_type": "IBMData", "upload_file": upload, "financial_year": "2024/25"}, follow=True)
+        resp = self.client.post(url, data={"upload_file_type": "ibm_data", "upload_file": upload, "financial_year": "2024/25"}, follow=True)
         self.assertEqual(resp.status_code, 200)
         # Conclude with 5 IBMData objects.
         self.assertEqual(IBMData.objects.count(), 5)
@@ -85,14 +84,33 @@ class IbmsViewsTest(IbmsTestCase):
         # Start with zero GLPivDownload objects.
         self.assertEqual(GLPivDownload.objects.count(), 0)
         url = reverse("ibms:upload")
-        test_data = open(os.path.join("ibms_project", "ibms", "test_data", "glpivot_upload_test.csv"), "rb")
+        test_data = open(os.path.join(self.test_data_path, "glpivot_upload_test.csv"), "rb")
         upload = SimpleUploadedFile("glpivot_upload.csv", test_data.read())
         resp = self.client.post(
-            url, data={"upload_file_type": "GLPivotDownload", "upload_file": upload, "financial_year": "2024/25"}, follow=True
+            url, data={"upload_file_type": "gl_pivot_download", "upload_file": upload, "financial_year": "2024/25"}, follow=True
         )
         self.assertEqual(resp.status_code, 200)
         # Conclude with 4 GLPivDownload objects.
         self.assertEqual(GLPivDownload.objects.count(), 4)
+
+    def test_upload_view_deptprogram_post(self):
+        """Test a valid CSV upload for Department Program data."""
+        # Prep: we need an IBMData record with a matching identifer.
+        mixer.blend(
+            IBMData,
+            fy=self.fy,
+            ibmIdentifier="151-01-11-GE1-0000-000",
+        )
+        # Start with zero DepartmentProgram objects.
+        self.assertEqual(DepartmentProgram.objects.count(), 0)
+        url = reverse("ibms:upload")
+        test_data = open(os.path.join(self.test_data_path, "dept_program_upload_test.csv"), "rb")
+        upload = SimpleUploadedFile("dept_program_upload.csv", test_data.read())
+        resp = self.client.post(
+            url, data={"upload_file_type": "dept_program", "upload_file": upload, "financial_year": "2024/25"}, follow=True
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(DepartmentProgram.objects.count(), 4)
 
     def test_clearglpivot_view_redirect(self):
         """Test clearglpivot view redirects normal users, but not superusers."""

@@ -159,6 +159,7 @@ DATETIME_INPUT_FORMATS = (
 # Email settings.
 EMAIL_HOST = env("EMAIL_HOST", "email.host")
 EMAIL_PORT = env("EMAIL_PORT", 25)
+NOREPLY_EMAIL = env("NOREPLY_EMAIL", "noreply@dbca.wa.gov.au")
 
 
 # Logging settings - log to stdout/stderr

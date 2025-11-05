@@ -8,21 +8,6 @@ spec:
       containers:
         - name: ibms
           imagePullPolicy: IfNotPresent
-          env:
-            - name: IBMS_URL
-              value: 'https://ibms.dbca.wa.gov.au'
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: ibms-env-prod
-                  key: DATABASE_URL
-            - name: SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: ibms-env-prod
-                  key: SECRET_KEY
-            - name: SHAREPOINT_IBMS
-              valueFrom:
-                secretKeyRef:
-                  name: ibms-env-prod
-                  key: SHAREPOINT_IBMS
+          envFrom:
+            - secretRef:
+                name: ibms-env-prod

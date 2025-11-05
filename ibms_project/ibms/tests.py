@@ -1,3 +1,5 @@
+from uuid import uuid1
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from faker import Faker
@@ -31,6 +33,7 @@ class IbmsTestCase(TestCase):
         self.ibmdata = mixer.blend(
             IBMData,
             fy=self.fy,
+            ibmIdentifier=str(uuid1()),
             costCentre="999",
             budgetArea="Admin",
             activity="AA1",

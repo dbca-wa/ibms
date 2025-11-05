@@ -8,35 +8,12 @@ from ibms.models import GLPivDownload, IBMData, NCServicePriority, PVSServicePri
 
 def get_generic_choices(model, key, allow_null=False):
     """Generates a list of choices for a drop down from a model and key."""
-    CHOICES = [("", "--------")] if allow_null else []
+    choices = [("", "----------")] if allow_null else []
     for i in model.objects.all().values_list(key, flat=True).distinct():
-        CHOICES.append((str(i), str(i)))
-    CHOICES.sort()
+        choices.append((str(i), str(i)))
+    choices.sort()
 
-    return CHOICES
-
-
-FILE_CHOICES = (
-    ("", "--Please Select--"),
-    ("General", (("GLPivotDownload", "GL Pivot Download"), ("IBMData", "IBM Data"))),
-    ("Strategic", (("CorporateStrategyData", "IBMS Corporate Strategy"), ("NCStrategyData", "Nature Conservation"))),
-    (
-        "Service Priorities",
-        (
-            ("GeneralServicePriorityData", "General"),
-            ("NCServicePriorityData", "Nature Conservation"),
-            ("PVSServicePriorityData", "Parks & Visitor Services"),
-            ("ERServicePriorityData", "Fire Services"),
-            ("SFMServicePriorityData", "Forest Management"),
-            ("ServicePriorityMappings", "Service Priority Mapping"),
-        ),
-    ),
-)
-REPORT_CHOICES = (
-    (None, "--Please Select--"),
-    ("dj0", "DJ0 activities only"),
-    ("no-dj0", "Exclude DJ0 activities"),
-)
+    return choices
 
 
 class HelperForm(forms.Form):
@@ -75,8 +52,32 @@ class ClearGLPivotForm(FinancialYearFilterForm):
 
 
 class UploadForm(FinancialYearFilterForm):
-    upload_file_type = forms.ChoiceField(choices=FILE_CHOICES)
-    upload_file = forms.FileField(label="Select file")
+    upload_file_type = forms.ChoiceField(
+        choices=(
+            (None, "----------"),
+            ("General", (("gl_pivot_download", "GL Pivot Download"), ("ibm_data", "IBM Data"))),
+            (
+                "Strategic",
+                (
+                    ("corp_strategy", "IBMS Corporate Strategy"),
+                    ("nature_conservation", "Nature Conservation"),
+                    ("dept_program", "Department Program"),
+                ),
+            ),
+            (
+                "Service Priorities",
+                (
+                    ("general_sp", "General"),
+                    ("nc_sp", "Nature Conservation"),
+                    ("pvs_sp", "Parks & Visitor Services"),
+                    ("er_sp", "Fire Services"),
+                    ("sfm_sp", "Forest Management"),
+                    ("service_priority_mapping", "Service Priority Mapping"),
+                ),
+            ),
+        )
+    )
+    upload_file = forms.FileField(label="CSV file")
 
     def __init__(self, *args, **kwargs):
         super(UploadForm, self).__init__(*args, **kwargs)
@@ -87,6 +88,13 @@ class UploadForm(FinancialYearFilterForm):
             "financial_year",
             Div(Submit("upload", "Upload"), css_class="col-sm-offset-4 col-md-offset-3 col-lg-offset-2"),
         )
+
+    def clean(self):
+        # Validation: CSV files only.
+        upload = self.cleaned_data.get("upload_file")
+        if upload and upload.content_type not in ["text/plain", "text/csv", "application/vnd.ms-excel"]:
+            self._errors["upload_file"] = self.error_class(["File type is not allowed (.csv only)"])
+        return self.cleaned_data
 
 
 class DownloadForm(FinancialYearFilterForm):
@@ -342,7 +350,15 @@ class CodeUpdateForm(FinancialYearFilterForm):
 class ManagerCodeUpdateForm(FinancialYearFilterForm):
     def __init__(self, *args, **kwargs):
         super(ManagerCodeUpdateForm, self).__init__(*args, **kwargs)
-        self.fields["report_type"] = forms.ChoiceField(choices=REPORT_CHOICES, label="Report Type?", required=True)
+        self.fields["report_type"] = forms.ChoiceField(
+            choices=(
+                (None, "----------"),
+                ("dj0", "DJ0 activities only"),
+                ("no-dj0", "Exclude DJ0 activities"),
+            ),
+            label="Report type",
+            required=True,
+        )
         self.fields["ncChoice"] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
             choices=get_generic_choices(NCServicePriority, "categoryID"),

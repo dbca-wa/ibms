@@ -7,26 +7,6 @@ spec:
     spec:
       containers:
         - name: ibms
-          env:
-            - name: IBMS_URL
-              value: 'https://ibms-uat.dbca.wa.gov.au'
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: ibms-env-uat
-                  key: DATABASE_URL
-            - name: SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: ibms-env-uat
-                  key: SECRET_KEY
-            - name: SHAREPOINT_IBMS
-              valueFrom:
-                secretKeyRef:
-                  name: ibms-env-uat
-                  key: SHAREPOINT_IBMS
-      tolerations:
-        - effect: NoSchedule
-          key: kubernetes.azure.com/scalesetpriority
-          operator: Equal
-          value: spot
+          envFrom:
+            - secretRef:
+                name: ibms-env-uat

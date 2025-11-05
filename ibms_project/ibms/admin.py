@@ -1,20 +1,23 @@
 import csv
 
+from django import forms
 from django.contrib.admin import ModelAdmin, register
 from django.http import HttpResponse
+from django.urls import reverse
+from django.utils.html import format_html
 from reversion.admin import VersionAdmin
 
 from .models import (
     CorporateStrategy,
+    DepartmentProgram,
     ERServicePriority,
     GeneralServicePriority,
     GLPivDownload,
     IBMData,
     NCServicePriority,
     NCStrategicPlan,
-    Outcomes,
     PVSServicePriority,
-    ServicePriorityMappings,
+    ServicePriorityMapping,
     SFMServicePriority,
 )
 
@@ -61,7 +64,7 @@ def export_as_csv_action(fields=None, translations=None, exclude=None, header=Tr
 class IBMDataAdmin(VersionAdmin):
     date_hierarchy = "modified"
     search_fields = ("fy__financialYear", "ibmIdentifier", "budgetArea", "modifier__username")
-    list_display = ("ibmIdentifier", "fy", "budgetArea", "modified", "modifier")
+    list_display = ("ibmIdentifier", "fy", "costCentre", "budgetArea", "servicePriorityID", "modified", "modifier")
     list_filter = ("fy__financialYear", "costCentre", "budgetArea", "service")
     ordering = ("ibmIdentifier",)
     readonly_fields = (
@@ -73,7 +76,7 @@ class IBMDataAdmin(VersionAdmin):
         "servicePriorityID",
         "annualWPInfo",
         "costCentre",
-        "account",
+        "account_display",
         "service",
         "activity",
         "project",
@@ -99,7 +102,7 @@ class IBMDataAdmin(VersionAdmin):
                     "servicePriorityID",
                     "annualWPInfo",
                     "costCentre",
-                    "account",
+                    "account_display",
                     "service",
                     "activity",
                     "project",
@@ -163,6 +166,43 @@ class IBMDataAdmin(VersionAdmin):
         )
     ]
 
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def account_display(self, obj):
+        return obj.get_account_display()
+
+    account_display.short_description = "account"
+
+
+class DepartmentProgramAdminForm(forms.ModelForm):
+    class Meta:
+        model = DepartmentProgram
+        fields = ["fy", "ibmIdentifier", "dept_program1", "dept_program2", "dept_program3"]
+        widgets = {
+            "dept_program1": forms.Textarea(attrs={"cols": "80", "rows": "4"}),
+            "dept_program2": forms.Textarea(attrs={"cols": "80", "rows": "4"}),
+            "dept_program3": forms.Textarea(attrs={"cols": "80", "rows": "4"}),
+        }
+
+
+@register(DepartmentProgram)
+class DepartmentProgramAdmin(ModelAdmin):
+    form = DepartmentProgramAdminForm
+    list_display = ["ibmIdentifier", "fy", "dept_program1"]
+    list_filter = [
+        "fy__financialYear",
+    ]
+    fields = ["fy", "ibmIdentifier", "dept_program1", "dept_program2", "dept_program3"]
+    readonly_fields = ["fy", "ibmIdentifier"]
+    search_fields = ["ibmIdentifier", "dept_program1", "dept_program2", "dept_program3"]
+    actions = [
+        export_as_csv_action(
+            translations=["financialYear", "ibmIdentifier", "DeptProgram1", "DeptProgram2", "DeptProgram3"],
+            fields=["fy", "ibmIdentifier", "dept_program1", "dept_program2", "dept_program3"],
+        )
+    ]
+
 
 @register(GLPivDownload)
 class GLPivDownloadAdmin(ModelAdmin):
@@ -179,12 +219,57 @@ class GLPivDownloadAdmin(ModelAdmin):
         "gLCode",
         "codeID",
     )
-    list_display = ("fy", "costCentre", "account", "service", "activity", "ccName")
+    list_display = (
+        "gLCode",
+        "fy",
+        "division",
+        "ccName",
+        "projectName",
+        "ibmdata_link",
+        "department_program_link",
+    )
     list_filter = ("fy__financialYear", "division", "regionBranch", "costCentre")
+    fields = (
+        "fy",
+        "costCentre",
+        "regionBranch",
+        "service",
+        "project",
+        "job",
+        "download_period",
+        "downloadPeriod",
+        "account_display",
+        "activity",
+        "resource",
+        "shortCode",
+        "shortCodeName",
+        "gLCode",
+        "ptdActual",
+        "ptdBudget",
+        "ytdActual",
+        "ytdBudget",
+        "fybudget",
+        "ytdVariance",
+        "ccName",
+        "serviceName",
+        "activityName",
+        "resourceName",
+        "projectName",
+        "jobName",
+        "codeID",
+        "resNameNo",
+        "actNameNo",
+        "projNameNo",
+        "division",
+        "resourceCategory",
+        "wildfire",
+        "expenseRevenue",
+        "fireActivities",
+        "mPRACategory",
+    )
     actions = [
         export_as_csv_action(
             translations=[
-                "id",
                 "financialYear",
                 "Download Period",
                 "CC",
@@ -222,7 +307,6 @@ class GLPivDownloadAdmin(ModelAdmin):
                 "MPRA Category",
             ],
             fields=[
-                "id",
                 "fy",
                 "downloadPeriod",
                 "costCentre",
@@ -262,29 +346,144 @@ class GLPivDownloadAdmin(ModelAdmin):
         )
     ]
 
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def ibmdata_link(self, obj):
+        if obj.ibmdata:
+            url = reverse("admin:ibms_ibmdata_change", args=[obj.ibmdata.pk])
+            return format_html(f"<a href='{url}'>{obj.ibmdata}</a>")
+        else:
+            return ""
+
+    ibmdata_link.short_description = "IBM data"
+
+    def department_program_link(self, obj):
+        if obj.department_program:
+            url = reverse("admin:ibms_departmentprogram_change", args=[obj.department_program.pk])
+            return format_html(f"<a href='{url}'>{obj.department_program}</a>")
+        else:
+            return ""
+
+    department_program_link.short_description = "department program"
+
+    def account_display(self, obj):
+        return obj.get_account_display()
+
+    account_display.short_description = "account"
+
 
 @register(CorporateStrategy)
 class CorporateStrategyAdmin(ModelAdmin):
-    list_display = ["fy", "corporateStrategyNo", "description1"]
+    fields = ["fy", "corporateStrategyNo", "description1", "description2"]
+    readonly_fields = ["fy", "corporateStrategyNo"]
+    list_display = ["corporateStrategyNo", "fy", "description1"]
     list_filter = ["fy__financialYear"]
-    search_fields = ["corporateStrategyNo", "description1"]
+    search_fields = ["corporateStrategyNo", "description1", "description2"]
     actions = [
         export_as_csv_action(
-            translations=["id", "financialYear", "IBMSCSNo", "IBMSCSDesc1", "IBMSCSDesc2"],
-            fields=["id", "fy", "corporateStrategyNo", "description1", "description2"],
+            translations=["financialYear", "IBMSCSNo", "IBMSCSDesc1", "IBMSCSDesc2"],
+            fields=["fy", "corporateStrategyNo", "description1", "description2"],
         )
     ]
 
 
-@register(GeneralServicePriority)
-class GeneralServicePriorityAdmin(ModelAdmin):
-    list_display = ["fy", "categoryID", "servicePriorityNo", "strategicPlanNo", "corporateStrategyNo"]
+@register(NCStrategicPlan)
+class NCStrategicPlanAdmin(ModelAdmin):
+    fields = [
+        "fy",
+        "strategicPlanNo",
+        "directionNo",
+        "direction",
+        "aimNo",
+        "aim1",
+        "aim2",
+        "actionNo",
+        "action",
+    ]
+    readonly_fields = ["fy", "strategicPlanNo"]
     list_filter = ["fy__financialYear"]
-    search_fields = ["fy__financialYear", "categoryID", "servicePriorityNo", "strategicPlanNo", "corporateStrategyNo"]
+    list_display = ["strategicPlanNo", "fy", "directionNo", "direction"]
+    search_fields = ["strategicPlanNo", "direction"]
     actions = [
         export_as_csv_action(
             translations=[
-                "id",
+                "financialYear",
+                "StratPlanNo",
+                "StratDirNo",
+                "StratDir",
+                "AimNo",
+                "Aim1",
+                "Aim2",
+                "ActNo",
+                "Action",
+            ],
+            fields=[
+                "fy",
+                "strategicPlanNo",
+                "directionNo",
+                "direction",
+                "aimNo",
+                "aim1",
+                "aim2",
+                "actionNo",
+                "action",
+            ],
+        )
+    ]
+
+
+class ServicePriorityAdmin(ModelAdmin):
+    readonly_fields = ["fy"]
+    list_display = [
+        "servicePriorityNo",
+        "fy",
+        "categoryID",
+        "strategicPlanNo",
+        "ibmdata_link",
+        "corporate_strategy_link",
+        "strategic_plan_link",
+    ]
+    list_filter = ["fy__financialYear", "categoryID"]
+    search_fields = ["fy__financialYear", "categoryID", "servicePriorityNo", "strategicPlanNo", "corporateStrategyNo"]
+
+    def ibmdata_link(self, obj):
+        if obj.ibmdata:
+            url = reverse("admin:ibms_ibmdata_change", args=[obj.ibmdata.pk])
+            return format_html(f"<a href='{url}'>{obj.ibmdata}</a>")
+        else:
+            return ""
+
+    ibmdata_link.short_description = "IBM data"
+
+    def corporate_strategy_link(self, obj):
+        if obj.corporate_strategy:
+            url = reverse("admin:ibms_corporatestrategy_change", args=[obj.corporate_strategy.pk])
+            return format_html(f"<a href='{url}'>{obj.corporate_strategy}</a>")
+        else:
+            return ""
+
+    corporate_strategy_link.short_description = "corporate strategy"
+
+    def strategic_plan_link(self, obj):
+        if obj.strategic_plan:
+            url = reverse("admin:ibms_ncstrategicplan_change", args=[obj.strategic_plan.pk])
+            return format_html(f"<a href='{url}'>{obj.strategic_plan}</a>")
+        else:
+            return ""
+
+    strategic_plan_link.short_description = "strategic plan"
+
+
+@register(GeneralServicePriority)
+class GeneralServicePriorityAdmin(ServicePriorityAdmin):
+    search_fields = ServicePriorityAdmin.search_fields + ["description2"]
+    actions = [
+        export_as_csv_action(
+            translations=[
                 "financialYear",
                 "CategoryID",
                 "SerPriNo",
@@ -294,7 +493,6 @@ class GeneralServicePriorityAdmin(ModelAdmin):
                 "Description 2",
             ],
             fields=[
-                "id",
                 "fy",
                 "categoryID",
                 "servicePriorityNo",
@@ -308,15 +506,8 @@ class GeneralServicePriorityAdmin(ModelAdmin):
 
 
 @register(NCServicePriority)
-class NCServicePriorityAdmin(ModelAdmin):
-    list_display = ["fy", "categoryID", "servicePriorityNo", "strategicPlanNo", "corporateStrategyNo"]
-    list_filter = ["fy__financialYear", "categoryID"]
-    search_fields = [
-        "fy__financialYear",
-        "categoryID",
-        "servicePriorityNo",
-        "strategicPlanNo",
-        "corporateStrategyNo",
+class NCServicePriorityAdmin(ServicePriorityAdmin):
+    search_fields = ServicePriorityAdmin.search_fields + [
         "description",
         "target",
         "action",
@@ -325,7 +516,6 @@ class NCServicePriorityAdmin(ModelAdmin):
     actions = [
         export_as_csv_action(
             translations=[
-                "id",
                 "financialYear",
                 "CategoryID",
                 "SerPriNo",
@@ -341,7 +531,6 @@ class NCServicePriorityAdmin(ModelAdmin):
                 "Milestone",
             ],
             fields=[
-                "id",
                 "fy",
                 "categoryID",
                 "servicePriorityNo",
@@ -361,14 +550,11 @@ class NCServicePriorityAdmin(ModelAdmin):
 
 
 @register(PVSServicePriority)
-class PVSServicePriorityAdmin(ModelAdmin):
-    list_display = ["fy", "categoryID", "servicePriorityNo", "strategicPlanNo", "corporateStrategyNo"]
-    list_filter = ["fy__financialYear"]
-    search_fields = ["fy__financialYear", "categoryID", "servicePriorityNo", "strategicPlanNo", "corporateStrategyNo"]
+class PVSServicePriorityAdmin(ServicePriorityAdmin):
+    search_fields = ServicePriorityAdmin.search_fields + ["servicePriority1"]
     actions = [
         export_as_csv_action(
             translations=[
-                "id",
                 "financialYear",
                 "CategoryID",
                 "SerPriNo",
@@ -380,7 +566,6 @@ class PVSServicePriorityAdmin(ModelAdmin):
                 "PVSExampleActNo",
             ],
             fields=[
-                "id",
                 "fy",
                 "categoryID",
                 "servicePriorityNo",
@@ -396,13 +581,11 @@ class PVSServicePriorityAdmin(ModelAdmin):
 
 
 @register(SFMServicePriority)
-class SFMServicePriorityAdmin(ModelAdmin):
-    list_display = ["fy", "categoryID", "servicePriorityNo", "strategicPlanNo", "corporateStrategyNo"]
-    list_filter = ["fy__financialYear"]
+class SFMServicePriorityAdmin(ServicePriorityAdmin):
+    search_fields = ServicePriorityAdmin.search_fields + ["regionBranch", "description2"]
     actions = [
         export_as_csv_action(
             translations=[
-                "id",
                 "financialYear",
                 "CategoryID",
                 "Region",
@@ -413,7 +596,6 @@ class SFMServicePriorityAdmin(ModelAdmin):
                 "SerPri2",
             ],
             fields=[
-                "id",
                 "fy",
                 "categoryID",
                 "regionBranch",
@@ -428,13 +610,11 @@ class SFMServicePriorityAdmin(ModelAdmin):
 
 
 @register(ERServicePriority)
-class ERServicePriorityAdmin(ModelAdmin):
-    list_display = ["fy", "categoryID", "servicePriorityNo", "strategicPlanNo", "corporateStrategyNo"]
-    list_filter = ["fy__financialYear"]
+class ERServicePriorityAdmin(ServicePriorityAdmin):
+    search_fields = ServicePriorityAdmin.search_fields + ["classification"]
     actions = [
         export_as_csv_action(
             translations=[
-                "id",
                 "financialYear",
                 "categoryID",
                 "servicePriorityNo",
@@ -446,7 +626,6 @@ class ERServicePriorityAdmin(ModelAdmin):
                 "classification",
             ],
             fields=[
-                "id",
                 "fy",
                 "categoryID",
                 "servicePriorityNo",
@@ -461,55 +640,20 @@ class ERServicePriorityAdmin(ModelAdmin):
     ]
 
 
-@register(NCStrategicPlan)
-class NCStrategicPlanAdmin(ModelAdmin):
-    list_filter = ["fy__financialYear"]
-    list_display = ["fy", "strategicPlanNo", "directionNo", "direction"]
-    search_fields = ["strategicPlanNo", "direction"]
-    actions = [
-        export_as_csv_action(
-            translations=[
-                "id",
-                "financialYear",
-                "StratPlanNo",
-                "StratDirNo",
-                "StratDir",
-                "AimNo",
-                "Aim1",
-                "Aim2",
-                "ActNo",
-                "Action",
-            ],
-            fields=[
-                "id",
-                "fy",
-                "strategicPlanNo",
-                "directionNo",
-                "direction",
-                "aimNo",
-                "aim1",
-                "aim2",
-                "actionNo",
-                "action",
-            ],
-        )
-    ]
-
-
-@register(Outcomes)
-class OutcomesAdmin(ModelAdmin):
+# @register(Outcome)
+class OutcomeAdmin(ModelAdmin):
     list_display = ["fy", "q1Input"]
     list_filter = ["fy__financialYear"]
     actions = [
         export_as_csv_action(
-            translations=["id", "financialYear", "q1Input", "q2Input", "q3Input", "q4Input"],
-            fields=["id", "fy", "q1Input", "q2Input", "q3Input", "q4Input"],
+            translations=["financialYear", "q1Input", "q2Input", "q3Input", "q4Input"],
+            fields=["fy", "q1Input", "q2Input", "q3Input", "q4Input"],
         )
     ]
 
 
-@register(ServicePriorityMappings)
-class ServicePriorityMappings(ModelAdmin):
+@register(ServicePriorityMapping)
+class ServicePriorityMappingAdmin(ModelAdmin):
     list_display = ["costCentreNo", "fy", "wildlifeManagement", "parksManagement", "forestManagement"]
     list_filter = ["fy__financialYear", "costCentreNo"]
     actions = [
