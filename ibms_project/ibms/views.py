@@ -460,10 +460,11 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
         return self.render_to_response(context)
 
 
-class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
+class DataAmendmentList(LoginRequiredMixin, FormMixin, ListView):
     model = IBMData
     http_method_names = ["get", "head", "options"]
     form_class = IbmDataFilterForm
+    template_name = "ibms/data_amendment_list.html"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -578,10 +579,11 @@ class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
         return qs.order_by("ibmIdentifier")
 
 
-class IbmDataUpdate(RevisionMixin, UpdateView):
+class DataAmendmentUpdate(RevisionMixin, UpdateView):
     model = IBMData
     form_class = IbmDataForm
     http_method_names = ["get", "post", "put", "patch", "head", "options"]
+    template_name = "ibms/data_amendment_update.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -595,8 +597,8 @@ class IbmDataUpdate(RevisionMixin, UpdateView):
     def get_success_url(self):
         if self.request.GET.get("_changelist_filters"):
             filters = self.request.GET.get("_changelist_filters")
-            return reverse("ibms:ibmdata_list") + f"?{filters}"
-        return reverse("ibms:ibmdata_list")
+            return reverse("ibms:data_amendment_list") + f"?{filters}"
+        return reverse("ibms:data_amendment_list")
 
     def post(self, request, *args, **kwargs):
         if request.POST.get("cancel", None):

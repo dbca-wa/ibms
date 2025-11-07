@@ -151,55 +151,6 @@ class DownloadForm(FinancialYearFilterForm):
         return self.cleaned_data
 
 
-class ReloadForm(FinancialYearFilterForm):
-    def __init__(self, *args, **kwargs):
-        super(ReloadForm, self).__init__(*args, **kwargs)
-        self.fields["cost_centre"] = forms.ChoiceField(
-            choices=get_generic_choices(GLPivDownload, "costCentre", allow_null=True), required=True
-        )
-        self.fields["cost_centre"].widget.attrs.update({"disabled": ""})
-        self.fields["ncChoice"] = forms.MultipleChoiceField(
-            widget=forms.CheckboxSelectMultiple,
-            choices=get_generic_choices(NCServicePriority, "categoryID"),
-            required=False,
-            label="Wildlife Management",
-        )
-        self.fields["pvsChoice"] = forms.MultipleChoiceField(
-            widget=forms.CheckboxSelectMultiple,
-            choices=get_generic_choices(PVSServicePriority, "categoryID"),
-            required=False,
-            label="Parks Management",
-        )
-        self.fields["fmChoice"] = forms.MultipleChoiceField(
-            widget=forms.CheckboxSelectMultiple,
-            choices=get_generic_choices(SFMServicePriority, "categoryID"),
-            required=False,
-            label="Forest Management",
-        )
-
-        # crispy_forms layout
-        self.helper.layout = Layout(
-            HTML("""<div class="row">
-                <div class="col-sm-12 col-md-9 col-lg-6 alert alert-info">
-                You must select a financial year:</div></div>"""),
-            "financial_year",
-            HTML("""<div class="row">
-                <div class="col-sm-12 col-md-9 col-lg-6 alert alert-info">
-                Please select a Cost Centre</div></div>"""),
-            "cost_centre",
-            HTML("""<div class="row">
-                <div class="col-sm-12 col-md-9 col-lg-6 alert alert-info">
-                You must select relevant Service Priorities for your cost centre
-                </div></div>"""),
-            HTML('<div class="checkbox">'),
-            "ncChoice",
-            "pvsChoice",
-            "fmChoice",
-            HTML("</div>"),
-            Div(Submit("reload", "Reload"), css_class="col-sm-offset-4 col-md-offset-3 col-lg-offset-2"),
-        )
-
-
 class DataAmendmentForm(FinancialYearFilterForm):
     def __init__(self, request, *args, **kwargs):
         super(DataAmendmentForm, self).__init__(*args, **kwargs)

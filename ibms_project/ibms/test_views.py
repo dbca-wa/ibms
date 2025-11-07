@@ -39,7 +39,7 @@ class IbmsViewsTest(IbmsTestCase):
             "download",
             "download_enhanced",
             "code_update",
-            "ibmdata_list",
+            "data_amendment_list",
         ]:
             url = reverse(f"ibms:{view}")
             response = self.client.get(url)
@@ -54,7 +54,7 @@ class IbmsViewsTest(IbmsTestCase):
             "download_enhanced",
             "code_update",
             "code_update_admin",
-            "ibmdata_list",
+            "data_amendment_list",
         ]:
             url = reverse(f"ibms:{view}")
             response = self.client.get(url)
@@ -187,45 +187,45 @@ class IbmsViewsTest(IbmsTestCase):
             response = self.client.get(url, {"financialYear": self.fy.financialYear})
             self.assertEqual(response.status_code, 200)
 
-    def test_ibms_ibmdata_list_filter(self):
-        """Test that the IbmDataList view returns filtered records"""
-        url = reverse("ibms:ibmdata_list")
+    def test_ibms_data_amendment_list_filter(self):
+        """Test that the DataAmendmentList view returns filtered records"""
+        url = reverse("ibms:data_amendment_list")
         response = self.client.get(url, {"cost_centre": "999"})
         self.assertContains(response, self.ibmdata.ibmIdentifier)
 
-    def test_ibms_ibmdata_list_rule_budgetarea(self):
-        """Test the IbmDataList view business rule: filter out blank budgetArea"""
+    def test_ibms_data_amendment_list_rule_budgetarea(self):
+        """Test the DataAmendmentList view business rule: filter out blank budgetArea"""
         ibmdata2 = mixer.blend(IBMData, fy=self.fy, costCentre="999", budgetArea="", activity="AB1", projectSponsor=self.fake.name())
-        url = reverse("ibms:ibmdata_list")
+        url = reverse("ibms:data_amendment_list")
         response = self.client.get(url, {"cost_centre": "999"})
         # The new IBMData record shouldn't be in the response.
         self.assertNotContains(response, ibmdata2.ibmIdentifier)
         self.assertContains(response, self.ibmdata.ibmIdentifier)
 
-    def test_ibms_ibmdata_list_rule_dj0(self):
-        """Test the IbmDataList view business rule: filter out activity DJ0"""
+    def test_ibms_data_amendment_list_rule_dj0(self):
+        """Test the DataAmendmentList view business rule: filter out activity DJ0"""
         ibmdata2 = mixer.blend(IBMData, fy=self.fy, costCentre="999", activity="DJ0", projectSponsor=self.fake.name())
-        url = reverse("ibms:ibmdata_list")
+        url = reverse("ibms:data_amendment_list")
         response = self.client.get(url, {"cost_centre": "999"})
         self.assertNotContains(response, ibmdata2.ibmIdentifier)
         self.assertContains(response, self.ibmdata.ibmIdentifier)
 
-    def test_ibms_ibmdata_update_get(self):
-        """Test that the IbmDataUpdate view responds"""
-        url = reverse("ibms:ibmdata_update", kwargs={"pk": self.ibmdata.pk})
+    def test_ibms_data_amendment_update_get(self):
+        """Test that the DataAmendmentUpdate view responds"""
+        url = reverse("ibms:data_amendment_update", kwargs={"pk": self.ibmdata.pk})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_cancel(self):
-        """Test the cancelling the IbmDataUpdate view redirects to the list view"""
-        url = reverse("ibms:ibmdata_update", kwargs={"pk": self.ibmdata.pk})
+        """Test the cancelling the DataAmendmentUpdate view redirects to the list view"""
+        url = reverse("ibms:data_amendment_update", kwargs={"pk": self.ibmdata.pk})
         resp = self.client.post(url, {"cancel": "Cancel"})
         self.assertEqual(resp.status_code, 302)
-        self.assertRedirects(resp, reverse("ibms:ibmdata_list"))
+        self.assertRedirects(resp, reverse("ibms:data_amendment_list"))
 
-    def test_ibms_ibmdata_update_post(self):
-        """Test that the IbmDataUpdate view responds correctly to a POST request"""
-        url = reverse("ibms:ibmdata_update", kwargs={"pk": self.ibmdata.pk})
+    def test_ibms_data_amendment_update_post(self):
+        """Test that the DataAmendmentUpdate view responds correctly to a POST request"""
+        url = reverse("ibms:data_amendment_update", kwargs={"pk": self.ibmdata.pk})
         response = self.client.post(url, {"budgetArea": "Operations"})
         self.assertEqual(response.status_code, 302)
         ibmdata = IBMData.objects.first()

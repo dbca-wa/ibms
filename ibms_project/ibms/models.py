@@ -79,7 +79,7 @@ class IBMData(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("ibms:ibmdata_update", kwargs={"pk": self.pk})
+        return reverse("ibms:data_amendment_update", kwargs={"pk": self.pk})
 
     def get_service_priority(self):
         # Returns any Service Priority object which links to this IBMData object.
