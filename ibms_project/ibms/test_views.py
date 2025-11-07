@@ -37,6 +37,7 @@ class IbmsViewsTest(IbmsTestCase):
         """Test that all the 'normal user' IBMS views respond"""
         for view in [
             "download",
+            "download_enhanced",
             "code_update",
             "ibmdata_list",
         ]:
@@ -45,11 +46,12 @@ class IbmsViewsTest(IbmsTestCase):
             self.assertEqual(response.status_code, 200)
 
     def test_ibms_views_req_auth(self):
-        """Test that all the IBMS views will redirect a non-auth'ed user."""
+        """Test that all the IBMS views will redirect a non-auth'ed user"""
         self.client.logout()
         for view in [
             "upload",
             "download",
+            "download_enhanced",
             "code_update",
             "code_update_admin",
             "ibmdata_list",
@@ -58,14 +60,35 @@ class IbmsViewsTest(IbmsTestCase):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 302)
 
-    def test_upload_view_redirect(self):
-        """Test upload view redirects normal users, but not superusers."""
-        url = reverse("ibms:upload")
+    def test_superuser_views_redirect(self):
+        """Test superuser-only views redirects normal users"""
+        for view in [
+            "upload",
+            "download_dept_program",
+            "code_update_admin",
+        ]:
+            url = reverse(f"ibms:{view}")
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 302)
+
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
         self.client.login(username="admin", password="test")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+    def test_superuser_views_get(self):
+        """Test superuser-only views load"""
+        self.client.logout()
+        self.client.login(username="admin", password="test")
+        for view in [
+            "upload",
+            "download_dept_program",
+            "code_update_admin",
+        ]:
+            url = reverse(f"ibms:{view}")
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
 
     def test_upload_view_ibmdata_post(self):
         """Test a valid CSV upload for IBM data."""
