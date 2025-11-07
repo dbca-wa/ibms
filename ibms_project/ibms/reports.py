@@ -432,7 +432,60 @@ def download_report(glpiv_qs, response, enhanced=False, dept_programs=False):
     """The Download Report views all return variations on the same CSV output, with additional columns for some reports."""
     writer = csv.writer(response)
 
-    headers = [
+    # NOTE: the 'normal' and 'enhanced' download reports vary a little, with the enhanced report having two fewer columns.
+    download_report_headers = [
+        "IBMS ID",
+        "Financial Year",
+        "Download Period",
+        "Cost Centre",
+        "Account",
+        "Service",
+        "Activity",
+        "Resource",
+        "Project",
+        "Job",
+        "Short Code",
+        "Short Code Name",
+        "GL Code",
+        "ptd Actual",
+        "ptd Budget",  # Download report only
+        "ytd Actual",
+        "ytd Budget",
+        "fy Budget",
+        "ytd Variance",  # Download report only
+        "cc Name",
+        "Service Name",
+        "Job Name",
+        "Res Name No",
+        "Act Name No",
+        "Proj Name No",
+        "Region/Branch",
+        "Division",
+        "Resource Category",
+        "Wildfire",
+        "Expense Revenue",
+        "Fire Activities",
+        "mPRACategory",
+        "Budget Area",
+        "Project Sponsor",
+        "Corporate Strategy No",
+        "Strategic Plan No",
+        "Regional Specific Info",
+        "Service Priority No",
+        "Annual Works Plan",
+        "Corp Strategy Description 1",
+        "Corp Strategy Description 2",
+        "Nat Cons Strategic Direction No",
+        "Nat Cons Strat Direction Desc",
+        "Nat Cons Strat Plan Aim No",
+        "Nat Cons Strat Plan Aim Desc 1",
+        "Nat Cons Strat Plan Aim Desc 2",
+        "Nat Cons Strat Plan Action No",
+        "Nat Cons Strat Plan Action Description",
+        "Service Priority Description 1",
+        "Service Priority Description 2",
+    ]
+    enhanced_report_headers = [
         "IBMS ID",
         "Financial Year",
         "Download Period",
@@ -481,8 +534,6 @@ def download_report(glpiv_qs, response, enhanced=False, dept_programs=False):
         "Nat Cons Strat Plan Action Description",
         "Service Priority Description 1",
         "Service Priority Description 2",
-    ]
-    enhanced_report_headers = [
         "Priority Action No",
         "Priority Level",
         "Marine KPI",
@@ -497,11 +548,11 @@ def download_report(glpiv_qs, response, enhanced=False, dept_programs=False):
 
     # Write the CSV header row.
     if enhanced and dept_programs:
-        writer.writerow(headers + enhanced_report_headers + department_programs_headers)
+        writer.writerow(enhanced_report_headers + department_programs_headers)
     elif enhanced:
-        writer.writerow(headers + enhanced_report_headers)
+        writer.writerow(enhanced_report_headers)
     else:
-        writer.writerow(headers)
+        writer.writerow(download_report_headers)
 
     for glpiv in glpiv_qs:
         # For each object in the passed-in queryset, construct row content.
@@ -520,7 +571,60 @@ def download_report(glpiv_qs, response, enhanced=False, dept_programs=False):
             corporate_strategy = None
             strategic_plan = None
 
-        report_row = [
+        download_report_row = [
+            glpiv.codeID,
+            glpiv.fy,
+            glpiv.downloadPeriod,
+            glpiv.costCentre,
+            glpiv.account,
+            glpiv.service,
+            glpiv.activity,
+            glpiv.resource,
+            glpiv.project,
+            glpiv.job,
+            glpiv.shortCode,
+            glpiv.shortCodeName,
+            glpiv.gLCode,
+            glpiv.ptdActual,
+            glpiv.ptdBudget,
+            glpiv.ytdActual,
+            glpiv.ytdBudget,
+            glpiv.fybudget,
+            glpiv.ytdVariance,
+            glpiv.ccName,
+            glpiv.serviceName,
+            glpiv.jobName,
+            glpiv.resNameNo,
+            glpiv.actNameNo,
+            glpiv.projNameNo,
+            glpiv.regionBranch,
+            glpiv.division,
+            glpiv.resourceCategory,
+            glpiv.wildfire,
+            glpiv.expenseRevenue,
+            glpiv.fireActivities,
+            glpiv.mPRACategory,
+            ibmdata.budgetArea if ibmdata else "",
+            ibmdata.projectSponsor if ibmdata else "",
+            corporate_strategy.corporateStrategyNo if corporate_strategy else "",
+            strategic_plan.strategicPlanNo if strategic_plan else "",
+            ibmdata.regionalSpecificInfo if ibmdata else "",
+            ibmdata.servicePriorityID if ibmdata else "",
+            ibmdata.annualWPInfo if ibmdata else "",
+            corporate_strategy.description1 if corporate_strategy else "",
+            corporate_strategy.description2 if corporate_strategy else "",
+            strategic_plan.directionNo if strategic_plan else "",
+            strategic_plan.direction if strategic_plan else "",
+            strategic_plan.aimNo if strategic_plan else "",
+            strategic_plan.aim1 if strategic_plan else "",
+            strategic_plan.aim2 if strategic_plan else "",
+            strategic_plan.actionNo if strategic_plan else "",
+            strategic_plan.action if strategic_plan else "",
+            service_priority.get_d1() if service_priority else "",
+            service_priority.get_d2() if service_priority else "",
+        ]
+
+        enhanced_report_row = [
             glpiv.codeID,
             glpiv.fy,
             glpiv.downloadPeriod,
@@ -569,9 +673,6 @@ def download_report(glpiv_qs, response, enhanced=False, dept_programs=False):
             strategic_plan.action if strategic_plan else "",
             service_priority.get_d1() if service_priority else "",
             service_priority.get_d2() if service_priority else "",
-        ]
-
-        enhanced_report_row = [
             ibmdata.priorityActionNo if ibmdata else "",
             ibmdata.priorityLevel if ibmdata else "",
             ibmdata.marineKPI if ibmdata else "",
@@ -585,12 +686,12 @@ def download_report(glpiv_qs, response, enhanced=False, dept_programs=False):
             department_program.dept_program3 if department_program else "",
         ]
 
-        # Write the report output row.
+        # Write the report output rows.
         if enhanced and dept_programs:
-            writer.writerow(report_row + enhanced_report_row + department_programs_row)
+            writer.writerow(enhanced_report_row + department_programs_row)
         elif enhanced:
-            writer.writerow(report_row + enhanced_report_row)
+            writer.writerow(enhanced_report_row)
         else:
-            writer.writerow(report_row)
+            writer.writerow(download_report_row)
 
     return response
