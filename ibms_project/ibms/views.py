@@ -5,7 +5,7 @@ import tempfile
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, QueryDict
+from django.http import HttpResponse, HttpResponseBadRequest, QueryDict
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.http import urlencode
@@ -18,9 +18,9 @@ from sfm.models import FinancialYear
 from xlrd import open_workbook
 from xlutils.copy import copy as copy_xl
 
-from ibms.forms import ClearGLPivotForm, DownloadForm, IbmDataFilterForm, IbmDataForm, ManagerCodeUpdateForm, ReloadForm, UploadForm
+from ibms.forms import ClearGLPivotForm, DownloadForm, IbmDataFilterForm, IbmDataForm, ManagerCodeUpdateForm, UploadForm
 from ibms.models import GLPivDownload, IBMData, NCServicePriority, PVSServicePriority, SFMServicePriority
-from ibms.reports import code_update_report, download_report, reload_report
+from ibms.reports import code_update_report, download_report
 from ibms.utils import get_download_period, process_upload_file, validate_upload_file
 
 
@@ -55,9 +55,15 @@ class IbmsFormView(LoginRequiredMixin, FormView):
 
 
 class ClearGLPivotView(IbmsFormView):
-    """A basic function for admins to clear all GL Pivot entries for a financial year."""
+    """A basic function for admins to clear all GL Pivot entries for a financial year (superusers only)."""
 
     form_class = ClearGLPivotForm
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            messages.error(self.request, "You are not authorised to carry out this operation")
+            return redirect(self.get_success_url())
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -67,12 +73,6 @@ class ClearGLPivotView(IbmsFormView):
 
     def get_success_url(self):
         return reverse("site_home")
-
-    def get(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            messages.error(self.request, "You are not authorised to carry out this operation")
-            return redirect(self.get_success_url())
-        return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
         if not self.request.user.is_superuser:
@@ -106,7 +106,7 @@ class UploadView(RevisionMixin, IbmsFormView):
 
     def get(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            messages.error(self.request, "You are not authorised to carry out this operation.")
+            messages.error(self.request, "You do not have permission to use this function.")
             return redirect("site_home")
         return super().get(request, *args, **kwargs)
 
@@ -133,11 +133,11 @@ class UploadView(RevisionMixin, IbmsFormView):
         # Upload may still not be valid, but at least no exception was thrown.
         if upload_valid:
             fy = form.cleaned_data["financial_year"]
-            # try:
-            data_type = process_upload_file(file.name, file_type, fy)
-            messages.success(self.request, f"{data_type} data imported successfully")
-            # except Exception as e:
-            #     messages.warning(self.request, f"Error: {str(e)}")
+            try:
+                data_type = process_upload_file(file.name, file_type, fy)
+                messages.success(self.request, f"{data_type} data imported successfully")
+            except Exception as e:
+                messages.warning(self.request, f"Error: {str(e)}")
         else:
             messages.warning(
                 self.request,
@@ -185,11 +185,6 @@ class DownloadView(IbmsFormView):
 
 
 class DownloadEnhancedView(DownloadView):
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            return HttpResponseForbidden("You do not have permission to use this function.")
-        return super().dispatch(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["page_title"] = f"{settings.SITE_ACRONYM} | Enhanced Download"
@@ -218,10 +213,13 @@ class DownloadEnhancedView(DownloadView):
 
 
 class DownloadDeptProgramView(DownloadView):
-    def dispatch(self, request, *args, **kwargs):
+    """Download Department Programs view, for superusers only."""
+
+    def get(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return HttpResponseForbidden("You do not have permission to use this function.")
-        return super().dispatch(request, *args, **kwargs)
+            messages.error(self.request, "You do not have permission to use this function.")
+            return redirect("site_home")
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -251,43 +249,6 @@ class DownloadDeptProgramView(DownloadView):
         return response
 
 
-class ReloadView(IbmsFormView):
-    template_name = "ibms/reload.html"
-    form_class = ReloadForm
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["page_title"] = f"{settings.SITE_ACRONYM} | Reload"
-        context["title"] = "RELOAD"
-        return context
-
-    def get_success_url(self):
-        return reverse("ibms:reload")
-
-    def form_valid(self, form):
-        fy = form.cleaned_data["financial_year"]
-        ibm = IBMData.objects.filter(fy=fy, costCentre=form.cleaned_data["cost_centre"])
-        ibm = ibm.exclude(service=11, job="777", activity="DJ0")
-        gl = GLPivDownload.objects.filter(fy=fy, costCentre=form.cleaned_data["cost_centre"])
-        gl = gl.exclude(shortCode="").distinct().order_by("gLCode", "shortCode", "shortCodeName")
-        # Service priority checkboxes
-        nc_sp = NCServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["ncChoice"])
-        pvs_sp = PVSServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["pvsChoice"])
-        fm_sp = SFMServicePriority.objects.filter(fy=fy, categoryID__in=form.cleaned_data["fmChoice"])
-
-        fpath = os.path.join(settings.STATIC_ROOT, "excel", "reload_base.xls")
-        excel_template = open_workbook(fpath, formatting_info=True, on_demand=True)
-        workbook = copy_xl(excel_template)
-
-        # Style & populate the worksheet.
-        reload_report(workbook, ibm, nc_sp, pvs_sp, fm_sp, gl)
-        response = HttpResponse(content_type="application/vnd.ms-excel")
-        response["Content-Disposition"] = "attachment; filename=ibms_reloads.xls"
-        workbook.save(response)  # Save the worksheet contents to the response.
-
-        return response
-
-
 class CodeUpdateView(LoginRequiredMixin, TemplateView):
     template_name = "ibms/code_update.html"
     http_method_names = ["get", "head", "options"]
@@ -303,20 +264,23 @@ class CodeUpdateView(LoginRequiredMixin, TemplateView):
 
 
 class CodeUpdateAdminView(IbmsFormView):
+    """Code Update view for superusers only."""
+
     template_name = "ibms/code_update_admin.html"
     form_class = ManagerCodeUpdateForm
+    http_method_names = ["get", "head", "options"]
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            messages.error(self.request, "You do not have permission to use this function.")
+            return redirect("site_home")
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["page_title"] = f"{settings.SITE_ACRONYM} | Code update"
         context["title"] = "CODE UPDATE (ADMIN)"
         return context
-
-    def get(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            messages.error(self.request, "You are not authorised to carry out this operation")
-            return redirect("site_home")
-        return super().get(request, *args, **kwargs)
 
     def get_success_url(self):
         return reverse("ibms:code_update")
@@ -496,10 +460,11 @@ class IbmsModelFieldJSON(JSONResponseMixin, BaseDetailView):
         return self.render_to_response(context)
 
 
-class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
+class DataAmendmentList(LoginRequiredMixin, FormMixin, ListView):
     model = IBMData
     http_method_names = ["get", "head", "options"]
     form_class = IbmDataFilterForm
+    template_name = "ibms/data_amendment_list.html"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -614,10 +579,11 @@ class IbmDataList(LoginRequiredMixin, FormMixin, ListView):
         return qs.order_by("ibmIdentifier")
 
 
-class IbmDataUpdate(RevisionMixin, UpdateView):
+class DataAmendmentUpdate(RevisionMixin, UpdateView):
     model = IBMData
     form_class = IbmDataForm
     http_method_names = ["get", "post", "put", "patch", "head", "options"]
+    template_name = "ibms/data_amendment_update.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -631,8 +597,8 @@ class IbmDataUpdate(RevisionMixin, UpdateView):
     def get_success_url(self):
         if self.request.GET.get("_changelist_filters"):
             filters = self.request.GET.get("_changelist_filters")
-            return reverse("ibms:ibmdata_list") + f"?{filters}"
-        return reverse("ibms:ibmdata_list")
+            return reverse("ibms:data_amendment_list") + f"?{filters}"
+        return reverse("ibms:data_amendment_list")
 
     def post(self, request, *args, **kwargs):
         if request.POST.get("cancel", None):
