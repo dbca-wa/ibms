@@ -13,7 +13,7 @@ dependencies = [
   "dj-database-url==3.0.1",
   "gunicorn==23.0.0",
   "django-extensions==4.1",
-  "django-crispy-forms==2.4",
+  "django-crispy-forms==2.5",
   "crispy-bootstrap5==2025.6",
   "webtemplate-dbca==1.8.3",
   "whitenoise[brotli]==6.11.0",
@@ -27,7 +27,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["ipython>=9.7.0", "ipdb>=0.13.13", "mixer>=7.2.2", "pre-commit>=4.3.0"]
+dev = ["ipython>=9.7.0", "ipdb>=0.13.13", "mixer>=7.2.2", "pre-commit>=4.4.0"]
 
 # Reference: https://docs.astral.sh/ruff/configuration/
 [tool.ruff]
