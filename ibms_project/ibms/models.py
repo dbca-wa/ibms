@@ -17,7 +17,7 @@ class IBMData(models.Model):
     and Data Amendment templates by end users.
     """
 
-    ibmIdentifier = models.CharField(max_length=100, verbose_name="IBM identifer", db_index=True)
+    ibmIdentifier = models.CharField(max_length=100, verbose_name="IBM identifier", db_index=True)
 
     fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, verbose_name="financial year")
     costCentre = models.CharField(max_length=4, null=True, blank=True, db_index=True, verbose_name="cost centre")
