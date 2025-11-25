@@ -8,7 +8,7 @@ readme = "README.md"
 requires-python = ">=3.13,<4"
 dependencies = [
   "django==5.2.8",
-  "psycopg[binary,pool]==3.2.12",
+  "psycopg[binary,pool]==3.2.13",
   "python-dotenv==1.2.1",
   "dj-database-url==3.0.1",
   "gunicorn==23.0.0",
@@ -27,7 +27,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["ipython>=9.7.0", "ipdb>=0.13.13", "mixer>=7.2.2", "pre-commit>=4.4.0"]
+dev = ["ipython>=9.7.0", "ipdb>=0.13.13", "mixer>=7.2.2", "pre-commit>=4.5.0"]
 
 # Reference: https://docs.astral.sh/ruff/configuration/
 [tool.ruff]
