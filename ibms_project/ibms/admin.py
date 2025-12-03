@@ -443,21 +443,11 @@ class ServicePriorityAdmin(ModelAdmin):
         "fy",
         "categoryID",
         "strategicPlanNo",
-        "ibmdata_link",
         "corporate_strategy_link",
         "strategic_plan_link",
     ]
     list_filter = ["fy__financialYear", "categoryID"]
     search_fields = ["fy__financialYear", "categoryID", "servicePriorityNo", "strategicPlanNo", "corporateStrategyNo"]
-
-    def ibmdata_link(self, obj):
-        if obj.ibmdata:
-            url = reverse("admin:ibms_ibmdata_change", args=[obj.ibmdata.pk])
-            return format_html(f"<a href='{url}'>{obj.ibmdata}</a>")
-        else:
-            return ""
-
-    ibmdata_link.short_description = "IBM data"
 
     def corporate_strategy_link(self, obj):
         if obj.corporate_strategy:
