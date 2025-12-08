@@ -602,18 +602,17 @@ class SFMServicePriorityAdmin(ServicePriorityAdmin):
 @register(ERServicePriority)
 class ERServicePriorityAdmin(ServicePriorityAdmin):
     search_fields = ServicePriorityAdmin.search_fields + ["classification"]
+    # NOTE: The header values and the column order for this export are critical and must not be changed.
     actions = [
         export_as_csv_action(
             translations=[
                 "financialYear",
-                "categoryID",
-                "servicePriorityNo",
-                "strategicPlanNo",
-                "corporateStrategyNo",
-                "description",
-                "pvsExampleAnnWP",
-                "pvsExampleActNo",
-                "classification",
+                "CategoryID",
+                "SerPriNo",
+                "StratPlanNo",
+                "IBMCS",
+                "Env Regs Specific Classification",
+                "Env Regs Specific Description",
             ],
             fields=[
                 "fy",
@@ -621,10 +620,8 @@ class ERServicePriorityAdmin(ServicePriorityAdmin):
                 "servicePriorityNo",
                 "strategicPlanNo",
                 "corporateStrategyNo",
-                "description",
-                "pvsExampleAnnWP",
-                "pvsExampleActNo",
                 "classification",
+                "description",
             ],
         )
     ]
