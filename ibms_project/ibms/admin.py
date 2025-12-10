@@ -561,10 +561,10 @@ class PVSServicePriorityAdmin(ServicePriorityAdmin):
                 "servicePriorityNo",
                 "strategicPlanNo",
                 "corporateStrategyNo",
+                "servicePriority1",
                 "description",
                 "pvsExampleAnnWP",
                 "pvsExampleActNo",
-                "servicePriority1",
             ],
         )
     ]
