@@ -85,17 +85,13 @@ class IBMData(models.Model):
         return reverse("ibms:data_amendment_update", kwargs={"pk": self.pk})
 
     def get_service_priority(self):
-        """Return any matching SP object among the subclasses of ServicePriority."""
-        if GeneralServicePriority.objects.filter(fy=self.fy, servicePriorityNo=self.servicePriorityID).exists():
-            return GeneralServicePriority.objects.get(fy=self.fy, servicePriorityNo=self.servicePriorityID)
-        elif NCServicePriority.objects.filter(fy=self.fy, servicePriorityNo=self.servicePriorityID).exists():
-            return NCServicePriority.objects.get(fy=self.fy, servicePriorityNo=self.servicePriorityID)
-        elif PVSServicePriority.objects.filter(fy=self.fy, servicePriorityNo=self.servicePriorityID).exists():
-            return PVSServicePriority.objects.get(fy=self.fy, servicePriorityNo=self.servicePriorityID)
-        elif SFMServicePriority.objects.filter(fy=self.fy, servicePriorityNo=self.servicePriorityID).exists():
-            return SFMServicePriority.objects.get(fy=self.fy, servicePriorityNo=self.servicePriorityID)
-        elif ERServicePriority.objects.filter(fy=self.fy, servicePriorityNo=self.servicePriorityID).exists():
-            return ERServicePriority.objects.get(fy=self.fy, servicePriorityNo=self.servicePriorityID)
+        """Return the first matching object among the subclasses of ServicePriority, if any."""
+
+        # NOTE: the order of model classes is important here, as GeneralServicePriority should be preferenced.
+        for model in [GeneralServicePriority, NCServicePriority, PVSServicePriority, SFMServicePriority, ERServicePriority]:
+            qs = model.objects.filter(fy=self.fy, servicePriorityNo=self.servicePriorityID)
+            if qs:
+                return qs.first()
 
         return None
 
