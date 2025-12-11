@@ -443,21 +443,11 @@ class ServicePriorityAdmin(ModelAdmin):
         "fy",
         "categoryID",
         "strategicPlanNo",
-        "ibmdata_link",
         "corporate_strategy_link",
         "strategic_plan_link",
     ]
     list_filter = ["fy__financialYear", "categoryID"]
     search_fields = ["fy__financialYear", "categoryID", "servicePriorityNo", "strategicPlanNo", "corporateStrategyNo"]
-
-    def ibmdata_link(self, obj):
-        if obj.ibmdata:
-            url = reverse("admin:ibms_ibmdata_change", args=[obj.ibmdata.pk])
-            return format_html(f"<a href='{url}'>{obj.ibmdata}</a>")
-        else:
-            return ""
-
-    ibmdata_link.short_description = "IBM data"
 
     def corporate_strategy_link(self, obj):
         if obj.corporate_strategy:
@@ -571,10 +561,10 @@ class PVSServicePriorityAdmin(ServicePriorityAdmin):
                 "servicePriorityNo",
                 "strategicPlanNo",
                 "corporateStrategyNo",
+                "servicePriority1",
                 "description",
                 "pvsExampleAnnWP",
                 "pvsExampleActNo",
-                "servicePriority1",
             ],
         )
     ]
@@ -612,18 +602,17 @@ class SFMServicePriorityAdmin(ServicePriorityAdmin):
 @register(ERServicePriority)
 class ERServicePriorityAdmin(ServicePriorityAdmin):
     search_fields = ServicePriorityAdmin.search_fields + ["classification"]
+    # NOTE: The header values and the column order for this export are critical and must not be changed.
     actions = [
         export_as_csv_action(
             translations=[
                 "financialYear",
-                "categoryID",
-                "servicePriorityNo",
-                "strategicPlanNo",
-                "corporateStrategyNo",
-                "description",
-                "pvsExampleAnnWP",
-                "pvsExampleActNo",
-                "classification",
+                "CategoryID",
+                "SerPriNo",
+                "StratPlanNo",
+                "IBMCS",
+                "Env Regs Specific Classification",
+                "Env Regs Specific Description",
             ],
             fields=[
                 "fy",
@@ -631,10 +620,8 @@ class ERServicePriorityAdmin(ServicePriorityAdmin):
                 "servicePriorityNo",
                 "strategicPlanNo",
                 "corporateStrategyNo",
-                "description",
-                "pvsExampleAnnWP",
-                "pvsExampleActNo",
                 "classification",
+                "description",
             ],
         )
     ]

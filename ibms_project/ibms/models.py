@@ -17,7 +17,7 @@ class IBMData(models.Model):
     and Data Amendment templates by end users.
     """
 
-    ibmIdentifier = models.CharField(max_length=100, verbose_name="IBM identifer", db_index=True)
+    ibmIdentifier = models.CharField(max_length=100, verbose_name="IBM identifier", db_index=True)
 
     fy = models.ForeignKey(FinancialYear, on_delete=models.PROTECT, verbose_name="financial year")
     costCentre = models.CharField(max_length=4, null=True, blank=True, db_index=True, verbose_name="cost centre")
@@ -75,6 +75,9 @@ class IBMData(models.Model):
             if sp:
                 self.content_type = ContentType.objects.get_for_model(sp._meta.model)
                 self.object_id = sp.pk
+            else:
+                self.content_type = None
+                self.object_id = None
 
         super().save(*args, **kwargs)
 
@@ -82,46 +85,41 @@ class IBMData(models.Model):
         return reverse("ibms:data_amendment_update", kwargs={"pk": self.pk})
 
     def get_service_priority(self):
-        # Returns any Service Priority object which links to this IBMData object.
-        # Through database constraints, it should be 0-1 object.
-        if self.ncservicepriority.exists():
-            return self.ncservicepriority.first()
-        elif self.sfmservicepriority.exists():
-            return self.sfmservicepriority.first()
-        elif self.pvsservicepriority.exists():
-            return self.pvsservicepriority.first()
-        elif self.generalservicepriority.exists():
-            return self.generalservicepriority.first()
-        elif self.erservicepriority.exists():
-            return self.erservicepriority.first()
-        else:
-            return None
+        """Return the first matching object among the subclasses of ServicePriority, if any."""
 
-    def get_account_display(self):
+        # NOTE: the order of model classes is important here, as GeneralServicePriority should be preferenced.
+        for model in [GeneralServicePriority, NCServicePriority, PVSServicePriority, SFMServicePriority, ERServicePriority]:
+            qs = model.objects.filter(fy=self.fy, servicePriorityNo=self.servicePriorityID)
+            if qs:
+                return qs.first()
+
+        return None
+
+    def get_account_display(self) -> str:
         """The account display value should be returned as a string (integer, left-padded with zeros)."""
         if self.account:
             return str(self.account).zfill(2)
         else:
             return ""
 
-    def get_service_display(self):
+    def get_service_display(self) -> str:
         """The service display value should be returned as a string (integer, left-padded with zeros)."""
         if self.service:
             return str(self.service).zfill(2)
         else:
             return ""
 
-    def get_project_display(self):
+    def get_project_display(self) -> str:
         """The project display value should be returned as a string (integer, left-padded with zeros)."""
         if self.project:
             return str(self.project).zfill(4)
         else:
             return ""
 
-    def get_region_branch(self):
+    def get_region_branch(self) -> str:
         """This value belongs to linked GLPivDownload objects."""
         if self.glpivdownload.exists():
-            return self.glpivdownload.first().regionBranch
+            return str(self.glpivdownload.first().regionBranch)
         else:
             return ""
 
@@ -231,19 +229,23 @@ class GLPivDownload(models.Model):
             self.department_program = self.get_department_program()
         super().save(*args, **kwargs)
 
-    def get_ibmdata(self):
+    def get_ibmdata(self) -> IBMData | None:
         """Returns a single matched IBMData object, if it exists."""
-        return IBMData.objects.filter(fy=self.fy, ibmIdentifier=self.codeID).first() or None
+        if IBMData.objects.filter(fy=self.fy, ibmIdentifier=self.codeID).exists():
+            return IBMData.objects.get(fy=self.fy, ibmIdentifier=self.codeID)
+        return None
 
-    def get_department_program(self):
+    def get_department_program(self) -> DepartmentProgram | None:
         """Returns a single matched DepartmentProgram object, if it exists."""
-        return DepartmentProgram.objects.filter(fy=self.fy, ibmIdentifier=self.codeID).first() or None
+        if DepartmentProgram.objects.filter(fy=self.fy, ibmIdentifier=self.codeID).exists():
+            return DepartmentProgram.objects.get(fy=self.fy, ibmIdentifier=self.codeID)
+        return None
 
-    def get_account_display(self):
+    def get_account_display(self) -> str:
         """The account display value should be returned as a string (integer, left-padded with zeros)."""
         return str(self.account).zfill(2)
 
-    def get_project_display(self):
+    def get_project_display(self) -> str:
         """The project display value should be returned as a string (integer, left-padded with zeros)."""
         if self.project:
             return str(self.project).zfill(4)
@@ -308,13 +310,6 @@ class ServicePriority(models.Model):
         null=True,
         editable=False,
     )
-    ibmdata = models.ForeignKey(
-        IBMData,
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-        editable=False,
-    )
     strategic_plan = models.ForeignKey(
         NCStrategicPlan,
         on_delete=models.SET_NULL,
@@ -335,25 +330,30 @@ class ServicePriority(models.Model):
         # Set a linked CorporateStrategy object, if present.
         if not self.corporate_strategy:
             self.corporate_strategy = self.get_corporate_strategy()
-        # Set a linked IBMData object, if present.
-        if not self.ibmdata:
-            self.ibmdata = self.get_ibmdata()
         # Set a linked NCStrategicPlan object, if present.
         if not self.strategic_plan:
             self.strategic_plan = self.get_strategic_plan()
         super().save(*args, **kwargs)
 
-    def get_corporate_strategy(self):
+    def get_corporate_strategy(self) -> CorporateStrategy | None:
         """Returns a single matched CorporateStrategy object, if it exists."""
-        return CorporateStrategy.objects.filter(fy=self.fy, corporateStrategyNo=self.corporateStrategyNo).first() or None
+        if CorporateStrategy.objects.filter(fy=self.fy, corporateStrategyNo=self.corporateStrategyNo).exists():
+            return CorporateStrategy.objects.get(fy=self.fy, corporateStrategyNo=self.corporateStrategyNo)
+        return None
 
-    def get_ibmdata(self):
-        """Returns a single matched IBMData object, if it exists."""
-        return IBMData.objects.filter(fy=self.fy, servicePriorityID=self.servicePriorityNo).first() or None
-
-    def get_strategic_plan(self):
+    def get_strategic_plan(self) -> NCStrategicPlan | None:
         """Returns a single matched NCStrategicPlan object, if it exists."""
-        return NCStrategicPlan.objects.filter(fy=self.fy, strategicPlanNo=self.strategicPlanNo).first() or None
+        if NCStrategicPlan.objects.filter(fy=self.fy, strategicPlanNo=self.strategicPlanNo).exists():
+            return NCStrategicPlan.objects.get(fy=self.fy, strategicPlanNo=self.strategicPlanNo)
+        return None
+
+    def get_d1(self) -> str:
+        """Child classes should override this method as required."""
+        return str(self.description)
+
+    def get_d2(self) -> str:
+        """Child classes should override this method as required."""
+        return ""
 
 
 class GeneralServicePriority(ServicePriority):
@@ -369,15 +369,6 @@ class GeneralServicePriority(ServicePriority):
         verbose_name="corporate strategy",
         editable=False,
     )
-    ibmdata = models.ForeignKey(
-        IBMData,
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-        related_name="generalservicepriority",
-        verbose_name="IBM data",
-        editable=False,
-    )
     strategic_plan = models.ForeignKey(
         NCStrategicPlan,
         on_delete=models.SET_NULL,
@@ -391,11 +382,8 @@ class GeneralServicePriority(ServicePriority):
     class Meta(ServicePriority.Meta):
         verbose_name_plural = "general service priorities"
 
-    def get_d1(self):
-        return self.description
-
-    def get_d2(self):
-        return self.description2
+    def get_d2(self) -> str:
+        return str(self.description2)
 
 
 class NCServicePriority(ServicePriority):
@@ -418,15 +406,6 @@ class NCServicePriority(ServicePriority):
         verbose_name="corporate strategy",
         editable=False,
     )
-    ibmdata = models.ForeignKey(
-        IBMData,
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-        related_name="ncservicepriority",
-        verbose_name="IBM data",
-        editable=False,
-    )
     strategic_plan = models.ForeignKey(
         NCStrategicPlan,
         on_delete=models.SET_NULL,
@@ -441,11 +420,11 @@ class NCServicePriority(ServicePriority):
         verbose_name = "NC service priority"
         verbose_name_plural = "NC service priorities"
 
-    def get_d1(self):
-        return self.action
+    def get_d1(self) -> str:
+        return str(self.action)
 
-    def get_d2(self):
-        return self.milestone
+    def get_d2(self) -> str:
+        return str(self.milestone)
 
 
 class PVSServicePriority(ServicePriority):
@@ -459,15 +438,6 @@ class PVSServicePriority(ServicePriority):
         null=True,
         related_name="pvsservicepriority",
         verbose_name="corporate strategy",
-        editable=False,
-    )
-    ibmdata = models.ForeignKey(
-        IBMData,
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-        related_name="pvsservicepriority",
-        verbose_name="IBM data",
         editable=False,
     )
     strategic_plan = models.ForeignKey(
@@ -484,11 +454,11 @@ class PVSServicePriority(ServicePriority):
         verbose_name = "PVS service priority"
         verbose_name_plural = "PVS service priorities"
 
-    def get_d1(self):
-        return self.servicePriority1
+    def get_d1(self) -> str:
+        return str(self.servicePriority1)
 
-    def get_d2(self):
-        return self.description
+    def get_d2(self) -> str:
+        return str(self.description)
 
 
 class SFMServicePriority(ServicePriority):
@@ -505,15 +475,6 @@ class SFMServicePriority(ServicePriority):
         verbose_name="corporate strategy",
         editable=False,
     )
-    ibmdata = models.ForeignKey(
-        IBMData,
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-        related_name="sfmservicepriority",
-        verbose_name="IBM data",
-        editable=False,
-    )
     strategic_plan = models.ForeignKey(
         NCStrategicPlan,
         on_delete=models.SET_NULL,
@@ -528,11 +489,8 @@ class SFMServicePriority(ServicePriority):
         verbose_name = "SFM service priority"
         verbose_name_plural = "SFM service priorities"
 
-    def get_d1(self):
-        return self.description
-
-    def get_d2(self):
-        return self.description2
+    def get_d2(self) -> str:
+        return str(self.description2)
 
 
 class ERServicePriority(ServicePriority):
@@ -546,15 +504,6 @@ class ERServicePriority(ServicePriority):
         null=True,
         related_name="erservicepriority",
         verbose_name="corporate strategy",
-        editable=False,
-    )
-    ibmdata = models.ForeignKey(
-        IBMData,
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-        related_name="erservicepriority",
-        verbose_name="IBM data",
         editable=False,
     )
     strategic_plan = models.ForeignKey(
@@ -571,11 +520,11 @@ class ERServicePriority(ServicePriority):
         verbose_name = "ER service priority"
         verbose_name_plural = "ER service priorities"
 
-    def get_d1(self):
-        return self.classification
+    def get_d1(self) -> str:
+        return str(self.classification)
 
-    def get_d2(self):
-        return self.description
+    def get_d2(self) -> str:
+        return str(self.description)
 
 
 class Outcome(models.Model):
@@ -586,7 +535,7 @@ class Outcome(models.Model):
     q4Input = models.TextField(blank=True)
 
     def __str__(self):
-        return self.fy
+        return str(self.fy)
 
 
 class ServicePriorityMapping(models.Model):
@@ -597,4 +546,4 @@ class ServicePriorityMapping(models.Model):
     forestManagement = models.CharField(max_length=100, verbose_name="forest management")
 
     def __str__(self):
-        return self.costCentreNo
+        return str(self.costCentreNo)
