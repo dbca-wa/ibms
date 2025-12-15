@@ -174,6 +174,17 @@ class IBMDataAdmin(VersionAdmin):
 
     account_display.short_description = "account"
 
+    def service_priority_link(self, obj):
+        if obj.content_type and obj.object_id:
+            sp = obj.get_service_priority()
+            named_url = f"admin:ibms_{obj.content_type.model}_change"
+            url = reverse(named_url, args=[obj.object_id])
+            return format_html(f"<a href='{url}'>{str(sp)}</a>")
+        else:
+            return ""
+
+    service_priority_link.short_description = "Service priority"
+
 
 class DepartmentProgramAdminForm(forms.ModelForm):
     class Meta:
