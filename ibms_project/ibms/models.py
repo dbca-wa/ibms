@@ -87,6 +87,10 @@ class IBMData(models.Model):
     def get_service_priority(self):
         """Return the first matching object among the subclasses of ServicePriority, if any."""
 
+        # Existing linked service priority.
+        if self.content_type and self.object_id:
+            return self.service_priority
+
         # NOTE: the order of model classes is important here, as GeneralServicePriority should be preferenced.
         for model in [GeneralServicePriority, NCServicePriority, PVSServicePriority, SFMServicePriority, ERServicePriority]:
             qs = model.objects.filter(fy=self.fy, servicePriorityNo=self.servicePriorityID)
