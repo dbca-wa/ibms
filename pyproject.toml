@@ -21,7 +21,7 @@ dependencies = [
   "xlrd==2.0.2",                 # TODO: deprecate
   "xlwt==1.3.0",                 # TODO: deprecate
   "xlutils==2.0.0",              # TODO: deprecate
-  "django-reversion==6.0.0",
+  "django-reversion==6.1.0",
   "markupsafe>=3.0.3",
   "dbca-utils==2.1.5",
 ]
