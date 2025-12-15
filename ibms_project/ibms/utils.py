@@ -110,6 +110,10 @@ def import_to_ibmdata(file_name, fy):
             else:
                 obj = IBMData(**data)
                 obj.save()
+                # Repeat the save, in order to try setting the service priority on the object.
+                # We can't set this before having a PK on the object.
+                if not obj.service_priority:
+                    obj.save()
 
     csvfile.close()
     return "IBM Data"
