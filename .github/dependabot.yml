@@ -18,3 +18,7 @@ updates:
       interval: 'weekly'
     commit-message:
       prefix: '[docker] '
+    # Don't create PRs for major SemVer updates, only minor and patch level
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
