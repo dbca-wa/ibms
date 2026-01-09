@@ -1,4 +1,11 @@
 version: 2
+registries:
+  docker-hardened-images:
+    type: docker-registry
+    url: https://dhi.io
+    username: ${{secrets.DOCKERHUB_USERNAME}}
+    password: ${{secrets.DOCKERHUB_PASSWORD}}
+    replaces-base: true
 updates:
   - package-ecosystem: 'uv'
     directory: '/'
@@ -13,6 +20,7 @@ updates:
     commit-message:
       prefix: '[actions] '
   - package-ecosystem: 'docker'
+    registries: '*'
     directory: '/'
     schedule:
       interval: 'weekly'

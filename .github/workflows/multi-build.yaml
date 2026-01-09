@@ -121,6 +121,7 @@ jobs:
 
       - name: Log in to Docker Hardened Images Registry
         # This step logs into the Docker Hardened Images Registry in order to download the required images.
+        # It uses Actions secrets that must be set on the repository in GitHub.
         uses: docker/login-action@v3
         with:
           registry: dhi.io
