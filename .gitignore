@@ -20,3 +20,4 @@ logs/
 *.sqlite3
 
 .python-version
+.artifacts/
