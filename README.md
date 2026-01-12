@@ -47,6 +47,10 @@ To build a new Docker image from the `Dockerfile`:
 
     docker image build -t ghcr.io/dbca-wa/ibms .
 
+Run the image locally in a container like so:
+
+    docker container run --rm --env-file .env ghcr.io/dbca-wa/ibms
+
 ## Pre-commit hooks
 
 This project includes the following pre-commit hooks:
