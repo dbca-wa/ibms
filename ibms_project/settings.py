@@ -80,7 +80,6 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.template.context_processors.debug",
                 "django.template.context_processors.i18n",
-                "django.template.context_processors.media",
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
                 "django.template.context_processors.request",
@@ -131,11 +130,6 @@ if "ENGINE" in DATABASES["default"] and any(eng in DATABASES["default"]["ENGINE"
 
 
 # Static files (CSS, JavaScript, Images)
-# Ensure that the media directory exists:
-if not os.path.exists(os.path.join(BASE_DIR, "media")):
-    os.mkdir(os.path.join(BASE_DIR, "media"))
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-MEDIA_URL = "/media/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATIC_URL = "/static/"
 STATICFILES_DIRS = (os.path.join(PROJECT_DIR, "static"),)
