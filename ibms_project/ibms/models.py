@@ -70,6 +70,7 @@ class IBMData(models.Model):
         if user:
             self.modifier = user
 
+        # Set the linked service priority object, if possible.
         if self.pk and not self.service_priority:
             sp = self.get_service_priority()
             if sp:
@@ -88,7 +89,7 @@ class IBMData(models.Model):
         """Return the first matching object among the subclasses of ServicePriority, if any."""
 
         # Existing linked service priority.
-        if self.content_type and self.object_id:
+        if self.service_priority:
             return self.service_priority
 
         # NOTE: the order of model classes is important here, as GeneralServicePriority should be preferenced.
@@ -222,9 +223,12 @@ class GLPivDownload(models.Model):
         return f"{self.fy} {self.gLCode}"
 
     def save(self, *args, **kwargs):
-        """Overide save() to parse string date to a Python date."""
-        if self.downloadPeriod:
-            self.download_period = datetime.strptime(self.downloadPeriod, "%d/%m/%Y")
+        # Parse string date to a Python date, if needed.
+        if self.downloadPeriod and not self.download_period:
+            try:
+                self.download_period = datetime.strptime(self.downloadPeriod, "%d/%m/%Y")
+            except ValueError:
+                pass
         # Set a linked IBMData object, if present.
         if not self.ibmdata:
             self.ibmdata = self.get_ibmdata()
@@ -330,7 +334,6 @@ class ServicePriority(models.Model):
         return f"{self.fy} {self.servicePriorityNo}"
 
     def save(self, *args, **kwargs):
-        """Overide save() to parse string date to a Python date."""
         # Set a linked CorporateStrategy object, if present.
         if not self.corporate_strategy:
             self.corporate_strategy = self.get_corporate_strategy()

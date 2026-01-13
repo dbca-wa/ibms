@@ -64,7 +64,7 @@ def export_as_csv_action(fields=None, translations=None, exclude=None, header=Tr
 class IBMDataAdmin(VersionAdmin):
     date_hierarchy = "modified"
     search_fields = ("fy__financialYear", "ibmIdentifier", "budgetArea", "modifier__username")
-    list_display = ("ibmIdentifier", "fy", "costCentre", "budgetArea", "servicePriorityID", "modified", "modifier")
+    list_display = ("ibmIdentifier", "fy", "costCentre", "budgetArea", "service_priority_link", "modified", "modifier")
     list_filter = ("fy__financialYear", "costCentre", "budgetArea", "service")
     ordering = ("ibmIdentifier",)
     readonly_fields = (
@@ -175,11 +175,10 @@ class IBMDataAdmin(VersionAdmin):
     account_display.short_description = "account"
 
     def service_priority_link(self, obj):
-        if obj.content_type and obj.object_id:
-            sp = obj.get_service_priority()
+        if obj.service_priority:
             named_url = f"admin:ibms_{obj.content_type.model}_change"
             url = reverse(named_url, args=[obj.object_id])
-            return format_html(f"<a href='{url}'>{str(sp)}</a>")
+            return format_html(f"<a href='{url}'>{obj.service_priority.servicePriorityNo}</a>")
         else:
             return ""
 
@@ -366,7 +365,7 @@ class GLPivDownloadAdmin(ModelAdmin):
     def ibmdata_link(self, obj):
         if obj.ibmdata:
             url = reverse("admin:ibms_ibmdata_change", args=[obj.ibmdata.pk])
-            return format_html(f"<a href='{url}'>{obj.ibmdata}</a>")
+            return format_html(f"<a href='{url}'>{obj.ibmdata.ibmIdentifier}</a>")
         else:
             return ""
 
@@ -375,7 +374,7 @@ class GLPivDownloadAdmin(ModelAdmin):
     def department_program_link(self, obj):
         if obj.department_program:
             url = reverse("admin:ibms_departmentprogram_change", args=[obj.department_program.pk])
-            return format_html(f"<a href='{url}'>{obj.department_program}</a>")
+            return format_html(f"<a href='{url}'>{obj.department_program.dept_program1}</a>")
         else:
             return ""
 
@@ -463,7 +462,7 @@ class ServicePriorityAdmin(ModelAdmin):
     def corporate_strategy_link(self, obj):
         if obj.corporate_strategy:
             url = reverse("admin:ibms_corporatestrategy_change", args=[obj.corporate_strategy.pk])
-            return format_html(f"<a href='{url}'>{obj.corporate_strategy}</a>")
+            return format_html(f"<a href='{url}'>{obj.corporate_strategy.corporateStrategyNo}</a>")
         else:
             return ""
 
@@ -472,7 +471,7 @@ class ServicePriorityAdmin(ModelAdmin):
     def strategic_plan_link(self, obj):
         if obj.strategic_plan:
             url = reverse("admin:ibms_ncstrategicplan_change", args=[obj.strategic_plan.pk])
-            return format_html(f"<a href='{url}'>{obj.strategic_plan}</a>")
+            return format_html(f"<a href='{url}'>{obj.strategic_plan.strategicPlanNo}</a>")
         else:
             return ""
 
