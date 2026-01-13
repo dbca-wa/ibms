@@ -88,7 +88,7 @@ class IBMData(models.Model):
         """Return the first matching object among the subclasses of ServicePriority, if any."""
 
         # Existing linked service priority.
-        if self.content_type and self.object_id:
+        if self.service_priority:
             return self.service_priority
 
         # NOTE: the order of model classes is important here, as GeneralServicePriority should be preferenced.

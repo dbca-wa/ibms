@@ -166,7 +166,6 @@ def import_to_glpivotdownload(file_name, fy):
             fireActivities=row[32],
             mPRACategory=row[33],
         )
-
     return "GL Pivot Download"
 
 

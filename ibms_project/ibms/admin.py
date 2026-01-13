@@ -175,11 +175,10 @@ class IBMDataAdmin(VersionAdmin):
     account_display.short_description = "account"
 
     def service_priority_link(self, obj):
-        if obj.content_type and obj.object_id:
-            sp = obj.get_service_priority()
+        if obj.service_priority:
             named_url = f"admin:ibms_{obj.content_type.model}_change"
             url = reverse(named_url, args=[obj.object_id])
-            return format_html(f"<a href='{url}'>{sp.servicePriorityNo}</a>")
+            return format_html(f"<a href='{url}'>{obj.service_priority.servicePriorityNo}</a>")
         else:
             return ""
 
