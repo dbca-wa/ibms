@@ -122,53 +122,51 @@ def import_to_ibmdata(file_name, fy):
 @transaction.atomic
 def import_to_glpivotdownload(file_name, fy):
     reader, _, file_name = csvload(file_name)
-    glpiv = []
     for row in reader:
         try:
             download_period = datetime.strptime(row[0], "%d/%m/%Y")
         except ValueError:
             download_period = None
-        glpiv.append(
-            GLPivDownload(
-                fy=fy,
-                download_period=download_period,
-                downloadPeriod=row[0],
-                costCentre=row[1],
-                account=row[2],
-                service=row[3],
-                activity=row[4],
-                resource=row[5],
-                project=row[6],
-                job=row[7],
-                shortCode=row[8],
-                shortCodeName=row[9],
-                gLCode=row[10],
-                ptdActual=row[11],
-                ptdBudget=row[12],
-                ytdActual=row[13],
-                ytdBudget=row[14],
-                fybudget=row[15],
-                ytdVariance=row[16],
-                ccName=row[17],
-                serviceName=row[18],
-                activityName=row[19],
-                resourceName=row[20],
-                projectName=row[21],
-                jobName=row[22],
-                codeID=row[23],
-                resNameNo=row[24],
-                actNameNo=row[25],
-                projNameNo=row[26],
-                regionBranch=row[27],
-                division=row[28],
-                resourceCategory=row[29],
-                wildfire=row[30],
-                expenseRevenue=row[31],
-                fireActivities=row[32],
-                mPRACategory=row[33],
-            )
+        # NOTE: we can't use bulk_create here because it doesn't set the object FK links.
+        _ = GLPivDownload.objects.create(
+            fy=fy,
+            download_period=download_period,
+            downloadPeriod=row[0],
+            costCentre=row[1],
+            account=row[2],
+            service=row[3],
+            activity=row[4],
+            resource=row[5],
+            project=row[6],
+            job=row[7],
+            shortCode=row[8],
+            shortCodeName=row[9],
+            gLCode=row[10],
+            ptdActual=row[11],
+            ptdBudget=row[12],
+            ytdActual=row[13],
+            ytdBudget=row[14],
+            fybudget=row[15],
+            ytdVariance=row[16],
+            ccName=row[17],
+            serviceName=row[18],
+            activityName=row[19],
+            resourceName=row[20],
+            projectName=row[21],
+            jobName=row[22],
+            codeID=row[23],
+            resNameNo=row[24],
+            actNameNo=row[25],
+            projNameNo=row[26],
+            regionBranch=row[27],
+            division=row[28],
+            resourceCategory=row[29],
+            wildfire=row[30],
+            expenseRevenue=row[31],
+            fireActivities=row[32],
+            mPRACategory=row[33],
         )
-    GLPivDownload.objects.bulk_create(glpiv)
+
     return "GL Pivot Download"
 
 
