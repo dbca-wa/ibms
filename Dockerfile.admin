@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM dhi.io/python:3.13-debian13-dev@sha256:afbe9dc3a5482aa5a10a1b3f6b169d71cfb0565d6ca223279af3c60696ae1cbe
+FROM dhi.io/python:3.14-debian13-dev@sha256:a0996eaa1592bddf7eaa52af71452857e30c2c82b2a8b6f698956e71a10152d9
 LABEL org.opencontainers.image.authors=asi@dbca.wa.gov.au
 LABEL org.opencontainers.image.source=https://github.com/dbca-wa/ibms
 
