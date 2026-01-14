@@ -4,7 +4,6 @@ from datetime import datetime
 
 import xlwt
 from django.conf import settings
-from django.db import transaction
 from reversion import create_revision, set_comment
 
 from ibms.models import (
@@ -108,18 +107,22 @@ def import_to_ibmdata(file_name, fy):
                 ibmdata.save()
                 set_comment(f"{ibmdata} amended via upload")
             else:
-                obj = IBMData(**data)
-                obj.save()
+                ibmdata = IBMData(**data)
+                ibmdata.save()
                 # Repeat the save, in order to try setting the service priority on the object.
                 # We can't set this before having a PK on the object.
-                if not obj.service_priority:
-                    obj.save()
+                if not ibmdata.service_priority:
+                    ibmdata.save()
+
+        # Check for any existing GLPivDownload objects that should now link to this object.
+        if GLPivDownload.objects.filter(fy=fy, codeID=ibmdata.ibmIdentifier, ibmdata__isnull=True).exists():
+            glpiv = GLPivDownload.objects.get(fy=fy, codeID=ibmdata.ibmIdentifier, ibmdata__isnull=True)
+            glpiv.save()
 
     csvfile.close()
     return "IBM Data"
 
 
-@transaction.atomic
 def import_to_glpivotdownload(file_name, fy):
     reader, _, file_name = csvload(file_name)
     for row in reader:
