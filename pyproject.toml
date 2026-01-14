@@ -1,6 +1,6 @@
 [project]
 name = "ibms"
-version = "2.11.7"
+version = "2.11.8"
 description = "Integrated Business Management System corporate application"
 authors = [{ name = "Ashley Felton", email = "ashley.felton@dbca.wa.gov.au" }]
 license = "Apache-2.0"
