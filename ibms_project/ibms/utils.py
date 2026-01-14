@@ -115,9 +115,8 @@ def import_to_ibmdata(file_name, fy):
                     ibmdata.save()
 
         # Check for any existing GLPivDownload objects that should now link to this object.
-        if GLPivDownload.objects.filter(fy=fy, codeID=ibmdata.ibmIdentifier, ibmdata__isnull=True).exists():
-            for glpiv in GLPivDownload.objects.filter(fy=fy, codeID=ibmdata.ibmIdentifier, ibmdata__isnull=True):
-                glpiv.save()
+        for glpiv in GLPivDownload.objects.filter(fy=fy, codeID=ibmdata.ibmIdentifier, ibmdata__isnull=True):
+            glpiv.save()
 
     csvfile.close()
     return "IBM Data"
