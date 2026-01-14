@@ -95,9 +95,11 @@ class IbmsViewsTest(IbmsTestCase):
         # Start with one IBMData object.
         self.assertEqual(IBMData.objects.count(), 1)
         url = reverse("ibms:upload")
-        test_data = open(os.path.join(self.test_data_path, "ibmdata_upload_test.csv"), "rb")
-        upload = SimpleUploadedFile("ibmdata_upload.csv", test_data.read())
-        resp = self.client.post(url, data={"upload_file_type": "ibm_data", "upload_file": upload, "financial_year": "2024/25"}, follow=True)
+        with open(os.path.join(self.test_data_path, "ibmdata_upload_test.csv"), "rb") as test_data:
+            upload = SimpleUploadedFile("ibmdata_upload.csv", test_data.read())
+            resp = self.client.post(
+                url, data={"upload_file_type": "ibm_data", "upload_file": upload, "financial_year": "2024/25"}, follow=True
+            )
         self.assertEqual(resp.status_code, 200)
         # Conclude with 5 IBMData objects.
         self.assertEqual(IBMData.objects.count(), 5)
@@ -107,14 +109,32 @@ class IbmsViewsTest(IbmsTestCase):
         # Start with zero GLPivDownload objects.
         self.assertEqual(GLPivDownload.objects.count(), 0)
         url = reverse("ibms:upload")
-        test_data = open(os.path.join(self.test_data_path, "glpivot_upload_test.csv"), "rb")
-        upload = SimpleUploadedFile("glpivot_upload.csv", test_data.read())
-        resp = self.client.post(
-            url, data={"upload_file_type": "gl_pivot_download", "upload_file": upload, "financial_year": "2024/25"}, follow=True
-        )
+        with open(os.path.join(self.test_data_path, "glpivot_upload_test.csv"), "rb") as test_data:
+            upload = SimpleUploadedFile("glpivot_upload.csv", test_data.read())
+            resp = self.client.post(
+                url, data={"upload_file_type": "gl_pivot_download", "upload_file": upload, "financial_year": "2024/25"}, follow=True
+            )
         self.assertEqual(resp.status_code, 200)
         # Conclude with 4 GLPivDownload objects.
         self.assertEqual(GLPivDownload.objects.count(), 4)
+
+    def test_upload_view_glpivot_fk_links(self):
+        """Following upload of GL pivot download data, confirm that a FK link to IBM data records are made."""
+        url = reverse("ibms:upload")
+        # Upload IBMData and GLPivDownload records.
+        with open(os.path.join(self.test_data_path, "ibmdata_upload_test.csv"), "rb") as test_data:
+            upload = SimpleUploadedFile("ibmdata_upload.csv", test_data.read())
+            _ = self.client.post(
+                url, data={"upload_file_type": "ibm_data", "upload_file": upload, "financial_year": "2024/25"}, follow=True
+            )
+        with open(os.path.join(self.test_data_path, "glpivot_upload_test.csv"), "rb") as test_data:
+            upload = SimpleUploadedFile("glpivot_upload.csv", test_data.read())
+            _ = self.client.post(
+                url, data={"upload_file_type": "gl_pivot_download", "upload_file": upload, "financial_year": "2024/25"}, follow=True
+            )
+        # All of the GLPivDownload objects will have a FK link to the matching IBMData objects.
+        for gl in GLPivDownload.objects.all():
+            self.assertTrue(gl.ibmdata)
 
     def test_upload_view_deptprogram_post(self):
         """Test a valid CSV upload for Department Program data."""
@@ -127,11 +147,11 @@ class IbmsViewsTest(IbmsTestCase):
         # Start with zero DepartmentProgram objects.
         self.assertEqual(DepartmentProgram.objects.count(), 0)
         url = reverse("ibms:upload")
-        test_data = open(os.path.join(self.test_data_path, "dept_program_upload_test.csv"), "rb")
-        upload = SimpleUploadedFile("dept_program_upload.csv", test_data.read())
-        resp = self.client.post(
-            url, data={"upload_file_type": "dept_program", "upload_file": upload, "financial_year": "2024/25"}, follow=True
-        )
+        with open(os.path.join(self.test_data_path, "dept_program_upload_test.csv"), "rb") as test_data:
+            upload = SimpleUploadedFile("dept_program_upload.csv", test_data.read())
+            resp = self.client.post(
+                url, data={"upload_file_type": "dept_program", "upload_file": upload, "financial_year": "2024/25"}, follow=True
+            )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(DepartmentProgram.objects.count(), 4)
 
