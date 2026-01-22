@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM dhi.io/python:3.13-debian13-dev@sha256:afbe9dc3a5482aa5a10a1b3f6b169d71cfb0565d6ca223279af3c60696ae1cbe AS build-stage
+FROM dhi.io/python:3.13-debian13-dev AS build-stage
 
 # Copy and configure uv, to install dependencies
 COPY --from=ghcr.io/astral-sh/uv:0.9 /uv /bin/
@@ -7,7 +7,7 @@ WORKDIR /app
 # Install project dependencies
 COPY pyproject.toml uv.lock ./
 RUN uv sync --no-group dev --link-mode=copy --compile-bytecode --no-python-downloads --frozen \
-  # Remove uv after use
+  # Remove uv and lockfile after use
   && rm -rf /bin/uv \
   && rm uv.lock
 
@@ -22,7 +22,7 @@ RUN python -m compileall ibms_project \
 
 ##################################################################################
 
-FROM dhi.io/python:3.13-debian13@sha256:64dbcbe81072d513f0ecc24ab92e3131df201ace1f99a3b78ac0c778fa4f7e82 AS runtime-stage
+FROM dhi.io/python:3.13-debian13 AS runtime-stage
 LABEL org.opencontainers.image.authors=asi@dbca.wa.gov.au
 LABEL org.opencontainers.image.source=https://github.com/dbca-wa/ibms
 
