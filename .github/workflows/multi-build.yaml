@@ -3,6 +3,9 @@
 name: Build multi-architecture Docker image with separate GitHub runners and run vulnerability scan
 
 on:
+  schedule:
+    # 0511 AWST, Mon-Fri
+    - cron: '11 21 * * 1-5'
   push:
     branches:
       - master
@@ -74,7 +77,7 @@ jobs:
 
       - name: Harden the GitHub runner
         # Make use of the Step Security Harden Runner workflow to monitor the build process.
-        uses: step-security/harden-runner@v2.14.0
+        uses: step-security/harden-runner@v2.14.1
         with:
           egress-policy: audit
 
