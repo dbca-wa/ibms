@@ -38,7 +38,7 @@ dev = [
   "faker>=12.0.1",
   "pre-commit>=4.6.0",
   "coverage>=7.14.3",
-  "django-stubs>=6.0.5",
+  "django-stubs>=6.0.6",
   "deptry>=0.25.1",
 ]
 
