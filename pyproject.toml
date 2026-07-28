@@ -7,7 +7,7 @@ license = "Apache-2.0"
 readme = "README.md"
 requires-python = ">=3.13,<4"
 dependencies = [
-  "django==5.2.14",
+  "django==5.2.16",
   "psycopg[binary,pool]==3.3.4",
   "python-dotenv==1.2.2",
   "dj-database-url==3.1.2",
@@ -24,7 +24,7 @@ dependencies = [
   "xlutils==2.0.0",
   "django-reversion==6.3.0",
   "markupsafe>=3.0.3",
-  "dbca-utils==2.2.0",
+  "dbca-utils==3.0.12",
   "azure-storage-blob==12.30.0",
   "django-tasks==0.12.0",
   "django-tasks-db==0.12.0",
@@ -36,9 +36,9 @@ dev = [
   "ipdb>=0.13.13",
   "mixer>=7.2.2",
   "faker>=12.0.1",
-  "pre-commit>=4.6.0",
+  "pre-commit>=4.6.1",
   "coverage>=7.15.2",
-  "django-stubs>=6.0.6",
+  "django-stubs>=6.0.7",
   "deptry>=0.25.1",
 ]
 
