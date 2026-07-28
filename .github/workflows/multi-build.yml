@@ -121,7 +121,7 @@ jobs:
       - name: Login to GitHub Container Registry
         # This step logs in to the GitHub Container Registry (GHCR) using the docker/login-action.
         # It uses the GitHub actor's username and the GITHUB_TOKEN secret for authentication.
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4
+        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -130,7 +130,7 @@ jobs:
       - name: Log in to Docker Hardened Images Registry
         # This step logs into the Docker Hardened Images Registry in order to download the required images.
         # It uses Actions secrets that must be set on the repository in GitHub.
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4
+        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4
         with:
           registry: dhi.io
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -242,7 +242,7 @@ jobs:
             network=host
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4
+        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4
         # This step logs in to the GitHub Container Registry (GHCR) using the docker/login-action.
         # It uses the GitHub actor's username and the GITHUB_TOKEN secret for authentication.
         # The login is necessary to push the merged manifest list to GHCR.
