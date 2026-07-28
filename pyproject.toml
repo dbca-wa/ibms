@@ -70,3 +70,8 @@ DEP002 = [
   "markupsafe",
   "django-tasks-db",
 ]
+
+[tool.pyright]
+venvPath = ".venv"
+include = ["ibms", "ibms_project", "sfm"]
+exclude = ["**/migrations", "kustomize"]
