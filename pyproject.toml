@@ -7,14 +7,15 @@ license = "Apache-2.0"
 readme = "README.md"
 requires-python = ">=3.13,<4"
 dependencies = [
-  "django==5.2.14",
+  "django==5.2.17",
   "psycopg[binary,pool]==3.3.4",
   "python-dotenv==1.2.2",
   "dj-database-url==3.1.2",
   "gunicorn==26.0.0",
   "django-extensions==4.1",
-  "django-crispy-forms==2.6",
+  "django-crispy-forms==2.7",
   "crispy-bootstrap5==2026.3",
+  "dbca-utils==3.0.13",
   "webtemplate-dbca==1.9.0",
   "whitenoise[brotli]==6.12.0",
   "openpyxl==3.1.5",
@@ -24,7 +25,6 @@ dependencies = [
   "xlutils==2.0.0",
   "django-reversion==6.3.0",
   "markupsafe>=3.0.3",
-  "dbca-utils==2.2.0",
   "azure-storage-blob==12.30.0",
   "django-tasks==0.12.0",
   "django-tasks-db==0.12.0",
@@ -32,13 +32,13 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  "ipython>=9.14.0",
+  "ipython>=9.16.1",
   "ipdb>=0.13.13",
   "mixer>=7.2.2",
   "faker>=12.0.1",
-  "pre-commit>=4.6.0",
-  "coverage>=7.14.3",
-  "django-stubs>=6.0.5",
+  "pre-commit>=4.6.2",
+  "coverage>=7.15.4",
+  "django-stubs>=6.1.0",
   "deptry>=0.25.1",
 ]
 
@@ -70,3 +70,8 @@ DEP002 = [
   "markupsafe",
   "django-tasks-db",
 ]
+
+[tool.pyright]
+venvPath = ".venv"
+include = ["ibms", "ibms_project", "sfm"]
+exclude = ["**/migrations", "kustomize"]
