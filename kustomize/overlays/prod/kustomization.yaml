@@ -23,4 +23,4 @@ patches:
   - path: task_worker_patch.yaml
 images:
   - name: ghcr.io/dbca-wa/ibms
-    newTag: 2.12.2
+    newTag: 2.12.3
