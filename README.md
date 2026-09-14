@@ -41,6 +41,10 @@ Run console commands manually:
 
     python manage.py shell_plus
 
+Run the asynchronous task worker:
+
+    python manage.py db_worker
+
 ## Testing
 
 Run unit tests as follows:
