@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ibms-deployment
+  name: ibms-webserver
   labels:
-    app: ibms-deployment
+    app: ibms-webserver
 spec:
   selector:
     matchLabels:
-      app: ibms-deployment
+      app: ibms-webserver
   strategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        app: ibms-deployment
+        app: ibms-webserver
     spec:
       containers:
         - name: ibms
@@ -109,5 +109,5 @@ spec:
               podAffinityTerm:
                 labelSelector:
                   matchLabels:
-                    app: ibms-deployment
+                    app: ibms-webserver
                 topologyKey: kubernetes.io/hostname

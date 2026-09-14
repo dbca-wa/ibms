@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ibms-clusterip
+  name: ibms-webserver
 spec:
   type: ClusterIP
   selector:
-    app: ibms-deployment
+    app: ibms-webserver
     variant: prod

@@ -17,8 +17,8 @@ labels:
     pairs:
       variant: prod
 patches:
-  - path: deployment_patch.yml
-  - path: deployment_hpa_patch.yml
+  - path: webserver_patch.yml
+  - path: webserver_hpa_patch.yml
   - path: service_patch.yml
   - path: task_worker_patch.yml
 images:

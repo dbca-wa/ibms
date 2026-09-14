@@ -12,6 +12,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: ibms-clusterip-prod
+                name: ibms-webserver-prod
                 port:
                   number: 8080
