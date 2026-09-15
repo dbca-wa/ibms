@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
-      image_ref: ${{ steps.scan.outputs.image_ref }}
+      image_ref: ${{ env.GHCR_IMAGE }}:${{ steps.image_tag.outputs.value }}
     permissions:
       contents: read
       packages: write # push image to GHCR
@@ -61,32 +61,30 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Docker metadata
-        id: meta
-        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
-        with:
-          images: ${{ env.GHCR_IMAGE }}
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=raw,value=dev,event=branch,branch=dev
-            type=semver,pattern={{version}}
-
-      - name: Set scan image ref
-        id: scan
-        env:
-          TAGS: ${{ steps.meta.outputs.tags }}
-        run: |
-          tag=$(printf '%s\n' "$TAGS" | awk 'NF{print; exit}')
-          echo "image_ref=$tag" >> "$GITHUB_OUTPUT"
-
-      - name: Build and push with buildx bake
-        env:
-          TAGS: ${{ steps.meta.outputs.tags }}
+      - name: Determine image tag
+        id: image_tag
+        shell: bash
         run: |
           set -euo pipefail
-          TAGS_JSON=$(printf '%s\n' "$TAGS" | awk 'NF' | jq -R . | jq -s -c .)
-          printf 'target "app" {\n  tags = %s\n}\n' "$TAGS_JSON" > /tmp/bake-tags.hcl
-          docker buildx bake --push -f docker-bake.hcl -f /tmp/bake-tags.hcl
+          tag="$(git tag --points-at HEAD | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || true)"
+          if [ -n "$tag" ]; then
+            # strip a leading 'v' (e.g. v1.2.3 -> 1.2.3)
+            semtag="${tag#v}"
+            echo "value=${semtag}" >> "$GITHUB_OUTPUT"
+            echo "tags=${GHCR_IMAGE}:latest,${GHCR_IMAGE}:${semtag}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=latest" >> "$GITHUB_OUTPUT"
+            echo "tags=${GHCR_IMAGE}:latest" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and push with Docker Buildx
+        id: bake
+        uses: docker/bake-action@d3418bd7d0e9324001bca92fa8ba175ea7e6dc9b # v7.3.0
+        with:
+          push: true
+          targets: all
+          set: |
+            app.tags=${{ steps.image_tag.outputs.tags }}
 
   scan:
     name: Docker image vulnerability scan
