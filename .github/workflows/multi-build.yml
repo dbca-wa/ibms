@@ -82,7 +82,6 @@ jobs:
         uses: docker/bake-action@d3418bd7d0e9324001bca92fa8ba175ea7e6dc9b # v7.3.0
         with:
           push: true
-          targets: all
           set: |
             app.tags=${{ steps.image_tag.outputs.tags }}
 
