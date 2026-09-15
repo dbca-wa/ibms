@@ -8,13 +8,13 @@ readme = "README.md"
 requires-python = ">=3.13,<4"
 dependencies = [
   "django==5.2.17",
-  "psycopg[binary,pool]==3.3.4",
-  "python-dotenv==1.2.2",
+  "psycopg[binary,pool]==3.3.5",
+  "python-dotenv==1.2.3",
   "dj-database-url==3.1.2",
-  "gunicorn==26.0.0",
+  "gunicorn[fast]==26.2.0",
   "django-extensions==4.1",
   "django-crispy-forms==2.7",
-  "crispy-bootstrap5==2026.3",
+  "crispy-bootstrap5==2026.9",
   "dbca-utils==3.0.13",
   "webtemplate-dbca==1.9.0",
   "whitenoise[brotli]==6.12.0",
@@ -25,14 +25,14 @@ dependencies = [
   "xlutils==2.0.0",
   "django-reversion==6.3.0",
   "markupsafe>=3.0.3",
-  "azure-storage-blob==12.30.0",
+  "azure-storage-blob==12.30.1",
   "django-tasks==0.12.0",
-  "django-tasks-db==0.12.0",
+  "django-tasks-db==0.13.0",
 ]
 
 [dependency-groups]
 dev = [
-  "ipython>=9.16.1",
+  "ipython>=9.17.1",
   "ipdb>=0.13.13",
   "mixer>=7.2.2",
   "faker>=12.0.1",

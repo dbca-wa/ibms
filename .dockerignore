@@ -1,4 +1,5 @@
 .dockerignore
+Dockerfile*
 .env
 .env.*
 .git*
@@ -23,3 +24,4 @@ LICENSE
 README.md
 logs/
 media/
+staticfiles/

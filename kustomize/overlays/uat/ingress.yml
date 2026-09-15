@@ -12,6 +12,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: ibms-clusterip-uat
+                name: ibms-webserver-uat
                 port:
                   number: 8080

@@ -3,17 +3,18 @@
 # ---- Builder stage ----
 FROM dhi.io/python:3.13-debian13-dev AS builder
 
-COPY --from=ghcr.io/astral-sh/uv:0.11 /uv /bin/
-WORKDIR /app
-COPY pyproject.toml uv.lock ./
+RUN <<EOF
+set -euxo pipefail
+apt-get update
+apt-get install -y --no-install-recommends \
+  gcc \
+  g++
+EOF
 
-RUN uv sync \
-  --no-group dev \
-  --link-mode=copy \
-  --compile-bytecode \
-  --no-python-downloads \
-  --frozen \
-  && rm -rf /bin/uv uv.lock
+WORKDIR /app
+COPY --from=ghcr.io/astral-sh/uv:0.11 /uv /bin/
+COPY pyproject.toml uv.lock ./
+RUN uv sync --no-group dev --link-mode=copy --compile-bytecode --no-python-downloads --frozen
 
 # ---- Runtime stage ----
 FROM dhi.io/python:3.13-debian13-dev
@@ -35,9 +36,12 @@ COPY --chown=nonroot:nonroot gunicorn.py manage.py pyproject.toml ./
 COPY --chown=nonroot:nonroot ibms_project ./ibms_project
 COPY --chown=nonroot:nonroot ibms ./ibms
 COPY --chown=nonroot:nonroot sfm ./sfm
+
 # Compile scripts and collect static files
-RUN python -m compileall -q ibms_project ibms sfm \
-  && python manage.py collectstatic --noinput
+RUN <<EOF
+python -m compileall manage.py ibms_project ibms sfm
+python manage.py collectstatic --noinput
+EOF
 
 # Run project as the nonroot user
 USER nonroot
