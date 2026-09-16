@@ -4,7 +4,6 @@ name: Build multi-architecture image
 
 on:
   schedule:
-    # 0511 AWST, Mon-Fri
     - cron: '11 21 * * 1-5'
   push:
     branches:
@@ -71,10 +70,10 @@ jobs:
             # strip a leading 'v' (e.g. v1.2.3 -> 1.2.3)
             semtag="${tag#v}"
             echo "value=${semtag}" >> "$GITHUB_OUTPUT"
-            echo "tags=${GHCR_IMAGE}:latest,${GHCR_IMAGE}:${semtag}" >> "$GITHUB_OUTPUT"
+            echo "has_version_tag=true" >> "$GITHUB_OUTPUT"
           else
             echo "value=latest" >> "$GITHUB_OUTPUT"
-            echo "tags=${GHCR_IMAGE}:latest" >> "$GITHUB_OUTPUT"
+            echo "has_version_tag=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Build and push with Docker Buildx
@@ -83,7 +82,8 @@ jobs:
         with:
           push: true
           set: |
-            app.tags=${{ steps.image_tag.outputs.tags }}
+            app.tags=${{ env.GHCR_IMAGE }}:latest
+            ${{ steps.image_tag.outputs.has_version_tag == 'true' && format('app.tags={0}:{1}', env.GHCR_IMAGE, steps.image_tag.outputs.value) || '' }}
 
   scan:
     name: Docker image vulnerability scan
@@ -110,6 +110,6 @@ jobs:
           output: 'trivy-results.sarif'
 
       - name: Upload scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4.37.9
+        uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4.38.0
         with:
           sarif_file: 'trivy-results.sarif'
