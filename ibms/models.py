@@ -169,7 +169,7 @@ class GLPivDownload(models.Model):
     project = models.CharField(max_length=6, editable=False)
     job = models.CharField(max_length=6, editable=False)
 
-    download_period = models.DateField(blank=True, null=True, editable=False)
+    download_period = models.DateField(blank=True, null=True, editable=False, db_index=True)
     downloadPeriod = models.CharField(max_length=10, editable=False)
     account = models.IntegerField(db_index=True, editable=False)
     activity = models.CharField(max_length=4, db_index=True, editable=False)
