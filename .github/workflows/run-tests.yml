@@ -15,12 +15,12 @@ permissions:
 
 jobs:
   run_tests:
-    name: Run Django Tests
+    name: Run unit tests
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
     services:
-      db:
+      postgres:
         image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres

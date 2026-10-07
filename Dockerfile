@@ -18,8 +18,11 @@ RUN uv sync --no-group dev --link-mode=copy --compile-bytecode --no-python-downl
 
 # ---- Runtime stage ----
 FROM dhi.io/python:3.13-debian13-dev
-LABEL org.opencontainers.image.authors=asi@dbca.wa.gov.au
-LABEL org.opencontainers.image.source=https://github.com/dbca-wa/ibms
+LABEL org.opencontainers.image.title="ibms" \
+  org.opencontainers.image.description="Integrated Business Management System" \
+  org.opencontainers.image.source="https://github.com/dbca-wa/ibms" \
+  org.opencontainers.image.vendor="DBCA" \
+  org.opencontainers.image.authors="asi@dbca.wa.gov.au"
 
 # Environment variables
 ENV PYTHONUNBUFFERED=1 \
