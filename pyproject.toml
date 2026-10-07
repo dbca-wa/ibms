@@ -1,6 +1,6 @@
 [project]
 name = "ibms"
-version = "2.12.3"
+version = "2.12.4"
 description = "Integrated Business Management System corporate application"
 authors = [{ name = "Ashley Felton", email = "ashley.felton@dbca.wa.gov.au" }]
 license = "Apache-2.0"
@@ -8,7 +8,7 @@ readme = "README.md"
 requires-python = ">=3.13,<4"
 dependencies = [
   "django==5.2.17",
-  "psycopg[binary,pool]==3.3.5",
+  "psycopg[binary,pool]==3.3.6",
   "python-dotenv==1.2.3",
   "dj-database-url==3.1.2",
   "gunicorn[fast]==26.2.0",
@@ -25,7 +25,7 @@ dependencies = [
   "xlutils==2.0.0",
   "django-reversion==6.3.0",
   "markupsafe>=3.0.3",
-  "azure-storage-blob==12.30.1",
+  "azure-storage-blob==12.30.3",
   "django-tasks==0.12.0",
   "django-tasks-db==0.13.0",
 ]
@@ -37,7 +37,7 @@ dev = [
   "mixer>=7.2.2",
   "faker>=12.0.1",
   "pre-commit>=4.6.2",
-  "coverage>=7.15.4",
+  "coverage>=7.16.2",
   "django-stubs>=6.1.0",
   "deptry>=0.25.1",
 ]
