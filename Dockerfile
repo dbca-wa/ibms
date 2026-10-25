@@ -1,7 +1,9 @@
 # syntax=docker/dockerfile:1
+# Args to centralise versions.
+ARG PYTHON_VERSION=3.13-debian13-dev
 
 # ---- Builder stage ----
-FROM dhi.io/python:3.13-debian13-dev AS builder
+FROM dhi.io/python:${PYTHON_VERSION} AS builder
 
 RUN <<EOF
 set -euxo pipefail
@@ -17,7 +19,7 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --no-group dev --link-mode=copy --compile-bytecode --no-python-downloads --frozen
 
 # ---- Runtime stage ----
-FROM dhi.io/python:3.13-debian13-dev
+FROM dhi.io/python:${PYTHON_VERSION} AS runtime
 LABEL org.opencontainers.image.title="ibms" \
   org.opencontainers.image.description="Integrated Business Management System" \
   org.opencontainers.image.source="https://github.com/dbca-wa/ibms" \
