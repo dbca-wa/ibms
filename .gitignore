@@ -22,8 +22,3 @@ logs/
 .python-version
 .artifacts/
 .vscode/
-
-# Agent artifacts
-.omo/
-.opencode/memory.local.jsonc
-AGENTS.md
