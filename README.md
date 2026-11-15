@@ -58,13 +58,18 @@ To obtain test coverage:
 
 ## Docker image
 
-To build a new Docker image from the `Dockerfile`:
+Builds are defined in `docker-bake.hcl`. To build a local image for your
+native platform and load it into Docker:
 
-    docker image build -t ghcr.io/dbca-wa/ibms .
+    docker buildx bake local
 
 Run the image locally in a container like so:
 
-    docker container run --rm --env-file .env ghcr.io/dbca-wa/ibms
+    docker container run --rm -p 8080:8080 --env-file .env ghcr.io/dbca-wa/ibms:dev
+
+To build and push a multi-arch image manually (without waiting for CI, requires `--push`):
+
+    TAG=v1.2.3 docker buildx bake --push app
 
 ## Pre-commit hooks
 

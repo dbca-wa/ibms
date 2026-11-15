@@ -1,24 +1,35 @@
 # syntax=docker/dockerfile:1
 # Args to centralise versions.
+# PYTHON_VERSION is the DHI runtime tag.
 ARG PYTHON_VERSION=3.13-debian13-dev
+ARG UV_VERSION=0.13
 
-# ---- Builder stage ----
+# ---- Stages ----
+FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
 FROM dhi.io/python:${PYTHON_VERSION} AS builder
 
-RUN <<EOF
-set -euxo pipefail
-apt-get update
-apt-get install -y --no-install-recommends \
-  gcc \
-  g++
-EOF
+# ---- Builder stage ----
+# gcc is required: gunicorn[fast] -> gunicorn-h1c has no wheel for every
+# platform and builds its extension from source.
+COPY --from=uv /uv /bin/uv
 
 WORKDIR /app
-COPY --from=ghcr.io/astral-sh/uv:0.13 /uv /bin/
-COPY pyproject.toml uv.lock ./
-RUN uv sync --no-group dev --link-mode=copy --compile-bytecode --no-python-downloads --frozen
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+  apt-get update && apt-get install -y --no-install-recommends gcc
+
+# Install only runtime dependencies into /app/.venv. The venv path must match
+# the runtime stage: uv writes absolute shebangs into console scripts such as
+# gunicorn.
+RUN --mount=type=cache,target=/root/.cache/uv \
+  --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+  --mount=type=bind,source=uv.lock,target=uv.lock \
+  uv sync --locked --no-group dev --link-mode=copy --compile-bytecode --no-python-downloads
 
 # ---- Runtime stage ----
+# NOTE: the runtime stage requires the -dev base in order to provide a shell for the application
+# to run Django management commands.
 FROM dhi.io/python:${PYTHON_VERSION} AS runtime
 LABEL org.opencontainers.image.title="ibms" \
   org.opencontainers.image.description="Integrated Business Management System" \
@@ -31,9 +42,18 @@ ENV PYTHONUNBUFFERED=1 \
   PYTHONDONTWRITEBYTECODE=1 \
   PATH="/app/.venv/bin:$PATH"
 
-WORKDIR /app
+# GDAL/GEOS/PROJ runtime libraries for django.contrib.gis. The DHI base has no
+# /etc/ld.so.cache, so ldconfig is required for Django's ctypes-based lookup.
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+  apt-get update && apt-get install -y --no-install-recommends \
+  libgdal36 \
+  libgeos-c1t64 \
+  libproj25 \
+  proj-data \
+  && ldconfig
 
-# Copy installed virtualenv from builder
+WORKDIR /app
 COPY --from=builder /app /app
 
 # Copy the remaining project files to finish building the project

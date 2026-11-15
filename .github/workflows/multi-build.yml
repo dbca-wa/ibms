@@ -17,7 +17,8 @@ permissions: {}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Never let a scheduled run cancel an in-flight push build.
+  cancel-in-progress: ${{ github.event_name != 'schedule' }}
 
 env:
   GHCR_IMAGE: ghcr.io/${{ github.repository }}
@@ -83,15 +84,16 @@ jobs:
         uses: docker/bake-action@59cb1203cd42bcefd40a1b6d73b589e48c86040e # v7.5.0
         with:
           files: docker-bake.hcl
+          targets: ci # CI-only target: gha cache + pull
           push: true
           set: |
-            app.tags=${{ env.GHCR_IMAGE }}:latest
-            ${{ steps.image_tag.outputs.has_version_tag == 'true' && format('app.tags={0}:{1}', env.GHCR_IMAGE, steps.image_tag.outputs.value) || '' }}
+            ci.tags=${{ env.GHCR_IMAGE }}:latest
+            ${{ steps.image_tag.outputs.has_version_tag == 'true' && format('ci.tags+={0}:{1}', env.GHCR_IMAGE, steps.image_tag.outputs.value) || '' }}
 
   scan:
     name: Docker image vulnerability scan
-    continue-on-error: true # If vulnerability scan fails, the workflow can still complete successfully.
     runs-on: ubuntu-latest
+    continue-on-error: true # If vulnerability scan fails, the workflow can still complete successfully.
     needs:
       - build
     permissions:
@@ -100,20 +102,18 @@ jobs:
       security-events: write
     timeout-minutes: 30
     steps:
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        env:
-          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
+      - name: Run Anchore vulnerability scanner
+        id: scan
+        uses: anchore/scan-action@8576240a41341d866dbd7ebc72cd9fc0ef023f54 # v7.4.2
         with:
-          scan-type: 'image'
-          scanners: 'vuln'
-          image-ref: ${{ needs.build.outputs.image_ref }}
-          vuln-type: 'library'
-          severity: 'HIGH,CRITICAL'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          image: ${{ needs.build.outputs.image_ref }}
+          fail-build: false
+          output-format: sarif
+          severity-cutoff: high
+          only-fixed: true
+          cache-db: true
 
       - name: Upload scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: ${{ steps.scan.outputs.sarif }}
